@@ -146,6 +146,7 @@ export const Hero: React.FC = () => {
                 <img
                   src="/assets/hero.png"
                   alt="FTE Engineering Project"
+                  loading="eager"
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                 />
                 {/* Subtle dark overlay for text readability */}

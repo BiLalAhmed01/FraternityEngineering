@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Exec(cp)",
-      "Exec(npm run)"
+      "Exec(npm run)",
+      "Exec(git diff)"
     ]
   }
 }

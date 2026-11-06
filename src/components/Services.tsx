@@ -266,12 +266,12 @@ export const Services: React.FC = () => {
             type="button"
             onClick={() => scrollBy(-400)}
             aria-label="Scroll services left"
-            className="p-3 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-brand-orange hover:text-brand-navy hover:border-brand-orange transition-all duration-300"
+            className="p-3 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-brand-orange hover:text-brand-navy hover:border-brand-orange transition-all duration-300 hidden sm:flex items-center justify-center"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
 
-          <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+          <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden hidden sm:block">
             <div
               className="h-full bg-brand-orange transition-all duration-300 ease-out"
               style={{ width: `${Math.max(20, scrollProgress)}%` }}
@@ -282,7 +282,7 @@ export const Services: React.FC = () => {
             type="button"
             onClick={() => scrollBy(400)}
             aria-label="Scroll services right"
-            className="p-3 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-brand-orange hover:text-brand-navy hover:border-brand-orange transition-all duration-300"
+            className="p-3 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-brand-orange hover:text-brand-navy hover:border-brand-orange transition-all duration-300 hidden sm:flex items-center justify-center"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -308,6 +308,22 @@ export const Services: React.FC = () => {
               />
             </div>
           ))}
+        </div>
+
+        {/* Mobile Swipe Indicator */}
+        <div className="lg:hidden flex justify-center mt-4">
+          <div className="flex gap-2">
+            {services.map((_, idx) => (
+              <div
+                key={idx}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  Math.round((scrollProgress / 100) * (services.length - 1)) === idx
+                    ? "bg-brand-orange w-6"
+                    : "bg-white/30"
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* CTA Section */}

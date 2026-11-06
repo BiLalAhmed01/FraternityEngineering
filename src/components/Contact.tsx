@@ -197,7 +197,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       placeholder=" "
                       value={formData.fullName}
                       onChange={handleChange}
-                      className={`peer w-full px-3.5 pt-5 pb-2 text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
+                      className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
                         errors.fullName
                           ? "border-red-500 ring-1 ring-red-500"
                           : "border-brand-stone hover:border-brand-navy focus:border-brand-navy"
@@ -233,7 +233,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       placeholder=" "
                       value={formData.companyName}
                       onChange={handleChange}
-                      className="peer w-full px-3.5 pt-5 pb-2 text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors"
+                      className="peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors"
                     />
                     <label
                       htmlFor="companyName"
@@ -256,7 +256,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       placeholder=" "
                       value={formData.phone}
                       onChange={handleChange}
-                      className={`peer w-full px-3.5 pt-5 pb-2 text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
+                      className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
                         errors.phone
                           ? "border-red-500 ring-1 ring-red-500"
                           : "border-brand-stone hover:border-brand-navy focus:border-brand-navy"
@@ -293,7 +293,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       placeholder=" "
                       value={formData.email}
                       onChange={handleChange}
-                      className={`peer w-full px-3.5 pt-5 pb-2 text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
+                      className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
                         errors.email
                           ? "border-red-500 ring-1 ring-red-500"
                           : "border-brand-stone hover:border-brand-navy focus:border-brand-navy"
@@ -331,7 +331,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     name="service"
                     value={formData.service}
                     onChange={handleChange}
-                    className="w-full px-3.5 py-3 text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-white text-brand-brown transition-colors focus:outline-none"
+                    className="w-full px-3.5 py-3 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-white text-brand-brown transition-colors focus:outline-none"
                   >
                     {VALID_SERVICES.map((svc) => (
                       <option key={svc} value={svc}>
@@ -351,7 +351,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     placeholder=" "
                     value={formData.message}
                     onChange={handleChange}
-                    className={`peer w-full px-3.5 pt-6 pb-2 text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
+                    className={`peer w-full px-3.5 pt-6 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
                       errors.message
                         ? "border-red-500 ring-1 ring-red-500"
                         : "border-brand-stone hover:border-brand-navy focus:border-brand-navy"

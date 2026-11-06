@@ -91,15 +91,9 @@ export const Header: React.FC = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-6">
-            {/* Brand Logo with enhanced styling */}
+            {/* Brand Logo */}
             <div className="flex items-center gap-3">
               <BrandLogo isBlueBg={true} />
-              <div className="hidden md:block">
-                <div className="h-px w-8 bg-gradient-to-r from-brand-orange to-transparent" />
-                <p className="text-[10px] font-mono text-brand-stone/70 mt-1 uppercase tracking-wider">
-                  Engineering Excellence
-                </p>
-              </div>
             </div>
 
             {/* Desktop Navigation with premium styling */}

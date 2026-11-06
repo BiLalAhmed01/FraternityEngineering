@@ -37,7 +37,7 @@ export const ClientsMarquee: React.FC = () => {
                 src={client.logo}
                 alt={client.fullName}
                 loading="lazy"
-                className="h-12 sm:h-16 lg:h-20 w-auto object-contain opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+                className="h-10 sm:h-14 lg:h-20 w-auto object-contain opacity-70 group-hover:opacity-100 transition-opacity duration-300"
               />
               <span className="text-[10px] sm:text-xs font-mono text-brand-cream/60 group-hover:text-brand-cream transition-colors mt-2">
                 {client.name}

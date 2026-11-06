@@ -1,147 +1,198 @@
 import React from "react";
 import { BrandLogo } from "./BrandLogo";
 import { SITE_CONTENT } from "../content";
-import { MapPin, Phone, Mail, ArrowUp } from "lucide-react";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export const Footer: React.FC = () => {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const currentYear = new Date().getFullYear();
+
+  const exploreLinks = [
+    { label: "Home", href: "#" },
+    { label: "About Us", href: "#about" },
+    { label: "Our Services", href: "#services" },
+    { label: "Our Projects", href: "#work" },
+    { label: "Our Clients", href: "#clients" },
+    { label: "Our Approach", href: "#process" },
+    { label: "Contact Us", href: "#contact" },
+  ];
+
+  const serviceLinks = [
+    { label: "Construction Services", href: "#services" },
+    { label: "Civil Engineering Works", href: "#services" },
+    { label: "Electrical Works", href: "#services" },
+    { label: "Fire & Safety Solutions", href: "#services" },
+    { label: "General Order Supply", href: "#services" },
+  ];
 
   return (
-    <footer className="relative bg-brand-navy text-white pt-16 pb-12 border-t border-white/10 overflow-hidden">
-      {/* Subtle blueprint grid overlay */}
-      <div className="absolute inset-0 bg-blueprint-grid opacity-20 pointer-events-none" />
+    <footer className="relative bg-[#14213D] text-[#F4EDE0] overflow-hidden">
+      {/* Architectural Grid Background */}
+      <div className="absolute inset-0 bg-blueprint-grid opacity-10 pointer-events-none" />
 
-      {/* Slanted Beam Motif in Footer */}
-      <div
-        className="absolute top-0 right-1/4 w-32 h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent"
-        aria-hidden="true"
-      />
+      {/* Top Border Accent */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-orange to-transparent" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-white/10">
-          {/* Column 1: Company Profile & Logo (5 cols) */}
-          <div className="lg:col-span-5 space-y-4">
-            <BrandLogo variant="footer" isBlueBg={true} />
-            <p className="text-sm text-brand-stone max-w-sm leading-relaxed mt-4">
-              Fraternity Engineering &amp; Co. (SMC-Pvt) Ltd. provides integrated construction,
-              civil engineering, electrical installations, fire &amp; safety systems, and general order
-              supplies across Pakistan.
+        {/* Large Brand Closing Statement */}
+        <div className="pt-20 pb-16 md:pt-28 md:pb-20 border-b border-white/10">
+          <div className="max-w-4xl">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tight leading-[1.1] mb-6">
+              <span className="text-[#F4EDE0]">ENGINEERING EXCELLENCE.</span>
+              <br />
+              <span className="text-brand-orange">RELIABLE EXECUTION.</span>
+            </h2>
+            <p className="text-lg sm:text-xl text-brand-stone/90 font-light leading-relaxed max-w-2xl">
+              Your Trusted Partner in Engineering, Construction & Supply Solutions.
             </p>
-            <div className="pt-2 text-xs font-mono text-brand-orange/90">
-              Makes Life Easier. // Single Point of Responsibility
+            {/* Orange Divider */}
+            <div className="mt-8 flex items-center gap-4">
+              <div className="h-px w-16 bg-brand-orange" />
+              <div className="h-1.5 w-1.5 rounded-full bg-brand-orange" />
+              <div className="h-px flex-1 bg-gradient-to-r from-brand-orange/40 to-transparent" />
             </div>
           </div>
+        </div>
 
-          {/* Column 2: Quick Links (2 cols) */}
-          <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-heading font-bold text-sm uppercase tracking-wider text-white">
-              Navigation
-            </h4>
-            <ul className="space-y-2 text-xs md:text-sm text-brand-stone">
-              <li>
-                <a href="#services" className="hover:text-brand-orange transition-colors">
-                  Services
-                </a>
-              </li>
-              <li>
-                <a href="#work" className="hover:text-brand-orange transition-colors">
-                  Our Work
-                </a>
-              </li>
-              <li>
-                <a href="#clients" className="hover:text-brand-orange transition-colors">
-                  Clients
-                </a>
-              </li>
-              <li>
-                <a href="#process" className="hover:text-brand-orange transition-colors">
-                  Operating Process
-                </a>
-              </li>
-              <li>
-                <a href="#about" className="hover:text-brand-orange transition-colors">
-                  Mission &amp; Vision
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="hover:text-brand-orange transition-colors">
-                  Request a Quote
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Engineering Services (2 cols) */}
-          <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-heading font-bold text-sm uppercase tracking-wider text-white">
-              Disciplines
-            </h4>
-            <ul className="space-y-2 text-xs md:text-sm text-brand-stone">
-              {SITE_CONTENT.services.map((svc) => (
-                <li key={svc.id}>
-                  <a href="#services" className="hover:text-brand-orange transition-colors">
-                    {svc.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 4: Contact & Office (3 cols) */}
-          <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-heading font-bold text-sm uppercase tracking-wider text-white">
-              Islamabad Office
-            </h4>
-            <div className="space-y-3 text-xs text-brand-stone">
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
-                <span>{SITE_CONTENT.contact.address}</span>
+        {/* Main Footer Layout - Four Columns */}
+        <div className="py-16 md:py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+            {/* Column 1: Brand */}
+            <div className="space-y-6">
+              <BrandLogo variant="footer" isBlueBg={true} />
+              <p className="text-sm text-brand-stone/80 leading-relaxed max-w-xs">
+                Fraternity Engineering & Co. (SMC-Pvt) Ltd. provides integrated construction,
+                civil engineering, electrical installations, fire & safety systems, and general
+                order supplies across Pakistan.
+              </p>
+              <div className="pt-4 border-t border-white/10">
+                <p className="text-xs font-mono text-brand-orange/90 uppercase tracking-wider">
+                  Engineering | Construction | Electrical | Fire & Safety | General Order Supply
+                </p>
               </div>
-              <div className="flex items-start gap-2.5">
-                <Phone className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
-                  <a href="tel:03315095004" className="block hover:text-white transition-colors">
-                    {SITE_CONTENT.contact.phonePrimary}
-                  </a>
-                  <a href="tel:0512331654" className="block hover:text-white transition-colors">
-                    {SITE_CONTENT.contact.phoneSecondary}
+            </div>
+
+            {/* Column 2: Explore */}
+            <div className="space-y-6">
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#F4EDE0]">
+                Explore
+              </h3>
+              <ul className="space-y-3">
+                {exploreLinks.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="group relative text-sm text-brand-stone/80 hover:text-[#F4EDE0] transition-colors duration-300"
+                    >
+                      {link.label}
+                      <span className="absolute bottom-0 left-0 w-0 h-px bg-brand-orange transition-all duration-300 group-hover:w-full" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Column 3: Our Services */}
+            <div className="space-y-6">
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#F4EDE0]">
+                Our Services
+              </h3>
+              <ul className="space-y-3">
+                {serviceLinks.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="group relative text-sm text-brand-stone/80 hover:text-[#F4EDE0] transition-colors duration-300"
+                    >
+                      {link.label}
+                      <span className="absolute bottom-0 left-0 w-0 h-px bg-brand-orange transition-all duration-300 group-hover:w-full" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Column 4: Contact */}
+            <div className="space-y-6">
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#F4EDE0]">
+                Contact
+              </h3>
+              <div className="space-y-4 text-sm">
+                {/* Address */}
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
+                  <span className="text-brand-stone/80 leading-relaxed">
+                    Shop # 01, Block # 54, I&amp;T Center, G-8/1, Islamabad, Pakistan.
+                  </span>
+                </div>
+
+                {/* Phone */}
+                <div className="flex items-start gap-3">
+                  <Phone className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <a
+                      href="tel:03315095004"
+                      className="block text-brand-stone/80 hover:text-[#F4EDE0] transition-colors"
+                    >
+                      0331-5095004
+                    </a>
+                    <span className="block text-xs text-brand-stone/60">Mobile</span>
+                    <a
+                      href="tel:0512331654"
+                      className="block text-brand-stone/80 hover:text-[#F4EDE0] transition-colors"
+                    >
+                      051-2331654
+                    </a>
+                    <span className="block text-xs text-brand-stone/60">Landline</span>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-start gap-3">
+                  <Mail className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
+                  <a
+                    href={`mailto:${SITE_CONTENT.contact.email}`}
+                    className="text-brand-stone/80 hover:text-[#F4EDE0] transition-colors break-all"
+                  >
+                    {SITE_CONTENT.contact.email}
                   </a>
                 </div>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-brand-orange shrink-0" />
-                <a
-                  href={`mailto:${SITE_CONTENT.contact.email}`}
-                  className="hover:text-white transition-colors truncate"
-                >
-                  {SITE_CONTENT.contact.email}
-                </a>
+
+                {/* Office Hours */}
+                <div className="flex items-start gap-3 pt-2 border-t border-white/10">
+                  <Clock className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
+                  <div className="space-y-1 text-xs text-brand-stone/70">
+                    <p>Monday – Saturday: 9:00 AM – 6:00 PM</p>
+                    <p>Friday Break: 1:00 PM – 2:30 PM</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar: Copyright & Back to Top */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brand-stone">
-          <p>
-            &copy; {new Date().getFullYear()} {SITE_CONTENT.company.name} All rights reserved.
-          </p>
+        {/* Copyright Bar */}
+        <div className="py-8 border-t border-white/10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-brand-stone/60 font-light tracking-wide">
+              &copy; {currentYear} Fraternity Engineering. All Rights Reserved.
+            </p>
+          </div>
+        </div>
 
-          <div className="flex items-center gap-6">
-            <span className="text-[11px] font-mono text-brand-steel">
-              Islamabad, Pakistan
-            </span>
-            <button
-              type="button"
-              onClick={scrollToTop}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-white font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
-              aria-label="Scroll back to top"
-            >
-              <span>Back to top</span>
-              <ArrowUp className="w-3.5 h-3.5 text-brand-orange" />
-            </button>
+        {/* Developer Credit */}
+        <div className="py-6 border-t border-white/10">
+          <div className="flex items-center justify-center">
+            <p className="text-xs text-brand-stone/50 font-light tracking-wide">
+              Powered by{" "}
+              <a
+                href="https://www.robosoftworks.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-orange hover:text-[#F4EDE0] transition-colors font-medium"
+              >
+                RoboSoft Works
+              </a>
+            </p>
           </div>
         </div>
       </div>
