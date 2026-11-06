@@ -20,8 +20,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative bg-brand-navy rounded-2xl border border-white/10 overflow-hidden group shadow-2xl transition-all duration-500 hover:border-brand-orange/60 hover:shadow-orange-500/20 hover:-translate-y-2 w-full h-[520px] flex-shrink-0 cursor-pointer"
-      style={{ width: "100%", maxWidth: "380px", minWidth: "280px" }}
+      className="relative bg-brand-navy rounded-2xl border border-white/10 overflow-hidden group shadow-2xl transition-all duration-500 hover:border-brand-orange/60 hover:shadow-orange-500/20 hover:-translate-y-2 w-full h-[540px] flex-shrink-0 cursor-pointer"
+      style={{ width: "100%", maxWidth: "360px", minWidth: "0" }}
       onClick={() => onExplore(service)}
       role="button"
       tabIndex={0}
@@ -32,8 +32,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         }
       }}
     >
-      {/* Image Section - 70% of card */}
-      <div className="relative h-[380px] overflow-hidden flex-shrink-0">
+      {/* Image Section */}
+      <div className="relative h-[400px] overflow-hidden flex-shrink-0">
         <img
           src={service.image}
           alt={service.name}
@@ -298,8 +298,7 @@ export const Services: React.FC = () => {
           {services.map((service, index) => (
             <div
               key={service.id}
-              className="flex-shrink-0 snap-start w-full sm:w-[calc(50%-12px)] lg:w-[380px]"
-              style={{ maxWidth: "380px", minWidth: "280px" }}
+              className="flex-shrink-0 snap-start w-[280px] sm:w-[320px] lg:w-[360px]"
             >
               <ServiceCard
                 service={service}

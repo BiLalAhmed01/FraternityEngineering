@@ -1,15 +1,7 @@
 import React, { useState } from "react";
 import { SITE_CONTENT } from "../content";
-import { ArrowRight } from "lucide-react";
+import { HardHat } from "lucide-react";
 import { motion } from "motion/react";
-
-const categoryImages: Record<string, string> = {
-  Construction: "/assets/service-construction.webp",
-  Civil: "/assets/service-civil.webp",
-  Electrical: "/assets/service-electrical.webp",
-  "Fire & safety": "/assets/service-fire.webp",
-  Supply: "/assets/service-supply.webp",
-};
 
 export const WhyFTE: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -72,17 +64,15 @@ export const WhyFTE: React.FC = () => {
               transition={{ duration: 0.5, delay: index * 0.08 }}
               className="bg-white rounded-xl border border-brand-stone/60 overflow-hidden hover:border-brand-navy hover:shadow-xl transition-all duration-300"
             >
-              {/* Project Image Area */}
-              <div className="aspect-video bg-brand-charcoal relative overflow-hidden">
-                <img
-                  src={categoryImages[work.category]}
-                  alt={`${work.title} - ${work.category} project`}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover opacity-80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-charcoal/80 via-brand-charcoal/20 to-transparent" />
-                <div className="absolute top-3 left-3 px-2 py-1 bg-brand-navy text-white text-[10px] font-mono uppercase tracking-wider rounded">
+              {/* Project Header - branded panel */}
+              <div className="aspect-video bg-brand-navy relative overflow-hidden">
+                <div className="absolute inset-0 bg-blueprint-grid opacity-40" />
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-orange/10 via-transparent to-transparent" />
+                <div className="absolute top-3 left-3 px-2 py-1 bg-brand-orange text-brand-charcoal text-[10px] font-mono uppercase tracking-wider rounded font-bold">
                   {work.category}
+                </div>
+                <div className="absolute bottom-3 right-3 w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                  <HardHat className="w-5 h-5 text-brand-orange" />
                 </div>
               </div>
 
