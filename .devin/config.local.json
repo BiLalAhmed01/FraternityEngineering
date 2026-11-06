@@ -3,7 +3,9 @@
     "allow": [
       "Exec(cp)",
       "Exec(npm run)",
-      "Exec(git diff)"
+      "Exec(git diff)",
+      "Exec(git status)",
+      "Exec(git add)"
     ]
   }
 }
