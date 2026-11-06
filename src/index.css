@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-navy: #0B1F3A;
+  --color-brand-charcoal: #1F2A37;
+  --color-brand-orange: #FF6B00;
+  --color-brand-orange-hover: #E55F00;
+  --color-brand-cream: #F4EDE0;
+  --color-brand-stone: #D9C6B2;
+  --color-brand-steel: #8A8F98;
+  --color-brand-brown: #4B3F36;
+
+  --font-heading: "Barlow", sans-serif;
+  --font-body: "Lato", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-body);
+    color: var(--color-brand-brown);
+    background-color: var(--color-brand-cream);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  ::selection {
+    background-color: #FF6B00;
+    color: #1F2A37;
+  }
+
+  :focus-visible {
+    outline: 2px solid #FF6B00;
+    outline-offset: 2px;
+  }
+}
+
+/* Blueprint grid pattern with crosshairs */
+.bg-blueprint-grid {
+  background-image: 
+    radial-gradient(circle, rgba(255, 107, 0, 0.22) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px, 40px 40px;
+}
+
+.bg-blueprint-grid-light {
+  background-image: 
+    radial-gradient(circle, rgba(11, 31, 58, 0.18) 1px, transparent 1px),
+    linear-gradient(to right, rgba(11, 31, 58, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11, 31, 58, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px, 32px 32px;
+}
+
+/* Kicker label uppercase with 8% letter spacing */
+.kicker-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+/* Infinite marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+  animation-play-state: running;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+/* Gear slow rotate */
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 30s linear infinite;
+}
+
+@keyframes spinReverseSlow {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.animate-spin-reverse-slow {
+  animation: spinReverseSlow 24s linear infinite;
+}
+
+/* Slanted beam styling mimicking the FTE monogram */
+.fte-slant {
+  transform: skewX(-14deg);
+}
+
+/* Splash screen video styling */
+#fte-preloader video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* Loading indicator animation */
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.animate-pulse {
+  animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
