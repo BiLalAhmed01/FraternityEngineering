@@ -39,6 +39,8 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState<string>("");
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState<boolean>(false);
+  const [consentError, setConsentError] = useState<string | null>(null);
 
   useImperativeHandle(ref, () => ({
     prefillService: (serviceName: string, inquiryContext?: string) => {
@@ -77,6 +79,12 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
       setErrors(validation.errors);
       return;
     }
+
+    if (!agreedToPrivacy) {
+      setConsentError("Please agree to the Privacy Policy to submit your request.");
+      return;
+    }
+    setConsentError(null);
 
     setIsSubmitting(true);
 
@@ -118,6 +126,8 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     });
     setErrors({});
     setIsSubmitted(false);
+    setAgreedToPrivacy(false);
+    setConsentError(null);
   };
 
   return (
@@ -436,6 +446,42 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {/* Privacy consent */}
+                <div>
+                  <label className="flex items-start gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={agreedToPrivacy}
+                      onChange={(e) => {
+                        setAgreedToPrivacy(e.target.checked);
+                        if (e.target.checked) setConsentError(null);
+                      }}
+                      className="mt-0.5 w-4 h-4 rounded border-brand-stone text-brand-orange focus:ring-brand-orange accent-[#FF6B00]"
+                      aria-invalid={!!consentError}
+                    />
+                    <span className="text-xs text-brand-brown/80 leading-relaxed">
+                      I agree to the processing of my details as described in the{" "}
+                      <a href="/privacy" className="text-brand-navy font-semibold underline underline-offset-2 hover:text-brand-orange transition-colors">
+                        Privacy Policy
+                      </a>
+                      .
+                    </span>
+                  </label>
+                  <AnimatePresence>
+                    {consentError && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="mt-1 text-xs text-red-600 font-medium"
+                        role="alert"
+                      >
+                        {consentError}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Submit CTA with Magnetic wrapper */}
                 <div className="pt-2">

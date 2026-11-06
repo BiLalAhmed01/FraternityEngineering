@@ -26,7 +26,7 @@ import { TermsPage } from "./pages/TermsPage";
 
 export default function App() {
   const contactRef = useRef<ContactRef>(null);
-  const path = window.location.pathname;
+  const path = window.location.pathname.replace(/\.html$/, "");
 
   if (path === "/privacy") return <PrivacyPage />;
   if (path === "/terms") return <TermsPage />;

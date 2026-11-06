@@ -45,6 +45,7 @@ export const Preloader: React.FC = () => {
       {isVisible && (
         <motion.div
           key="fte-preloader"
+          id="fte-preloader"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.35, ease: "easeInOut" } }}
           className="fixed inset-0 z-[9999] bg-black flex items-center justify-center select-none overflow-hidden"
