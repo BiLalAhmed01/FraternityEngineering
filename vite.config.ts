@@ -18,5 +18,31 @@ export default defineConfig(() => {
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
+    build: {
+      // Optimize chunk size
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          // Manual chunk splitting for better caching
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'react-vendor';
+              }
+              if (id.includes('motion')) {
+                return 'motion-vendor';
+              }
+              if (id.includes('lucide-react')) {
+                return 'ui-vendor';
+              }
+            }
+          },
+        },
+      },
+      // Minify CSS and JS
+      minify: 'esbuild',
+      // Generate source maps for debugging (optional)
+      sourcemap: false,
+    },
   };
 });

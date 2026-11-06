@@ -410,7 +410,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                 </div>
                 <div className="p-2 rounded-lg bg-white/5 border border-white/10 shrink-0">
                   <img
-                    src="/assets/logo.png"
+                    src="/assets/logo.webp"
                     alt="Fraternity Engineering Logo"
                     className="h-10 w-auto object-contain"
                   />

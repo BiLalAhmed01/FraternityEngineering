@@ -233,7 +233,7 @@ export const SITE_CONTENT = {
         "Commercial and institutional development",
         "Site execution and project coordination",
       ],
-      image: "/assets/service-construction.png",
+      image: "/assets/service-construction.webp",
     },
     {
       id: "civil",
@@ -248,7 +248,7 @@ export const SITE_CONTENT = {
         "Drainage and associated civil works",
         "Maintenance and rehabilitation",
       ],
-      image: "/assets/service-civil.png",
+      image: "/assets/service-civil.webp",
     },
     {
       id: "electrical",
@@ -263,7 +263,7 @@ export const SITE_CONTENT = {
         "Electrical equipment installation",
         "Inspection, troubleshooting and repair",
       ],
-      image: "/assets/service-electrical.png",
+      image: "/assets/service-electrical.webp",
     },
     {
       id: "fire-safety",
@@ -278,7 +278,7 @@ export const SITE_CONTENT = {
         "Fire safety installations",
         "Safety-related equipment and supplies",
       ],
-      image: "/assets/service-fire.png",
+      image: "/assets/service-fire.webp",
     },
     {
       id: "general-supply",
@@ -294,18 +294,18 @@ export const SITE_CONTENT = {
         "General-purpose equipment and materials",
         "Client-specific procurement requirements",
       ],
-      image: "/assets/service-supply.png",
+      image: "/assets/service-supply.webp",
     },
   ] as ServiceItem[],
 
   clientLogos: [
-    { name: "NESCOM", fullName: "National Engineering & Scientific Commission", logo: "/assets/client-nescom.png" },
-    { name: "NDC", fullName: "National Development Complex", logo: "/assets/client-ndc.png" },
-    { name: "MTC", fullName: "Maritime Technologies Complex", logo: "/assets/client-mtc.png" },
-    { name: "AWC", fullName: "Air Weapons Complex", logo: "/assets/client-awc.png" },
-    { name: "CDA", fullName: "Capital Development Authority", logo: "/assets/client-cda.png" },
-    { name: "Nayatel", fullName: "Nayatel", logo: "/assets/client-nayatel.png" },
-    { name: "PTCL", fullName: "Pakistan Telecommunication Company Limited", logo: "/assets/client-ptcl.png" },
+    { name: "NESCOM", fullName: "National Engineering & Scientific Commission", logo: "/assets/client-nescom.webp" },
+    { name: "NDC", fullName: "National Development Complex", logo: "/assets/client-ndc.webp" },
+    { name: "MTC", fullName: "Maritime Technologies Complex", logo: "/assets/client-mtc.webp" },
+    { name: "AWC", fullName: "Air Weapons Complex", logo: "/assets/client-awc.webp" },
+    { name: "CDA", fullName: "Capital Development Authority", logo: "/assets/client-cda.webp" },
+    { name: "Nayatel", fullName: "Nayatel", logo: "/assets/client-nayatel.webp" },
+    { name: "PTCL", fullName: "Pakistan Telecommunication Company Limited", logo: "/assets/client-ptcl.webp" },
   ] as ClientLogo[],
 
   missionVision: {

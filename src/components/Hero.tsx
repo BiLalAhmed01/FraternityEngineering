@@ -144,7 +144,7 @@ export const Hero: React.FC = () => {
               {/* Hero Photograph */}
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img
-                  src="/assets/hero.png"
+                  src="/assets/hero.webp"
                   alt="FTE Engineering Project"
                   loading="eager"
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"

@@ -35,7 +35,7 @@ export const MissionVision: React.FC = () => {
           </div>
           <div className="shrink-0 p-3.5 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center self-start sm:self-auto shadow-lg">
             <img
-              src="/assets/logo.png"
+              src="/assets/logo.webp"
               alt="Fraternity Engineering Logo"
               className="h-16 md:h-20 w-auto object-contain"
             />

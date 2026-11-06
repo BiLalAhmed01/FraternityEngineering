@@ -91,7 +91,7 @@ export const Preloader: React.FC = () => {
           {videoError && (
             <div className="flex flex-col items-center justify-center space-y-6">
               <motion.img
-                src="/assets/logo.png"
+                src="/assets/logo.webp"
                 alt="Fraternity Engineering & Co."
                 className="w-48 h-48 md:w-64 md:h-64 object-contain"
                 initial={{ opacity: 0, scale: 0.9 }}
