@@ -104,9 +104,9 @@ export const Preloader: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <h1 className="text-2xl md:text-3xl font-heading font-bold text-white tracking-tight">
+                <p className="text-2xl md:text-3xl font-heading font-bold text-white tracking-tight">
                   Fraternity Engineering & Co.
-                </h1>
+                </p>
                 <p className="text-sm text-brand-stone mt-2 font-mono uppercase tracking-wider">
                   Makes Life Easier
                 </p>

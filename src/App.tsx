@@ -15,14 +15,21 @@ import { Contact, ContactRef } from "./components/Contact";
 import { Footer } from "./components/Footer";
 import { MobileFloatingCta } from "./components/MobileFloatingCta";
 import { BackToTop } from "./components/BackToTop";
+import { CookieConsent } from "./components/CookieConsent";
 import { FilmGrain } from "./components/FilmGrain";
 import { CustomCursor } from "./components/CustomCursor";
 import { Preloader } from "./components/Preloader";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { SlantedBeamDivider } from "./components/SlantedBeamDivider";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { TermsPage } from "./pages/TermsPage";
 
 export default function App() {
   const contactRef = useRef<ContactRef>(null);
+  const path = window.location.pathname;
+
+  if (path === "/privacy") return <PrivacyPage />;
+  if (path === "/terms") return <TermsPage />;
 
   return (
     <SmoothScroll>
@@ -76,6 +83,9 @@ export default function App() {
 
         {/* Smooth-Scrolling Back to Top Button */}
         <BackToTop />
+
+        {/* Cookie Consent Banner */}
+        <CookieConsent />
       </div>
     </SmoothScroll>
   );

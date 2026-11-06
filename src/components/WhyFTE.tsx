@@ -1,9 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { SITE_CONTENT } from "../content";
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 
+const categoryImages: Record<string, string> = {
+  Construction: "/assets/service-construction.webp",
+  Civil: "/assets/service-civil.webp",
+  Electrical: "/assets/service-electrical.webp",
+  "Fire & safety": "/assets/service-fire.webp",
+  Supply: "/assets/service-supply.webp",
+};
+
 export const WhyFTE: React.FC = () => {
+  const [activeCategory, setActiveCategory] = useState("All");
+  const categories = ["All", "Construction", "Civil", "Electrical", "Fire & safety", "Supply"];
+
+  const filteredWorks =
+    activeCategory === "All"
+      ? SITE_CONTENT.workShowcase
+      : SITE_CONTENT.workShowcase.filter((w) => w.category === activeCategory);
+
   return (
     <section
       id="work"
@@ -27,11 +43,17 @@ export const WhyFTE: React.FC = () => {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex flex-wrap gap-2">
-            {["All", "Construction", "Civil", "Electrical", "Fire & safety", "Supply"].map((cat) => (
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter projects by category">
+            {categories.map((cat) => (
               <button
                 key={cat}
-                className="px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded bg-white border border-brand-stone/60 text-brand-navy hover:border-brand-orange hover:text-brand-orange transition-colors"
+                onClick={() => setActiveCategory(cat)}
+                aria-pressed={activeCategory === cat}
+                className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded transition-colors ${
+                  activeCategory === cat
+                    ? "bg-brand-navy text-white border border-brand-navy"
+                    : "bg-white border border-brand-stone/60 text-brand-navy hover:border-brand-orange hover:text-brand-orange"
+                }`}
               >
                 {cat}
               </button>
@@ -41,7 +63,7 @@ export const WhyFTE: React.FC = () => {
 
         {/* Work Showcase Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {SITE_CONTENT.workShowcase.map((work, index) => (
+          {filteredWorks.map((work, index) => (
             <motion.div
               key={work.id}
               initial={{ opacity: 0, y: 30 }}
@@ -50,19 +72,15 @@ export const WhyFTE: React.FC = () => {
               transition={{ duration: 0.5, delay: index * 0.08 }}
               className="bg-white rounded-xl border border-brand-stone/60 overflow-hidden hover:border-brand-navy hover:shadow-xl transition-all duration-300"
             >
-              {/* Placeholder Image Area */}
+              {/* Project Image Area */}
               <div className="aspect-video bg-brand-charcoal relative overflow-hidden">
-                <div className="absolute inset-0 bg-blueprint-grid opacity-30" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-2 rounded-full border-2 border-brand-orange/40 flex items-center justify-center">
-                      <div className="w-8 h-8 rounded-full bg-brand-orange/20" />
-                    </div>
-                    <span className="text-[10px] font-mono text-brand-stone/70 uppercase tracking-wider">
-                      [Project Photo]
-                    </span>
-                  </div>
-                </div>
+                <img
+                  src={categoryImages[work.category]}
+                  alt={`${work.title} - ${work.category} project`}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover opacity-80"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-charcoal/80 via-brand-charcoal/20 to-transparent" />
                 <div className="absolute top-3 left-3 px-2 py-1 bg-brand-navy text-white text-[10px] font-mono uppercase tracking-wider rounded">
                   {work.category}
                 </div>

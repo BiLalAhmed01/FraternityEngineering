@@ -37,6 +37,8 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState<string>("");
 
   useImperativeHandle(ref, () => ({
     prefillService: (serviceName: string, inquiryContext?: string) => {
@@ -60,21 +62,49 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setSubmitError(null);
+
+    // Honeypot: silently accept but do not send
+    if (honeypot) {
+      setIsSubmitted(true);
+      return;
+    }
 
     const validation = validateContactForm(formData);
     if (!validation.isValid) {
       setErrors(validation.errors);
-      setIsSubmitting(false);
       return;
     }
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/fraternityengineering@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          _subject: `New Quote Request - ${formData.service} - ${formData.fullName}`,
+          _template: "table",
+          name: formData.fullName,
+          company: formData.companyName || "Not provided",
+          phone: formData.phone,
+          email: formData.email,
+          service: formData.service,
+          message: formData.message,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Submission failed");
       setIsSubmitted(true);
-    }, 400);
+    } catch {
+      setSubmitError(
+        "We couldn't send your request automatically. Please try again or reach us directly via phone or WhatsApp."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -178,6 +208,20 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} noValidate className="space-y-6">
+                {/* Honeypot field - hidden from real users, catches bots */}
+                <div className="absolute -left-[9999px] top-0" aria-hidden="true">
+                  <label htmlFor="website">Website</label>
+                  <input
+                    id="website"
+                    name="website"
+                    type="text"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 <div className="border-b border-brand-stone/40 pb-4 mb-2 flex items-center justify-between">
                   <span className="font-heading font-bold text-lg text-brand-navy">
                     Scope &amp; Contact Details
@@ -378,6 +422,21 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                   </AnimatePresence>
                 </div>
 
+                {/* Submit error message */}
+                <AnimatePresence>
+                  {submitError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700"
+                      role="alert"
+                    >
+                      {submitError}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 {/* Submit CTA with Magnetic wrapper */}
                 <div className="pt-2">
                   <MagneticButton
@@ -386,7 +445,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     className="w-full py-4 px-6 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm uppercase tracking-wider rounded-lg transition-colors shadow-md flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange disabled:opacity-75"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{isSubmitting ? "Processing..." : "Submit Quotation Request"}</span>
+                    <span>{isSubmitting ? "Sending..." : "Submit Quotation Request"}</span>
                   </MagneticButton>
                   <p className="mt-2.5 text-center text-[11px] text-brand-steel">
                     Direct engineering review with no third-party sales intermediaries.

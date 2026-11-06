@@ -7,13 +7,15 @@ export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   const exploreLinks = [
-    { label: "Home", href: "#" },
+    { label: "Home", href: "#hero" },
     { label: "About Us", href: "#about" },
     { label: "Our Services", href: "#services" },
     { label: "Our Projects", href: "#work" },
     { label: "Our Clients", href: "#clients" },
     { label: "Our Approach", href: "#process" },
     { label: "Contact Us", href: "#contact" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms & Conditions", href: "/terms" },
   ];
 
   const serviceLinks = [
@@ -161,8 +163,8 @@ export const Footer: React.FC = () => {
                 <div className="flex items-start gap-3 pt-2 border-t border-white/10">
                   <Clock className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
                   <div className="space-y-1 text-xs text-brand-stone/70">
-                    <p>Monday – Saturday: 9:00 AM – 6:00 PM</p>
-                    <p>Friday Break: 1:00 PM – 2:30 PM</p>
+                    <p>Monday to Saturday: 9:00 AM - 6:00 PM</p>
+                    <p>Friday Break: 1:00 PM - 2:30 PM</p>
                   </div>
                 </div>
               </div>

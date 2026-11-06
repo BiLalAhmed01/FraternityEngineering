@@ -80,7 +80,16 @@ export const Process: React.FC = () => {
                 <div
                   key={step.step}
                   onClick={() => setActiveStep(idx)}
-                  className={`p-6 sm:p-7 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col justify-between backdrop-blur-sm ${
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setActiveStep(idx);
+                    }
+                  }}
+                  className={`p-6 sm:p-7 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col justify-between backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange ${
                     isSelected
                       ? "bg-white/[0.09] border-brand-orange shadow-2xl scale-[1.02]"
                       : isPassed

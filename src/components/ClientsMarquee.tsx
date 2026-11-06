@@ -13,9 +13,9 @@ export const ClientsMarquee: React.FC = () => {
     >
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
         <p className="kicker-label text-brand-orange mb-2">Trusted Client Relationships</p>
-        <h3 className="text-xl md:text-2xl font-heading font-semibold text-white mb-3">
+        <h2 className="text-xl md:text-2xl font-heading font-semibold text-white mb-3">
           Organizations We've Worked With
-        </h3>
+        </h2>
         <p className="text-sm md:text-base text-brand-cream/80 max-w-2xl mx-auto leading-relaxed">
           Our experience includes engagements with recognized government, public-sector, institutional and private-sector organizations.
         </p>
