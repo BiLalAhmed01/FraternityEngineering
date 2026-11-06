@@ -67,7 +67,7 @@ const server = await createServer({
   logLevel: "error",
 });
 
-const BASE = "https://fraternity-engineering.vercel.app";
+const BASE = "https://fraternity-engineering-co.vercel.app";
 
 try {
   const { default: App } = await server.ssrLoadModule("/src/App.tsx");
