@@ -57,15 +57,6 @@ export interface WorkShowcaseItem {
   isPlaceholder: true;
 }
 
-export interface QuoteLineItem {
-  item: string;
-  description: string;
-  quantity: string;
-  unit: string;
-  rate: string;
-  amount: string;
-}
-
 export interface ClientLogo {
   name: string;
   fullName: string;
@@ -155,60 +146,6 @@ export const SITE_CONTENT = {
       isPlaceholder: true,
     },
   ] as WorkShowcaseItem[],
-
-  quotePreview: {
-    title: "Sample Fire Alarm Installation Quote",
-    reference: "FTE-2024-FIRE-001",
-    date: "Sample document - for format illustration only",
-    client: "Sample Client (Illustrative)",
-    location: "Islamabad",
-    lineItems: [
-      {
-        item: "1",
-        description: "Addressable smoke detector, optical type, with base",
-        quantity: "32",
-        unit: "pcs",
-        rate: "PKR 4,500",
-        amount: "PKR 144,000",
-      },
-      {
-        item: "2",
-        description: "Manual call point, break glass type",
-        quantity: "8",
-        unit: "pcs",
-        rate: "PKR 3,200",
-        amount: "PKR 25,600",
-      },
-      {
-        item: "3",
-        description: "Fire alarm control panel, 8-zone, with battery backup",
-        quantity: "1",
-        unit: "set",
-        rate: "PKR 85,000",
-        amount: "PKR 85,000",
-      },
-      {
-        item: "4",
-        description: "Cabling, 1.5mm² fire-rated, including installation",
-        quantity: "1,200",
-        unit: "m",
-        rate: "PKR 180",
-        amount: "PKR 216,000",
-      },
-      {
-        item: "5",
-        description: "Commissioning and testing, including certificate",
-        quantity: "1",
-        unit: "lot",
-        rate: "PKR 45,000",
-        amount: "PKR 45,000",
-      },
-    ] as QuoteLineItem[],
-    total: "PKR 515,600",
-    validUntil: "30 days from issue",
-    terms: "50% advance, 50% on commissioning",
-    isPlaceholder: true,
-  },
 
   services: [
     {
