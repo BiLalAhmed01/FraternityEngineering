@@ -66,14 +66,14 @@ export const Process: React.FC = () => {
                 From first visit to signed handover.
               </h2>
               <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.7] text-brand-navy/70">
-                Four clear stages, each with a defined deliverable, so you always know what happens next.
+                Four stages, each ending with a defined deliverable, so you always know what happens next.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
                 <a
                   href="#contact"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded bg-brand-orange px-6 py-3 text-sm font-bold uppercase tracking-wider text-brand-charcoal transition-colors hover:bg-brand-orange-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded bg-brand-orange px-6 py-3 text-sm font-bold text-brand-charcoal transition-colors hover:bg-brand-orange-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
                 >
-                  Request a Quote
+                  Request a quote
                 </a>
                 <a
                   href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}
@@ -142,7 +142,7 @@ export const Process: React.FC = () => {
                           </div>
                           {step.timing.trim() !== "" && (
                             <div>
-                              <dt className={label}>Typical timing</dt>
+                              <dt className={label}>Typical time</dt>
                               <dd className="mt-1.5 text-[15px] text-brand-navy">{step.timing}</dd>
                             </div>
                           )}

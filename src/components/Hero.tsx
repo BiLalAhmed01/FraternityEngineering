@@ -230,16 +230,14 @@ export const Hero: React.FC = () => {
       filled(hero.yearsInOperation) && { value: hero.yearsInOperation, suffix: "+", label: "Years in business", count: true },
       filled(hero.projectsDelivered) && { value: hero.projectsDelivered, suffix: "+", label: "Projects delivered", count: true },
       filled(hero.pecCategory) && { value: `PEC ${hero.pecCategory}`, suffix: "", label: "Registered" },
-      { value: "5", suffix: "", label: "Disciplines, one contract" },
-      { value: "G-8/1", suffix: "", label: "Office in Islamabad" },
-      { value: "Mon to Sat", suffix: "", label: "9:00 to 18:00" },
+      { value: "5", suffix: "", label: "Disciplines" },
     ].filter(Boolean) as { value: string; suffix: string; label: string; count?: boolean }[]
   ).slice(0, 4);
 
   return (
     <section
       id="hero"
-      className="relative bg-brand-navy text-white border-b border-white/12 pt-[var(--nav-h)] [--nav-h:80px] md:[--nav-h:104px] lg:[--nav-h:112px]"
+      className="relative bg-brand-navy text-white border-b border-white/12 pt-[var(--nav-h)] [--nav-h:64px] lg:[--nav-h:80px]"
       aria-labelledby="hero-title"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:min-h-[clamp(640px,calc(100svh-var(--nav-h)),900px)]">
@@ -249,22 +247,24 @@ export const Hero: React.FC = () => {
             <div className="lg:col-span-6 min-w-0">
               <motion.p {...fadeUp(0)} className="flex items-start gap-3 text-[14px] leading-[1.5] text-white/60">
                 <span className="mt-[10px] h-px w-6 shrink-0 bg-brand-orange" aria-hidden="true" />
-                Islamabad contractor for government, corporate and industrial clients
+                Engineering contractor · Islamabad, Pakistan
               </motion.p>
 
+              {/* Alternative headline: "Construction, electrical and fire safety." / "One accountable team." */}
               <motion.h1
                 {...fadeUp(1)}
                 id="hero-title"
                 className="mt-5 font-heading font-medium text-[clamp(2.25rem,min(4.6vw,6.2svh),4.25rem)] leading-[1.06] tracking-[-0.02em] [text-wrap:balance]"
               >
-                Construction, electrical and fire safety.
+                {/* Non-breaking spaces keep each phrase on one line */}
+                Build&nbsp;it. Wire&nbsp;it. Protect&nbsp;it.
                 <br />
-                <span className="text-white/55">One accountable team.</span>
+                <span className="text-brand-orange">One accountable team.</span>
               </motion.h1>
 
               <motion.p {...fadeUp(2)} className="mt-5 max-w-[50ch] text-[18px] leading-[1.65] text-white/75 [text-wrap:pretty]">
-                Plus civil works, general supply and construction chemicals. One contract and one named contact,
-                from site survey to handover.
+                Fraternity Engineering is an Islamabad contractor for construction, civil, electrical, fire safety and
+                supply, delivered under one contract from planning to handover.
               </motion.p>
 
               <motion.div {...fadeUp(3)} className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">

@@ -55,7 +55,7 @@ export const Preloader: React.FC = () => {
           exit={{ opacity: 0, transition: { duration: 0.3, ease: "easeInOut" } }}
           className="fixed inset-0 z-[9999] bg-black flex items-center justify-center select-none overflow-hidden"
           role="dialog"
-          aria-label="Intro video"
+          aria-label="Fraternity Engineering & Co."
         >
           <video
             src="/assets/splash-screen.mp4"

@@ -44,23 +44,23 @@ test("formatWhatsAppMessage encodes fields properly", () => {
     companyName: "Nayatel Contractor",
     phone: "03001234567",
     email: "ahmed@example.com",
-    service: "Electrical works",
+    service: "Electrical",
     message: "Inquiry regarding cabling conduits.",
     budget: "",
     timeline: "",
   });
 
   assert.ok(encoded.includes("Ahmed%20Khan"));
-  assert.ok(encoded.includes("Electrical%20works"));
+  assert.ok(encoded.includes("Electrical"));
 });
 
-test("validateContactForm treats email and organization as optional", () => {
+test("validateContactForm treats email and organisation as optional", () => {
   const result = validateContactForm({
     fullName: "Ali Raza",
     companyName: "",
     phone: "+923315095004",
     email: "",
-    service: "Fire & safety",
+    service: "Fire and safety",
     message: "Need a fire alarm quote for a two storey office.",
     budget: "",
     timeline: "",

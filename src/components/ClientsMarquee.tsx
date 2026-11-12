@@ -34,7 +34,7 @@ export const ClientsMarquee: React.FC = () => {
             id="clients-title"
             className="mt-3 font-heading font-medium text-[28px] md:text-[36px] leading-tight tracking-tight text-brand-navy [text-wrap:balance]"
           >
-            Selected organizations we've worked with.
+            Selected organisations we've worked with.
           </h2>
         </Reveal>
 

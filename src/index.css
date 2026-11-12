@@ -2,6 +2,7 @@
 
 @theme {
   --color-brand-navy: #0B1F3A;
+  --color-brand-navy-deep: #08172C; /* footer: brand navy about 25% darker */
   --color-brand-charcoal: #1F2A37;
   --color-brand-orange: #FF6B00;
   --color-brand-orange-hover: #E55F00;
@@ -367,4 +368,20 @@
   .hero-slide-img.is-current {
     animation: heroSettle 5900ms linear forwards;
   }
+}
+
+/* ---------- Contact map ---------- */
+.contact-map iframe {
+  filter: grayscale(1) contrast(1.05);
+  transition: filter 250ms ease-out;
+}
+
+.contact-map:hover iframe,
+.contact-map:focus-within iframe {
+  filter: none;
+}
+
+/* Quick-action bar steps aside while the mobile menu is open */
+body[data-menu="open"] .quick-bar {
+  display: none;
 }

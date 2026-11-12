@@ -63,14 +63,18 @@ export const About: React.FC = () => {
           {/* Copy */}
           <div className="lg:col-span-7">
             <Reveal>
-              <p className={eyebrow}>About</p>
+              <p className={eyebrow}>About us</p>
               <h2
                 id="about-title"
                 className="mt-4 font-heading font-medium text-[clamp(2rem,1.4rem+2.4vw,3rem)] leading-[1.1] tracking-tight text-white [text-wrap:balance]"
               >
                 One team that builds, wires and protects.
               </h2>
-              <p className="mt-6 max-w-[58ch] text-[17px] leading-[1.7] text-white/75">{story}</p>
+              {story.map((para, i) => (
+                <p key={i} className={`${i === 0 ? "mt-6" : "mt-4"} max-w-[58ch] text-[17px] leading-[1.7] text-white/75`}>
+                  {para}
+                </p>
+              ))}
             </Reveal>
 
             {stats.length > 0 && (
@@ -105,7 +109,7 @@ export const About: React.FC = () => {
             </Reveal>
 
             <Reveal className="mt-12">
-              <h3 className={eyebrow}>How we work</h3>
+              <h3 className={eyebrow}>Principles</h3>
               <ol className="mt-5 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/12 border-y border-white/12">
                 {howWeWork.map((item, i) => (
                   <li key={item.title} className="py-6 md:px-6 md:first:pl-0 md:last:pr-0">

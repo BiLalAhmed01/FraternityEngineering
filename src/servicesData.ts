@@ -17,7 +17,7 @@ interface ServiceDetail {
 const quoteFaq = (name: string): FaqItem[] => [
   {
     question: "How do I get a quote?",
-    answer: `Send your ${name.toLowerCase()} scope, drawings or site details through the quote form. We reply with an itemized quote.`,
+    answer: `Send your ${name.toLowerCase()} scope, drawings or site details through the quote form. We reply with an itemised quote.`,
   },
   {
     question: "Can you work from a tender or BOQ?",
@@ -29,7 +29,7 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
   construction: {
     workCategories: ["Construction", "Civil"],
     overview:
-      "We build and renovate commercial, institutional and infrastructure facilities, from structural works to finishing, under one site team.",
+      "New buildings, renovation and structural works for commercial, institutional and industrial clients, built to your drawings and specifications.",
     standards: [],
     faq: [
       {
@@ -42,7 +42,7 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
   civil: {
     workCategories: ["Civil", "Construction"],
     overview:
-      "We carry out civil and infrastructure works that support buildings and sites: earthworks, concrete, roads, pavements and drainage.",
+      "Roads, drainage, culverts and site development that prepare the ground for the buildings that follow, and keep it working.",
     standards: [],
     faq: [
       {
@@ -55,7 +55,7 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
   electrical: {
     workCategories: ["Electrical", "Fire & safety"],
     overview:
-      "We install, maintain and repair electrical systems for commercial, institutional and industrial buildings, from distribution to lighting.",
+      "Low-voltage distribution, panels, wiring and lighting, installed, tested and handed over with the documents your facility team needs.",
     standards: [],
     faq: [
       {
@@ -68,7 +68,7 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
   "fire-safety": {
     workCategories: ["Fire & safety", "Electrical"],
     overview:
-      "We supply and install fire alarm, detection and suppression systems and safety equipment for buildings and workplaces.",
+      "Fire detection, alarm, hydrant and standpipe systems, tested and commissioned before handover.",
     standards: [],
     faq: [
       {
@@ -81,7 +81,7 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
   supply: {
     workCategories: ["Supply", "Electrical"],
     overview:
-      "We procure and deliver construction materials, electrical equipment, tools and safety items to your specification.",
+      "Electrical, fire safety, hardware and construction materials, including construction chemicals, sourced to specification and delivered to site.",
     standards: [],
     faq: [
       {

@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { SITE_CONTENT } from "../content";
 import {
   validateContactForm,
@@ -11,38 +11,126 @@ import {
   ValidationErrors,
   VALID_SERVICES,
 } from "../utils/validation";
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Clock,
-  Send,
-  ExternalLink,
-  MessageCircle,
-  RotateCcw,
-  Loader2,
-  Paperclip,
-} from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { MagneticButton } from "./MagneticButton";
+import { ArrowRight, Check, ChevronDown, Loader2, Paperclip, X } from "lucide-react";
+import { Reveal } from "./Reveal";
 
 export interface ContactRef {
   prefillService: (serviceName: string, inquiryContext?: string) => void;
 }
 
+const EMPTY_FORM: ContactFormData = {
+  fullName: "",
+  companyName: "",
+  phone: "",
+  email: "",
+  service: "",
+  message: "",
+  budget: "",
+  timeline: "",
+};
+
+const WHATSAPP_URL = "https://wa.me/923315095004";
+const MAP_QUERY = "Shop+01+Block+54+IT+Center+G-8%2F1+Islamabad";
+const OFFICE_ADDRESS = "Shop #01, Block 54, I&T Center, G-8/1, Islamabad";
+
+/** Short names accepted in ?discipline= / #contact?discipline= links. */
+const DISCIPLINE_ALIASES: Record<string, string> = {
+  construction: "Construction",
+  civil: "Civil works",
+  "civil-works": "Civil works",
+  electrical: "Electrical",
+  fire: "Fire and safety",
+  "fire-safety": "Fire and safety",
+  supply: "Supply",
+  "general-supply": "Supply",
+  multiple: "Several disciplines",
+  several: "Several disciplines",
+};
+
+const toDiscipline = (raw: string | null): string | undefined => {
+  if (!raw) return undefined;
+  const value = raw.trim().toLowerCase();
+  return VALID_SERVICES.find((s) => s.toLowerCase() === value) ?? DISCIPLINE_ALIASES[value];
+};
+
+const formatBytes = (bytes: number) =>
+  bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+/* ---------- Shared field styles ---------- */
+
+const capsLabel = "text-[12px] font-semibold uppercase tracking-[0.12em]";
+const ERROR_HEX = "#C2410C";
+const controlBase =
+  "w-full rounded-[4px] border bg-white px-4 text-[16px] text-brand-navy placeholder:text-brand-navy/40 transition-colors focus:outline-2 focus:outline-offset-2 focus:outline-brand-orange focus:border-brand-navy";
+const controlState = (hasError: boolean) => (hasError ? "border-[#C2410C]" : "border-brand-navy/20 hover:border-brand-navy/40");
+const drawUnderline =
+  "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100";
+
+const Field: React.FC<{
+  id: string;
+  label: string;
+  required?: boolean;
+  error?: string;
+  className?: string;
+  children: React.ReactNode;
+}> = ({ id, label, required, error, className = "", children }) => (
+  <div className={className}>
+    <label htmlFor={id} className="mb-2 block text-[13px] font-medium text-brand-navy">
+      {label}
+      {required && (
+        <span className="text-brand-navy/50" aria-hidden="true">
+          {" "}
+          *
+        </span>
+      )}
+    </label>
+    {children}
+    {error && (
+      <p id={`${id}-error`} className="mt-1.5 text-[13px]" style={{ color: ERROR_HEX }}>
+        {error}
+      </p>
+    )}
+  </div>
+);
+
+const Select: React.FC<
+  React.SelectHTMLAttributes<HTMLSelectElement> & { hasError?: boolean; placeholder: string; options: readonly string[] }
+> = ({ hasError = false, placeholder, options, value, ...props }) => (
+  <div className="relative">
+    <select
+      {...props}
+      value={value}
+      className={`${controlBase} ${controlState(hasError)} h-[52px] appearance-none pr-11 ${
+        value ? "text-brand-navy" : "text-brand-navy/40"
+      }`}
+    >
+      <option value="">{placeholder}</option>
+      {options.map((o) => (
+        <option key={o} value={o} className="text-brand-navy">
+          {o}
+        </option>
+      ))}
+    </select>
+    <ChevronDown
+      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-navy/60"
+      strokeWidth={1.5}
+      aria-hidden="true"
+    />
+  </div>
+);
+
+/* ---------- Contact ---------- */
+
 export const Contact = forwardRef<ContactRef>((_props, ref) => {
-  const [formData, setFormData] = useState<ContactFormData>({
-    fullName: "",
-    companyName: "",
-    phone: "",
-    email: "",
-    service: "Construction",
-    message: "",
-    budget: "",
-    timeline: "",
-  });
+  const { contact } = SITE_CONTENT;
+  const email = contact.domainEmail || contact.email;
+  const responseTime = contact.responseTime.trim();
+
+  const [formData, setFormData] = useState<ContactFormData>(EMPTY_FORM);
   const [file, setFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const successRef = useRef<HTMLHeadingElement>(null);
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -56,7 +144,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     prefillService: (serviceName: string, inquiryContext?: string) => {
       setFormData((prev) => ({
         ...prev,
-        service: VALID_SERVICES.includes(serviceName as any) ? serviceName : "Multiple / Integrated services",
+        service: VALID_SERVICES.includes(serviceName as any) ? serviceName : "Several disciplines",
         message: inquiryContext ? `Inquiry regarding: ${inquiryContext}\n` : prev.message,
       }));
       const el = document.getElementById("contact");
@@ -64,9 +152,27 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     },
   }));
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+  // Preselect the discipline from ?discipline=… or #contact?discipline=…
+  useEffect(() => {
+    const fromUrl = () => {
+      const { search, hash } = window.location;
+      const fromSearch = new URLSearchParams(search).get("discipline");
+      const hashQuery = hash.startsWith("#contact?") ? new URLSearchParams(hash.slice("#contact?".length)).get("discipline") : null;
+      const discipline = toDiscipline(hashQuery ?? fromSearch);
+      if (!discipline) return;
+      setFormData((prev) => ({ ...prev, service: discipline }));
+      if (hashQuery) document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    };
+    fromUrl();
+    window.addEventListener("hashchange", fromUrl);
+    return () => window.removeEventListener("hashchange", fromUrl);
+  }, []);
+
+  useEffect(() => {
+    if (isSubmitted) successRef.current?.focus();
+  }, [isSubmitted]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof ValidationErrors]) {
@@ -74,23 +180,29 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     }
   };
 
-  const handleBlur = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const name = e.target.name as "fullName" | "email" | "phone" | "service" | "message";
     const err = validateField(name, formData);
     setErrors((prev) => ({ ...prev, [name]: err }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = e.target.files?.[0] ?? null;
+  const pickFile = (picked: File | null) => {
     const err = validateFile(picked);
     setErrors((prev) => ({ ...prev, file: err }));
-    if (err) {
-      e.target.value = "";
+    if (err || !picked) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
       setFile(null);
     } else {
       setFile(picked);
+    }
+  };
+
+  const removeFile = () => {
+    setFile(null);
+    setErrors((prev) => ({ ...prev, file: undefined }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+      fileInputRef.current.focus();
     }
   };
 
@@ -108,11 +220,13 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     const fileError = validateFile(file);
     if (!validation.isValid || fileError) {
       setErrors({ ...validation.errors, file: fileError });
+      const firstInvalid = (["fullName", "phone", "email", "service", "message"] as const).find((f) => validation.errors[f]);
+      if (firstInvalid) document.getElementById(firstInvalid)?.focus();
       return;
     }
 
     if (!agreedToPrivacy) {
-      setConsentError("Please agree to the Privacy Policy to submit your request.");
+      setConsentError("Please accept the privacy policy to continue.");
       return;
     }
     setConsentError(null);
@@ -142,637 +256,501 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
       if (!response.ok) throw new Error("Submission failed");
       setIsSubmitted(true);
     } catch {
-      setSubmitError(
-        "We couldn't send your request. Please try again, or send it to us on WhatsApp instead."
-      );
+      setSubmitError("failed");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleReset = () => {
-    setFormData({
-      fullName: "",
-      companyName: "",
-      phone: "",
-      email: "",
-      service: "Construction",
-      message: "",
-      budget: "",
-      timeline: "",
-    });
+    setFormData(EMPTY_FORM);
     setFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     setErrors({});
+    setSubmitError(null);
     setIsSubmitted(false);
     setAgreedToPrivacy(false);
     setConsentError(null);
   };
 
+  const describedBy = (id: string, extra?: string) =>
+    [errors[id as keyof ValidationErrors] ? `${id}-error` : "", extra ?? ""].filter(Boolean).join(" ") || undefined;
+
+  const directRows: { label: string; content: React.ReactNode }[] = [
+    {
+      label: "Call",
+      content: (
+        <div className="flex flex-col gap-1">
+          {[
+            { href: `tel:${contact.phonePrimaryTel}`, text: contact.phonePrimary },
+            { href: `tel:${contact.phoneSecondaryTel}`, text: contact.phoneSecondary },
+          ].map((p) => (
+            <a key={p.href} href={p.href} className="group inline-flex w-fit min-h-[32px] items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange">
+              <span className={drawUnderline}>{p.text}</span>
+            </a>
+          ))}
+        </div>
+      ),
+    },
+    {
+      label: "WhatsApp",
+      content: (
+        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-[32px] items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange">
+          <span className={drawUnderline}>Message us</span>
+        </a>
+      ),
+    },
+    ...(email
+      ? [
+          {
+            label: "Email",
+            content: (
+              <a href={`mailto:${email}`} className="group inline-flex min-h-[32px] items-center rounded-sm break-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange">
+                <span className={drawUnderline}>{email}</span>
+              </a>
+            ),
+          },
+        ]
+      : []),
+    {
+      label: "Office",
+      content: (
+        <>
+          <p>{OFFICE_ADDRESS}</p>
+          <p className="mt-1 text-[15px] text-white/60">Federal Capital Area, Pakistan</p>
+        </>
+      ),
+    },
+    {
+      label: "Hours",
+      content: (
+        <>
+          <p>Monday to Saturday, 9:00 AM - 6:00 PM</p>
+          <p className="mt-1 text-[15px] text-white/60">Friday break 1:00 PM - 2:30 PM</p>
+        </>
+      ),
+    },
+  ];
+
+  const nextSteps = [
+    responseTime ? `We review your request within ${responseTime}.` : "We review your request.",
+    "We call you or arrange a site visit to confirm the scope.",
+    "You receive an itemised quotation with milestones and lead times.",
+  ];
+
   return (
     <section
       id="contact"
-      className="relative bg-brand-cream text-brand-brown py-16 md:py-24 border-t border-brand-stone/40"
-      aria-label="Contact and Quotation Request"
+      className="relative bg-brand-navy text-white border-t border-white/10 py-[72px] lg:py-[120px]"
+      aria-labelledby="contact-title"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="max-w-3xl mb-14">
-          <p className="kicker-label text-brand-navy mb-2">Technical Engagement</p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-brand-navy tracking-tight">
-            Request an engineering quote or site visit.
-          </h2>
-          <div className="w-16 h-1 bg-brand-orange mt-4 mb-4" />
-          <p className="text-sm sm:text-base text-brand-brown/85">
-            Submit your scope specifications below or reach out directly to our Islamabad operations
-            office. We review bill of quantities (BOQ) and site requirements with technical precision.
-          </p>
-        </div>
+        <div className="grid grid-cols-1 items-start gap-14 lg:grid-cols-12 lg:gap-24">
+          {/* Left: introduction and direct contacts */}
+          <Reveal className="lg:col-span-5">
+            <p className={`${capsLabel} text-brand-orange`}>Contact</p>
+            <h2
+              id="contact-title"
+              className="mt-4 font-heading font-medium text-[clamp(2rem,1.3rem+2.6vw,3.25rem)] leading-[1.08] tracking-tight text-white [text-wrap:balance]"
+            >
+              Tell us about your project.
+            </h2>
+            <p className="mt-6 max-w-[44ch] text-[17px] leading-[1.7] text-white/72">
+              Send your scope, drawings or BOQ, or call us directly. We review every request and reply with a clear next
+              step.
+            </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
-          {/* Left Column: Form with floating labels & animated validation */}
-          <div className="lg:col-span-7 bg-white rounded-xl p-6 sm:p-8 md:p-10 border border-brand-stone/70 shadow-xl relative overflow-hidden">
-            {isSubmitted ? (
-              <div className="py-8 text-center space-y-6" role="status" aria-live="polite">
-                {/* Clean Confetti-Free Animated Checkmark Draw */}
-                <div className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-600 border-2 border-emerald-500/30 flex items-center justify-center mx-auto shadow-inner">
-                  <svg className="w-10 h-10 stroke-emerald-600" viewBox="0 0 48 48" fill="none">
-                    <motion.circle
-                      cx="24"
-                      cy="24"
-                      r="20"
-                      strokeWidth="3"
-                      strokeDasharray="130"
-                      initial={{ strokeDashoffset: 130 }}
-                      animate={{ strokeDashoffset: 0 }}
-                      transition={{ duration: 0.5, ease: "easeOut" }}
-                    />
-                    <motion.path
-                      d="M14 24 L21 31 L34 17"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.45, delay: 0.4, ease: "easeOut" }}
-                    />
-                  </svg>
+            <dl className="mt-10 border-t border-white/12">
+              {directRows.map((row) => (
+                <div key={row.label} className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 border-b border-white/12 py-5">
+                  <dt className={`${capsLabel} pt-1 text-white/50`}>{row.label}</dt>
+                  <dd className="text-[18px] leading-snug text-white">{row.content}</dd>
                 </div>
+              ))}
+            </dl>
 
-                <div className="space-y-2">
-                  <h3 className="font-heading font-bold text-2xl sm:text-3xl text-brand-navy">
-                    Request sent
-                  </h3>
-                  <p className="text-sm text-brand-brown/85 max-w-md mx-auto">
-                    Thank you, <span className="font-semibold text-brand-navy">{formData.fullName}</span>.
-                    Your request for <span className="font-semibold text-brand-navy">{formData.service}</span> has
-                    been sent.
-                    {SITE_CONTENT.contact.replyHours.trim() !== "" &&
-                      ` We reply within ${SITE_CONTENT.contact.replyHours} hours.`}
-                  </p>
-                </div>
-
-                {/* WhatsApp Quick Forward */}
-                <div className="pt-4 max-w-md mx-auto border-t border-brand-stone/40 space-y-3">
-                  <p className="text-xs text-brand-steel">Need an immediate technical response?</p>
-                  <a
-                    href={`https://wa.me/923315095004?text=${formatWhatsAppMessage(formData)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors shadow-md"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Forward Request via WhatsApp</span>
-                  </a>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="inline-flex items-center gap-2 text-xs font-semibold text-brand-steel hover:text-brand-navy py-2 px-4 rounded hover:bg-brand-cream/50 transition-colors"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Submit another inquiry</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} noValidate className="space-y-6">
-                {/* Honeypot field - hidden from real users, catches bots */}
-                <div className="absolute -left-[9999px] top-0" aria-hidden="true">
-                  <label htmlFor="website">Website</label>
-                  <input
-                    id="website"
-                    name="website"
-                    type="text"
-                    value={honeypot}
-                    onChange={(e) => setHoneypot(e.target.value)}
-                    tabIndex={-1}
-                    autoComplete="off"
-                  />
-                </div>
-
-                <div className="border-b border-brand-stone/40 pb-4 mb-2 flex items-center justify-between">
-                  <span className="font-heading font-bold text-lg text-brand-navy">
-                    Scope &amp; Contact Details
-                  </span>
-                  <span className="text-xs font-mono text-brand-steel">* Required fields</span>
-                </div>
-
-                {/* Row 1: Full Name & Company with Floating Labels */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Floating Label: Name */}
-                  <div className="relative">
-                    <input
-                      id="fullName"
-                      name="fullName"
-                      type="text"
-                      required
-                      placeholder=" "
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
-                        errors.fullName
-                          ? "border-red-500 ring-1 ring-red-500"
-                          : "border-brand-stone hover:border-brand-navy focus:border-brand-navy"
-                      }`}
-                      aria-invalid={!!errors.fullName}
-                    />
-                    <label
-                      htmlFor="fullName"
-                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
-                    >
-                      Full Name *
-                    </label>
-                    <AnimatePresence>
-                      {errors.fullName && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="mt-1 text-xs text-red-700 font-medium"
-                        >
-                          {errors.fullName}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* Floating Label: Company */}
-                  <div className="relative">
-                    <input
-                      id="companyName"
-                      name="companyName"
-                      type="text"
-                      placeholder=" "
-                      value={formData.companyName}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className="peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors"
-                    />
-                    <label
-                      htmlFor="companyName"
-                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
-                    >
-                      Organization (optional)
-                    </label>
-                  </div>
-                </div>
-
-                {/* Row 2: Phone & Email with Floating Labels */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Floating Label: Phone */}
-                  <div className="relative">
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      required
-                      placeholder=" "
-                      value={formData.phone}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
-                        errors.phone
-                          ? "border-red-500 ring-1 ring-red-500"
-                          : "border-brand-stone hover:border-brand-navy focus:border-brand-navy"
-                      }`}
-                      aria-invalid={!!errors.phone}
-                    />
-                    <label
-                      htmlFor="phone"
-                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
-                    >
-                      Phone Number *
-                    </label>
-                    <AnimatePresence>
-                      {errors.phone && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="mt-1 text-xs text-red-700 font-medium"
-                        >
-                          {errors.phone}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* Floating Label: Email */}
-                  <div className="relative">
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder=" "
-                      value={formData.email}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
-                        errors.email
-                          ? "border-red-500 ring-1 ring-red-500"
-                          : "border-brand-stone hover:border-brand-navy focus:border-brand-navy"
-                      }`}
-                      aria-invalid={!!errors.email}
-                    />
-                    <label
-                      htmlFor="email"
-                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
-                    >
-                      Email (optional)
-                    </label>
-                    <AnimatePresence>
-                      {errors.email && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="mt-1 text-xs text-red-700 font-medium"
-                        >
-                          {errors.email}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                {/* Service Selection */}
-                <div>
-                  <label htmlFor="service" className="block text-xs font-bold text-brand-navy mb-1.5 uppercase tracking-wider">
-                    Required Discipline *
-                  </label>
-                  <select
-                    id="service"
-                    name="service"
-                    value={formData.service}
-                    onChange={handleChange}
-                      onBlur={handleBlur}
-                    className="w-full px-3.5 py-3 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-white text-brand-brown transition-colors focus:outline-none"
-                  >
-                    {VALID_SERVICES.map((svc) => (
-                      <option key={svc} value={svc}>
-                        {svc}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.service && <p className="mt-1 text-xs text-red-700 font-medium">{errors.service}</p>}
-                </div>
-
-                {/* Optional: budget and timeline */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="budget" className="block text-xs font-bold text-brand-navy mb-1.5 uppercase tracking-wider">
-                      Budget range (optional)
-                    </label>
-                    <select
-                      id="budget"
-                      name="budget"
-                      value={formData.budget}
-                      onChange={handleChange}
-                      className="w-full min-h-[44px] px-3.5 py-3 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-white text-brand-brown transition-colors"
-                    >
-                      <option value="">Select a range</option>
-                      {BUDGET_RANGES.map((b) => (
-                        <option key={b} value={b}>{b}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="timeline" className="block text-xs font-bold text-brand-navy mb-1.5 uppercase tracking-wider">
-                      Timeline (optional)
-                    </label>
-                    <select
-                      id="timeline"
-                      name="timeline"
-                      value={formData.timeline}
-                      onChange={handleChange}
-                      className="w-full min-h-[44px] px-3.5 py-3 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-white text-brand-brown transition-colors"
-                    >
-                      <option value="">Select a timeline</option>
-                      {TIMELINES.map((t) => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Floating Label: Message / Scope */}
-                <div className="relative">
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={4}
-                    required
-                    placeholder=" "
-                    value={formData.message}
-                    onChange={handleChange}
-                      onBlur={handleBlur}
-                    className={`peer w-full px-3.5 pt-6 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
-                      errors.message
-                        ? "border-red-500 ring-1 ring-red-500"
-                        : "border-brand-stone hover:border-brand-navy focus:border-brand-navy"
-                    }`}
-                    aria-invalid={!!errors.message}
-                  />
-                  <label
-                    htmlFor="message"
-                    className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
-                  >
-                    Project scope *
-                  </label>
-                  <AnimatePresence>
-                    {errors.message && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="mt-1 text-xs text-red-700 font-medium"
-                      >
-                        {errors.message}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Optional file upload */}
-                <div>
-                  <label htmlFor="attachment" className="block text-xs font-bold text-brand-navy mb-1.5 uppercase tracking-wider">
-                    Attach drawings or BOQ (optional)
-                  </label>
-                  <input
-                    ref={fileInputRef}
-                    id="attachment"
-                    name="attachment"
-                    type="file"
-                    accept=".pdf,.dwg,.xlsx"
-                    onChange={handleFileChange}
-                    aria-describedby="attachment-help"
-                    className="block w-full text-sm text-brand-brown file:mr-3 file:min-h-[44px] file:px-4 file:rounded-lg file:border-0 file:bg-brand-navy file:text-white file:font-bold file:cursor-pointer hover:file:bg-brand-orange hover:file:text-brand-charcoal"
-                  />
-                  <p id="attachment-help" className="mt-1 text-xs text-brand-steel flex items-center gap-1.5">
-                    <Paperclip className="w-3 h-3" aria-hidden="true" />
-                    PDF, DWG or XLSX. Maximum 10 MB.
-                  </p>
-                  {errors.file && (
-                    <p className="mt-1 text-xs text-red-700 font-medium" role="alert">{errors.file}</p>
-                  )}
-                </div>
-
-                {/* Submit error message */}
-                <AnimatePresence>
-                  {submitError && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-800"
-                      role="alert"
-                    >
-                      <p>{submitError}</p>
-                      <a
-                        href={`https://wa.me/923315095004?text=${formatWhatsAppMessage(formData)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-2 inline-flex items-center gap-2 min-h-[44px] px-4 rounded-lg bg-[#25D366] hover:bg-[#20ba59] text-brand-charcoal font-bold text-xs uppercase tracking-wider"
-                      >
-                        <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                        <span>Send on WhatsApp</span>
-                      </a>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Privacy consent */}
-                <div>
-                  <label className="flex items-start gap-3 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={agreedToPrivacy}
-                      onChange={(e) => {
-                        setAgreedToPrivacy(e.target.checked);
-                        if (e.target.checked) setConsentError(null);
-                      }}
-                      className="mt-0.5 w-4 h-4 rounded border-brand-stone text-brand-orange focus:ring-brand-orange accent-[#FF6B00]"
-                      aria-invalid={!!consentError}
-                    />
-                    <span className="text-xs text-brand-brown/80 leading-relaxed">
-                      I agree to the processing of my details as described in the{" "}
-                      <a href="/privacy" className="text-brand-navy font-semibold underline underline-offset-2 hover:text-brand-orange transition-colors">
-                        Privacy Policy
-                      </a>
-                      .
+            <div className="mt-10">
+              <h3 className={`${capsLabel} text-white/50`}>What happens next</h3>
+              <ol className="mt-4 space-y-3">
+                {nextSteps.map((stepText, i) => (
+                  <li key={stepText} className="flex gap-4 text-[15px] leading-relaxed text-white/80">
+                    <span className="w-6 shrink-0 font-medium tabular-nums text-brand-orange">
+                      {String(i + 1).padStart(2, "0")}
                     </span>
-                  </label>
-                  <AnimatePresence>
-                    {consentError && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="mt-1 text-xs text-red-700 font-medium"
-                        role="alert"
-                      >
-                        {consentError}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
-                </div>
+                    <span>{stepText}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </Reveal>
 
-                {/* Submit CTA with Magnetic wrapper */}
-                <div className="pt-2">
-                  <MagneticButton
-                    type="submit"
-                    disabled={isSubmitting}
-                    aria-busy={isSubmitting}
-                    className="w-full py-4 px-6 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm uppercase tracking-wider rounded-lg transition-colors shadow-md flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange disabled:opacity-75"
-                  >
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Send className="w-4 h-4" />}
-                    <span>{isSubmitting ? "Sending..." : "Submit Quotation Request"}</span>
-                  </MagneticButton>
-                  <p className="mt-2.5 text-center text-[11px] text-brand-steel">
-                    Direct engineering review with no third-party sales intermediaries.
-                  </p>
-                </div>
-              </form>
-            )}
-          </div>
-
-          {/* Right Column: Contact Details Card & Map */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-brand-navy text-white rounded-xl p-6 sm:p-8 border border-white/10 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange/10 rounded-full blur-2xl pointer-events-none" />
-
-              <div className="flex items-start justify-between gap-4 mb-6">
-                <div>
-                  <p className="kicker-label text-brand-orange mb-1">Corporate Office</p>
-                  <h3 className="text-xl sm:text-2xl font-heading font-bold text-white">
-                    Fraternity Engineering &amp; Co.
-                  </h3>
-                </div>
-                <div className="p-2 rounded-lg bg-white/5 border border-white/10 shrink-0">
-                  <img
-                    src="/assets/logo.webp"
-                    alt="Fraternity Engineering Logo"
-                    className="h-10 w-auto object-contain"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-5 text-sm">
-                <div className="flex items-start gap-3.5">
-                  <div className="p-2.5 rounded-lg bg-white/10 text-brand-orange shrink-0 mt-0.5">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-mono text-brand-stone uppercase tracking-wide">
-                      Registered Address
-                    </p>
-                    <p className="text-white font-medium mt-0.5 leading-snug">
-                      Shop #01, Block 54, I&amp;T Center, G-8/1, Islamabad
-                    </p>
-                    <p className="text-xs text-brand-stone mt-1">Federal Capital Area, Pakistan</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3.5">
-                  <div className="p-2.5 rounded-lg bg-white/10 text-brand-orange shrink-0 mt-0.5">
-                    <Phone className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-mono text-brand-stone uppercase tracking-wide">
-                      Phone &amp; Direct Lines
-                    </p>
-                    <div className="mt-0.5 space-y-0.5">
-                      <a
-                        href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}
-                        className="block text-white font-medium hover:text-brand-orange transition-colors"
-                      >
-                        0331-5095004 (Mobile / WhatsApp)
-                      </a>
-                      <a
-                        href={`tel:${SITE_CONTENT.contact.phoneSecondaryTel}`}
-                        className="block text-white font-medium hover:text-brand-orange transition-colors"
-                      >
-                        051-2331654 (Landline)
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3.5">
-                  <div className="p-2.5 rounded-lg bg-white/10 text-brand-orange shrink-0 mt-0.5">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-mono text-brand-stone uppercase tracking-wide">
-                      Direct Email
-                    </p>
-                    <a
-                      href="mailto:fraternityengineering@gmail.com"
-                      className="block text-white font-medium hover:text-brand-orange transition-colors mt-0.5"
+          {/* Right: form panel */}
+          <Reveal className="lg:col-span-7" delay={0.05}>
+            <div className="rounded-[6px] bg-white p-6 text-brand-navy sm:p-10">
+              <div aria-live="polite">
+                {isSubmitted ? (
+                  <div className="py-10 text-center">
+                    <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-brand-navy/15">
+                      <Check className="h-6 w-6 text-brand-orange" strokeWidth={2} aria-hidden="true" />
+                    </span>
+                    <h3
+                      ref={successRef}
+                      tabIndex={-1}
+                      className="mt-6 font-heading text-[26px] font-medium text-brand-navy focus:outline-none"
                     >
-                      fraternityengineering@gmail.com
-                    </a>
+                      Thank you. Your request is in.
+                    </h3>
+                    {responseTime && (
+                      <p className="mt-3 text-[16px] text-brand-navy/70">We will contact you within {responseTime}.</p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="group mt-8 inline-flex min-h-[44px] items-center rounded-sm text-[15px] font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                    >
+                      <span className={drawUnderline}>Send another request</span>
+                    </button>
                   </div>
-                </div>
+                ) : (
+                  <form onSubmit={handleSubmit} noValidate className="relative">
+                    {/* Honeypot: hidden from people, filled by bots */}
+                    <div className="absolute -left-[9999px] top-0" aria-hidden="true">
+                      <label htmlFor="website">Website</label>
+                      <input
+                        id="website"
+                        name="website"
+                        type="text"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                    </div>
 
-                <div className="flex items-start gap-3.5">
-                  <div className="p-2.5 rounded-lg bg-white/10 text-brand-orange shrink-0 mt-0.5">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-mono text-brand-stone uppercase tracking-wide">
-                      Office Hours
+                    <div className="flex items-baseline justify-between gap-4 border-b border-brand-navy/10 pb-5">
+                      <h3 className="font-heading text-[22px] font-medium text-brand-navy">Request a quote or site visit</h3>
+                      <span className="shrink-0 text-[13px] text-brand-navy/55">* Required</span>
+                    </div>
+
+                    <div className="mt-8 grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2">
+                      <Field id="fullName" label="Full name" required error={errors.fullName}>
+                        <input
+                          id="fullName"
+                          name="fullName"
+                          type="text"
+                          autoComplete="name"
+                          required
+                          value={formData.fullName}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          aria-invalid={!!errors.fullName}
+                          aria-describedby={describedBy("fullName")}
+                          className={`${controlBase} ${controlState(!!errors.fullName)} h-[52px]`}
+                        />
+                      </Field>
+
+                      <Field id="companyName" label="Organisation">
+                        <input
+                          id="companyName"
+                          name="companyName"
+                          type="text"
+                          autoComplete="organization"
+                          value={formData.companyName}
+                          onChange={handleChange}
+                          className={`${controlBase} ${controlState(false)} h-[52px]`}
+                        />
+                      </Field>
+
+                      <Field id="phone" label="Phone" required error={errors.phone}>
+                        <input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          inputMode="tel"
+                          autoComplete="tel"
+                          required
+                          placeholder="03XX-XXXXXXX"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          aria-invalid={!!errors.phone}
+                          aria-describedby={describedBy("phone")}
+                          className={`${controlBase} ${controlState(!!errors.phone)} h-[52px]`}
+                        />
+                      </Field>
+
+                      <Field id="email" label="Email" error={errors.email}>
+                        <input
+                          id="email"
+                          name="email"
+                          type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          placeholder="name@company.com"
+                          value={formData.email}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          aria-invalid={!!errors.email}
+                          aria-describedby={describedBy("email")}
+                          className={`${controlBase} ${controlState(!!errors.email)} h-[52px]`}
+                        />
+                      </Field>
+
+                      <Field id="service" label="Discipline" required error={errors.service} className="sm:col-span-2">
+                        <Select
+                          id="service"
+                          name="service"
+                          required
+                          placeholder="Select a discipline"
+                          options={VALID_SERVICES}
+                          value={formData.service}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          hasError={!!errors.service}
+                          aria-invalid={!!errors.service}
+                          aria-describedby={describedBy("service")}
+                        />
+                      </Field>
+
+                      <Field id="budget" label="Budget range">
+                        <Select
+                          id="budget"
+                          name="budget"
+                          placeholder="Select a range"
+                          options={BUDGET_RANGES}
+                          value={formData.budget}
+                          onChange={handleChange}
+                        />
+                      </Field>
+
+                      <Field id="timeline" label="Timeline">
+                        <Select
+                          id="timeline"
+                          name="timeline"
+                          placeholder="Select a timeline"
+                          options={TIMELINES}
+                          value={formData.timeline}
+                          onChange={handleChange}
+                        />
+                      </Field>
+
+                      <Field id="message" label="Project scope" required error={errors.message} className="sm:col-span-2">
+                        <textarea
+                          id="message"
+                          name="message"
+                          required
+                          placeholder="Describe the site, what needs doing and any dates that matter."
+                          value={formData.message}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          aria-invalid={!!errors.message}
+                          aria-describedby={describedBy("message")}
+                          className={`${controlBase} ${controlState(!!errors.message)} block min-h-[140px] resize-y py-3.5 leading-relaxed`}
+                        />
+                      </Field>
+
+                      {/* Attachments: custom dropzone over a visually hidden, still-focusable file input */}
+                      <div className="sm:col-span-2">
+                        <p className="mb-2 block text-[13px] font-medium text-brand-navy" id="attachment-label">
+                          Attachments
+                        </p>
+                        {file ? (
+                          <div className="flex items-center gap-3 rounded-[4px] border border-brand-navy/20 px-4 py-3">
+                            <Paperclip className="h-4 w-4 shrink-0 text-brand-navy/60" strokeWidth={1.5} aria-hidden="true" />
+                            <span className="min-w-0 flex-1 truncate text-[15px] text-brand-navy" title={file.name}>
+                              {file.name}
+                            </span>
+                            <span className="shrink-0 text-[13px] text-brand-navy/55">{formatBytes(file.size)}</span>
+                            <button
+                              type="button"
+                              onClick={removeFile}
+                              aria-label={`Remove ${file.name}`}
+                              className="-mr-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[4px] text-brand-navy/70 hover:text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                            >
+                              <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              setDragging(true);
+                            }}
+                            onDragLeave={() => setDragging(false)}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              setDragging(false);
+                              pickFile(e.dataTransfer.files?.[0] ?? null);
+                            }}
+                            className={`relative rounded-[4px] border border-dashed p-6 text-center transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-orange ${
+                              errors.file
+                                ? "border-[#C2410C]"
+                                : dragging
+                                  ? "border-brand-navy bg-brand-navy/[0.03]"
+                                  : "border-brand-navy/25"
+                            }`}
+                          >
+                            <Paperclip className="mx-auto h-5 w-5 text-brand-navy/60" strokeWidth={1.5} aria-hidden="true" />
+                            <p className="mt-3 text-[15px] text-brand-navy/80">
+                              Drop drawings or BOQ here, or{" "}
+                              <label
+                                htmlFor="attachment"
+                                className="cursor-pointer font-medium text-brand-orange underline underline-offset-4"
+                              >
+                                choose a file
+                              </label>
+                            </p>
+                            <p id="attachment-help" className="mt-1.5 text-[13px] text-brand-navy/55">
+                              PDF, DWG or XLSX, up to 10 MB
+                            </p>
+                            <input
+                              ref={fileInputRef}
+                              id="attachment"
+                              name="attachment"
+                              type="file"
+                              accept=".pdf,.dwg,.xlsx"
+                              onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
+                              aria-labelledby="attachment-label"
+                              aria-describedby={["attachment-help", errors.file ? "attachment-error" : ""].filter(Boolean).join(" ")}
+                              aria-invalid={!!errors.file}
+                              className="sr-only"
+                            />
+                          </div>
+                        )}
+                        {errors.file && (
+                          <p id="attachment-error" className="mt-1.5 text-[13px]" style={{ color: ERROR_HEX }}>
+                            {errors.file}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Privacy consent */}
+                    <div className="mt-7">
+                      <label className="flex min-h-[44px] cursor-pointer items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={agreedToPrivacy}
+                          onChange={(e) => {
+                            setAgreedToPrivacy(e.target.checked);
+                            if (e.target.checked) setConsentError(null);
+                          }}
+                          aria-invalid={!!consentError}
+                          aria-describedby={consentError ? "consent-error" : undefined}
+                          className="peer sr-only"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className={`mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-[3px] border transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-orange ${
+                            agreedToPrivacy
+                              ? "border-brand-navy bg-brand-navy"
+                              : consentError
+                                ? "border-[#C2410C] bg-white"
+                                : "border-brand-navy bg-white"
+                          }`}
+                        >
+                          {agreedToPrivacy && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
+                        </span>
+                        <span className="text-[14px] leading-relaxed text-brand-navy/80">
+                          I agree to the processing of my details as described in the{" "}
+                          <a
+                            href="/privacy"
+                            className="rounded-sm text-brand-navy underline underline-offset-2 hover:text-brand-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                          >
+                            Privacy Policy
+                          </a>
+                          .
+                        </span>
+                      </label>
+                      {consentError && (
+                        <p id="consent-error" className="mt-1 text-[13px]" style={{ color: ERROR_HEX }}>
+                          {consentError}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Submission error: keeps the user's input and offers WhatsApp */}
+                    {submitError && (
+                      <div className="mt-6 rounded-[4px] border border-[#C2410C]/30 bg-[#C2410C]/[0.04] px-4 py-3.5 text-[14px] text-brand-navy" role="alert">
+                        <p>
+                          Something went wrong. Please call{" "}
+                          <a
+                            href={`tel:${contact.phonePrimaryTel}`}
+                            className="rounded-sm font-medium underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                          >
+                            {contact.phonePrimary}
+                          </a>{" "}
+                          or message us on{" "}
+                          <a
+                            href={`${WHATSAPP_URL}?text=${formatWhatsAppMessage(formData)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-sm font-medium underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                          >
+                            WhatsApp
+                          </a>
+                          .
+                        </p>
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      aria-busy={isSubmitting}
+                      className="group mt-7 flex h-14 w-full items-center justify-center gap-2.5 rounded-[4px] bg-brand-orange text-[16px] font-medium text-brand-charcoal transition-colors hover:bg-brand-orange-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange disabled:cursor-wait disabled:opacity-80"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                          <span>Sending…</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Send request</span>
+                          <ArrowRight
+                            className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+                            strokeWidth={2}
+                            aria-hidden="true"
+                          />
+                        </>
+                      )}
+                    </button>
+                    <p className="mt-3 text-center text-[13px] text-brand-navy/55">
+                      We never share your details.{responseTime && ` Replies within ${responseTime}.`}
                     </p>
-                    <p className="text-brand-stone text-xs mt-0.5 leading-relaxed">
-                      {SITE_CONTENT.contact.workingHours}
-                    </p>
-                  </div>
-                </div>
+                  </form>
+                )}
               </div>
             </div>
+          </Reveal>
+        </div>
 
-            {/* Map Graphic with Islamabad G-8 Grid */}
-            <div className="bg-white rounded-xl border border-brand-stone/70 p-5 shadow-md space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-heading font-bold text-sm text-brand-navy">
-                    Our location, G-8/1 Islamabad
-                  </h4>
-                  <p className="text-[11px] text-brand-steel font-mono">
-                    Sector G-8/1, Industrial &amp; Trade Center
-                  </p>
-                </div>
-                <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-brand-cream border border-brand-stone text-brand-navy rounded">
-                  ISB 44000
-                </span>
-              </div>
-
-              <div className="relative h-44 rounded-lg bg-brand-navy overflow-hidden border border-brand-stone/40 flex items-center justify-center text-white">
-                <div className="absolute inset-0 bg-blueprint-grid opacity-60" />
-
-                <svg
-                  viewBox="0 0 300 160"
-                  className="absolute inset-0 w-full h-full stroke-white/20 fill-none"
-                >
-                  <line x1="10" y1="30" x2="290" y2="30" stroke="#8A8F98" strokeWidth="2.5" />
-                  <line x1="10" y1="130" x2="290" y2="130" stroke="#8A8F98" strokeWidth="2" />
-                  <line x1="70" y1="10" x2="70" y2="150" stroke="#8A8F98" strokeWidth="2" />
-                  <line x1="220" y1="10" x2="220" y2="150" stroke="#8A8F98" strokeWidth="2" />
-
-                  <rect x="85" y="45" width="55" height="70" stroke="white" strokeWidth="1" strokeDasharray="3 2" />
-                  <rect x="155" y="45" width="50" height="32" stroke="white" strokeWidth="1" strokeDasharray="3 2" />
-                  <rect x="155" y="85" width="50" height="32" fill="#FF6B00" fillOpacity="0.25" stroke="#FF6B00" strokeWidth="1.5" />
-                </svg>
-
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-8 h-8 rounded-full bg-brand-orange text-brand-charcoal flex items-center justify-center shadow-lg border-2 border-white animate-bounce">
-                    <MapPin className="w-5 h-5 stroke-[2.5]" />
-                  </div>
-                  <div className="mt-1 px-2.5 py-1 bg-brand-charcoal/95 rounded text-[10px] font-mono text-white border border-brand-orange/60 shadow">
-                    Shop #01, Block 54
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-xs text-brand-brown">Direct Navigation:</span>
-                <a
-                  href={SITE_CONTENT.contact.googleMapsSearchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-navy hover:text-brand-orange transition-colors"
-                >
-                  <span>Open in Google Maps</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-brand-orange" />
-                </a>
-              </div>
+        {/* Map */}
+        <Reveal className="mt-12">
+          <div className="contact-map relative h-[260px] overflow-hidden rounded-[6px] bg-white/[0.06] lg:h-[360px]">
+            <iframe
+              src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Fraternity Engineering office location, G-8/1 Islamabad"
+              className="absolute inset-0 h-full w-full border-0"
+            />
+            <div className="absolute bottom-4 left-4 right-4 max-w-[320px] rounded-[6px] bg-white p-5 text-brand-navy sm:bottom-6 sm:left-6 sm:right-auto">
+              <p className={`${capsLabel} text-brand-navy/55`}>Visit us</p>
+              <p className="mt-2 text-[16px] font-medium leading-snug">{OFFICE_ADDRESS}</p>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${MAP_QUERY}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group mt-3 inline-flex min-h-[32px] items-center gap-1.5 rounded-sm text-[15px] font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+              >
+                <span className={drawUnderline}>Get directions</span>
+                <ArrowRight className="h-4 w-4 text-brand-orange" strokeWidth={1.5} aria-hidden="true" />
+              </a>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

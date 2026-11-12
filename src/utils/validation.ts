@@ -1,6 +1,6 @@
 /**
  * Pure validation and formatting logic for Fraternity Engineering & Co. contact/quote requests.
- * Required: name, phone, discipline, scope. Optional: email, organization, budget, timeline, file.
+ * Required: name, phone, discipline, scope. Optional: email, organisation, budget, timeline, file.
  */
 
 export interface ContactFormData {
@@ -26,11 +26,11 @@ export interface ValidationErrors {
 export const VALID_SERVICES = [
   "Construction",
   "Civil works",
-  "Electrical works",
-  "Fire & safety",
-  "General order supplier",
-  "Multiple / Integrated services",
-  "General inquiry",
+  "Electrical",
+  "Fire and safety",
+  "Supply",
+  "Several disciplines",
+  "Not sure yet",
 ] as const;
 
 export const BUDGET_RANGES = [
@@ -56,10 +56,10 @@ export function validateFile(file: File | null): string | undefined {
   if (!file) return undefined;
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
   if (!(ALLOWED_FILE_EXTENSIONS as readonly string[]).includes(ext)) {
-    return "Please attach a PDF, DWG or XLSX file.";
+    return "That file type isn't supported. Use PDF, DWG or XLSX.";
   }
   if (file.size > MAX_FILE_BYTES) {
-    return "The file is larger than 10 MB. Please attach a smaller file.";
+    return "That file is larger than 10 MB.";
   }
   return undefined;
 }
@@ -83,7 +83,7 @@ export function validateField(name: FieldName, data: ContactFormData): string | 
     case "phone": {
       const v = data.phone.trim();
       const digits = v.replace(/[\s\-\+\(\)]/g, "");
-      if (!v) return "Please provide a contact phone number.";
+      if (!v) return "Please enter a phone number we can reach you on.";
       if (digits.length < 7 || digits.length > 15 || !/^\d+$/.test(digits)) {
         return "Please enter a valid phone number (at least 7 digits).";
       }
@@ -91,12 +91,12 @@ export function validateField(name: FieldName, data: ContactFormData): string | 
     }
     case "service":
       if (!data.service || !VALID_SERVICES.includes(data.service as (typeof VALID_SERVICES)[number])) {
-        return "Please select a discipline.";
+        return "Please choose a discipline.";
       }
       return undefined;
     case "message": {
       const v = data.message.trim();
-      if (!v) return "Please describe your scope.";
+      if (!v) return "Please describe your project.";
       if (v.length < 10) return "Please provide more details (at least 10 characters).";
       return undefined;
     }

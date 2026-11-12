@@ -111,17 +111,17 @@ export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
   };
 
   return (
-    <section id="work" className="relative bg-brand-cream text-brand-brown py-16 md:py-24" aria-label="Our Work">
+    <section id="work" className="relative bg-brand-cream text-brand-brown py-16 md:py-24" aria-label="Our work">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-2xl mb-10 md:mb-12">
-          <p className="kicker-label text-brand-navy mb-3">Our Work</p>
+          <p className="kicker-label text-brand-navy mb-3">Our work</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-brand-navy tracking-tight leading-tight [text-wrap:balance]">
             Selected projects across Pakistan.
           </h2>
           <div className="w-16 h-1 bg-brand-orange mt-4 mb-4" />
           <p className="text-base sm:text-lg text-brand-brown/85 font-normal leading-relaxed">
-            Government, corporate and industrial work across construction, electrical, fire safety and supply.
+            Recent work in construction, electrical, fire safety and supply for government, corporate and industrial clients.
           </p>
         </div>
 
@@ -161,9 +161,9 @@ export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
           </p>
           <a
             href="#contact"
-            className="inline-flex items-center justify-center min-h-[44px] px-6 py-3 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm uppercase tracking-wider rounded transition-colors"
+            className="inline-flex items-center justify-center min-h-[44px] px-6 py-3 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm rounded transition-colors"
           >
-            Request a Quote
+            Request a quote
           </a>
           <a
             href={PHONE_HREF}
@@ -255,7 +255,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ categories, active, onChange, c
         </div>
       </div>
       <p className="shrink-0 pb-3 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65" aria-live="polite">
-        {pad(count)} {count === 1 ? "project" : "projects"}
+        {count} {count === 1 ? "project" : "projects"}
       </p>
     </div>
   );
@@ -504,11 +504,18 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                     >
                       {project.title}
                     </h3>
-                    <p className="mt-3 text-base leading-relaxed text-brand-brown/85">{project.description}</p>
+                    <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Brief</p>
+                    <p className="mt-2 text-base leading-relaxed text-brand-brown/85">{project.description}</p>
+                    {project.outcome.trim() !== "" && (
+                      <>
+                        <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Outcome</p>
+                        <p className="mt-2 text-base leading-relaxed text-brand-brown/85">{project.outcome}</p>
+                      </>
+                    )}
                   </div>
 
                   <div>
-                    <p className="mb-3 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Scope</p>
+                    <p className="mb-3 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Our scope</p>
                     <ul className="space-y-2.5">
                       {project.facts.map((fact) => (
                         <li key={fact} className="flex items-start gap-2.5 text-[15px] text-brand-navy">
@@ -524,7 +531,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onRequest(project)}
-                    className="inline-flex min-h-[44px] items-center justify-center rounded bg-brand-orange px-6 py-3 text-sm font-bold uppercase tracking-wider text-brand-charcoal transition-colors hover:bg-brand-orange-hover"
+                    className="inline-flex min-h-[44px] items-center justify-center rounded bg-brand-orange px-6 py-3 text-sm font-bold text-brand-charcoal transition-colors hover:bg-brand-orange-hover"
                   >
                     Request a similar project
                   </button>

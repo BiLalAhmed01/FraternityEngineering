@@ -60,7 +60,7 @@ export const TermsPage: React.FC = () => {
           <section>
             <h2 className="text-xl font-heading font-bold text-brand-navy mb-3">4. Intellectual Property</h2>
             <p>
-              All content on this website — including text, graphics, logos, and images — is the
+              All content on this website, including text, graphics, logos and images, is the
               property of FTE or its licensors and may not be reproduced without written permission.
             </p>
           </section>

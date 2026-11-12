@@ -1,280 +1,378 @@
-import React, { useState, useEffect } from "react";
-import { BrandLogo } from "./BrandLogo";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { MessageCircle, Phone } from "lucide-react";
 import { SITE_CONTENT } from "../content";
-import { Menu, X, Phone, ArrowUpRight } from "lucide-react";
-import { MagneticButton } from "./MagneticButton";
-import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
 
-export const HEADER_OFFSET = 80;
+export const NAV_LINKS = [
+  { label: "Services", id: "services" },
+  { label: "Work", id: "work" },
+  { label: "Clients", id: "clients" },
+  { label: "About", id: "about" },
+  { label: "Process", id: "process" },
+  { label: "FAQ", id: "faq" },
+  { label: "Contact", id: "contact" },
+] as const;
+
+const SECTION_IDS = NAV_LINKS.map((l) => l.id) as string[];
+const WHATSAPP_URL = "https://wa.me/923315095004";
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** Maps a hash like "#work-imc-hospital" or "#contact?discipline=x" to its nav section. */
+const sectionFromHash = (hash: string | undefined) => {
+  const raw = (hash ?? "").replace(/^#/, "").split(/[?-]/)[0];
+  return SECTION_IDS.includes(raw) ? raw : "";
+};
+
+/** Same-page anchors on the homepage (keeps any query string, no reload); "/#id" elsewhere. */
+export const sectionHref = (id: string) => {
+  const onHome = typeof window !== "undefined" && (window.location.pathname === "/" || window.location.pathname === "");
+  return onHome ? `#${id}` : `/#${id}`;
+};
+
+const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange";
 
 export const Header: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isHome = window.location.pathname === "/";
-  const [activeSection, setActiveSection] = useState(
-    window.location.pathname.startsWith("/services") ? "services" : ""
+  const reduceMotion = !!useReducedMotion();
+  const isHome = window.location.pathname === "/" || window.location.pathname === "";
+  const { contact } = SITE_CONTENT;
+
+  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState(() =>
+    isHome ? sectionFromHash(window.location.hash) : window.location.pathname.startsWith("/services") ? "services" : ""
   );
 
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 140,
-    damping: 24,
-    restDelta: 0.001,
-  });
+  const headerRef = useRef<HTMLElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
 
+  // Solid bar after 40px; hide when scrolling down past 400px, show when scrolling up.
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 40);
+      if (y < 400) setHidden(false);
+      else if (Math.abs(y - lastY) > 4) setHidden(y > lastY);
+      lastY = y;
     };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Highlight the section under the sticky header (home page only)
+  // Current section (home page): the section crossing the band just below the bar.
   useEffect(() => {
     if (!isHome) return;
-    const sections = ["services", "work", "clients", "about", "process", "faq", "contact"];
-    const handleScroll = () => {
-      let current = "";
-      for (const id of sections) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= HEADER_OFFSET + 40) current = id;
-      }
-      setActiveSection(current);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    const visible = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
+        }
+        const current = SECTION_IDS.filter((id) => visible.has(id)).pop() ?? "";
+        setActive(current);
+      },
+      { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
+    );
+    SECTION_IDS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
   }, [isHome]);
 
-  // Close mobile drawer on escape
+  // Keep the URL hash in step with the current section without clobbering deep links (#work-…, #faq-…).
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && mobileMenuOpen) {
-        setMobileMenuOpen(false);
+    if (!isHome) return;
+    const { pathname, search, hash } = window.location;
+    // Leave deep links alone (#work-slug, #faq-slug, #contact?discipline=…); only plain section hashes follow the scroll.
+    const isPlain = hash === "" || SECTION_IDS.includes(hash.slice(1)) || hash === "#hero";
+    if (!isPlain || sectionFromHash(hash) === active) return;
+    history.replaceState(null, "", `${pathname}${search}${active ? `#${active}` : ""}`);
+  }, [active, isHome]);
+
+  useEffect(() => {
+    if (!isHome) return;
+    const onHash = () => {
+      const section = sectionFromHash(window.location.hash);
+      if (section) setActive(section);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [isHome]);
+
+  // Sliding underline under the active link.
+  const measure = useCallback(() => {
+    const el = active ? linkRefs.current[active] : null;
+    setIndicator(el ? { left: el.offsetLeft, width: el.offsetWidth } : null);
+  }, [active]);
+
+  useLayoutEffect(measure, [measure]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(measure);
+    if (linksRef.current) ro.observe(linksRef.current);
+    document.fonts?.ready.then(measure);
+    return () => ro.disconnect();
+  }, [measure]);
+
+  // Mobile menu: scroll lock, Esc, focus trap, focus return.
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  /** Menu links: close first, then scroll once the page is unlocked (the jump is lost while scroll is locked). */
+  const goToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    const target = isHome ? document.getElementById(id) : null;
+    setMenuOpen(false);
+    if (!target) return;
+    e.preventDefault();
+    requestAnimationFrame(() => {
+      const lenis = (window as any).__lenis;
+      if (lenis) lenis.scrollTo(target, { offset: -64 });
+      else target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+      const { pathname, search } = window.location;
+      history.replaceState(null, "", `${pathname}${search}#${id}`);
+      setActive(id);
+    });
+  };
+
+  useEffect(() => {
+    document.body.dataset.menu = menuOpen ? "open" : "";
+    if (!menuOpen) return;
+    const lenis = (window as any).__lenis;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    lenis?.stop();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setMenuOpen(false);
+        toggleRef.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const nodes = [headerRef.current, overlayRef.current]
+        .flatMap((root) => (root ? Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)) : []))
+        .filter((n) => n.offsetParent !== null);
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [mobileMenuOpen]);
-
-  // Lock body scroll when mobile drawer is open
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      document.body.dataset.menu = "";
+      lenis?.start();
     };
-  }, [mobileMenuOpen]);
+  }, [menuOpen]);
 
-  const navLinks = [
-    { label: "Services", href: "/#services", id: "services" },
-    { label: "Our Work", href: "/#work", id: "work" },
-    { label: "Clients", href: "/#clients", id: "clients" },
-    { label: "About", href: "/#about", id: "about" },
-    { label: "Process", href: "/#process", id: "process" },
-    { label: "Contact", href: "/#contact", id: "contact" },
-  ];
+  // Close the menu if the viewport grows to desktop.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => mq.matches && setMenuOpen(false);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  const barHidden = hidden && !menuOpen && !reduceMotion;
+  const solid = scrolled || menuOpen;
 
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-40 w-full transition-all duration-500 ${
-          isScrolled
-            ? "py-2 bg-brand-navy/95 backdrop-blur-xl border-b border-white/10"
-            : "py-4 md:py-6 bg-transparent border-b border-transparent"
-        }`}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-[4px] focus:bg-white focus:px-4 focus:py-3 focus:text-[15px] focus:font-medium focus:text-brand-navy focus:outline-2 focus:outline-offset-2 focus:outline-brand-orange"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-6">
-            {/* Brand Logo */}
-            <div className="flex items-center gap-3">
-              <BrandLogo isBlueBg={true} />
-            </div>
+        Skip to content
+      </a>
 
-            {/* Desktop Navigation with premium styling */}
-            <nav className="hidden lg:flex items-center gap-1" aria-label="Main Navigation">
-              {navLinks.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`relative group px-4 min-h-[44px] inline-flex items-center text-sm font-medium transition-all duration-300 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange ${
-                    activeSection === item.id
-                      ? "text-brand-orange"
-                      : "text-brand-stone hover:text-white"
-                  }`}
-                >
-                  <span className="relative z-10">{item.label}</span>
-                  {/* Active indicator */}
-                  {activeSection === item.id && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-0 bg-brand-orange/10 rounded-lg border border-brand-orange/30"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
-                  )}
-                  {/* Animated underline */}
-                  <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r from-brand-orange to-brand-orange-hover scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left ease-out" />
-                </a>
-              ))}
-            </nav>
-
-            {/* Header Right Actions with premium styling */}
-            <div className="hidden sm:flex items-center gap-4">
-              {/* Phone number with enhanced styling */}
-              <a
-                href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}
-                className="hidden xl:flex items-center gap-2.5 text-xs font-semibold text-brand-stone hover:text-white transition-all duration-300 min-h-[44px] px-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10"
-                title="Call office directly"
-              >
-                <div className="p-1.5 rounded-full bg-brand-orange/20">
-                  <Phone className="w-3 h-3 text-brand-orange" />
-                </div>
-                <span>{SITE_CONTENT.contact.phonePrimary}</span>
-              </a>
-
-              {/* Premium Get a Quote button */}
-              <MagneticButton
-                as="a"
-                href="/#contact"
-                className="relative inline-flex min-h-[44px] items-center justify-center gap-2.5 px-6 py-3 text-xs md:text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-brand-orange to-brand-orange-hover hover:from-brand-orange-hover hover:to-brand-orange text-brand-charcoal transition-all duration-300 rounded-full shadow-lg hover:shadow-orange-500/40 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange focus-visible:ring-offset-brand-navy group"
-              >
-                <span className="relative z-10">Get a Quote</span>
-                <ArrowUpRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
-                {/* Shine effect */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              </MagneticButton>
-            </div>
-
-            {/* Mobile Menu Button with premium styling */}
-            <div className="flex lg:hidden items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="relative p-3 text-brand-stone hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
-                aria-expanded={mobileMenuOpen}
-                aria-label="Toggle navigation menu"
-              >
-                <motion.div
-                  animate={{ rotate: mobileMenuOpen ? 90 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </motion.div>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Premium scroll-progress line */}
-        <motion.div
-          className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-orange via-brand-orange-hover to-brand-orange origin-left pointer-events-none"
-          style={{ scaleX }}
+      <header
+        ref={headerRef}
+        className={`fixed inset-x-0 top-0 z-50 transition-[background-color,translate] duration-200 ease-out motion-reduce:transition-none ${
+          solid && !menuOpen ? "bg-brand-navy/92 backdrop-blur-[12px]" : "bg-transparent"
+        } ${barHidden ? "-translate-y-full" : ""}`}
+      >
+        {/* Bottom hairline, drawn over the bar so it never adds height */}
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 bottom-0 h-px bg-white/10 transition-opacity duration-200 ${
+            solid && !menuOpen ? "opacity-100" : "opacity-0"
+          }`}
         />
+        <div
+          className={`mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8 transition-[height] duration-200 motion-reduce:transition-none h-16 ${
+            scrolled ? "lg:h-16" : "lg:h-20"
+          }`}
+        >
+          {/* Brand */}
+          <a
+            href={isHome ? "#hero" : "/"}
+            onClick={() => setMenuOpen(false)}
+            className={`flex shrink-0 items-center gap-3 rounded-sm ${focusRing}`}
+            aria-label="Fraternity Engineering & Co., back to top"
+          >
+            <img src="/assets/logo-mark.webp" alt="" width={44} height={40} className="h-10 w-auto" />
+            <span className="leading-tight text-white">
+              <span className="block whitespace-nowrap text-[15px] font-medium sm:text-[17px]">Fraternity Engineering</span>
+              <span className="hidden text-[13px] text-white/60 xl:block">&amp; Co.</span>
+            </span>
+          </a>
+
+          {/* Desktop links */}
+          <nav aria-label="Primary" className="hidden lg:block">
+            <div ref={linksRef} className="relative flex items-center gap-6 xl:gap-8">
+              {NAV_LINKS.map((link) => {
+                const isActive = active === link.id;
+                return (
+                  <a
+                    key={link.id}
+                    ref={(el) => {
+                      linkRefs.current[link.id] = el;
+                    }}
+                    href={sectionHref(link.id)}
+                    aria-current={isActive ? "true" : undefined}
+                    className={`inline-flex min-h-[44px] items-center rounded-sm text-[15px] transition-colors duration-200 ${focusRing} ${
+                      isActive ? "text-white" : "text-white/78 hover:text-white"
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                );
+              })}
+              <span
+                aria-hidden="true"
+                className={`pointer-events-none absolute top-[calc(50%+19px)] left-0 h-[2px] bg-brand-orange transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
+                  indicator ? "opacity-100" : "opacity-0"
+                }`}
+                style={{ width: indicator?.width ?? 0, transform: `translateX(${indicator?.left ?? 0}px)` }}
+              />
+            </div>
+          </nav>
+
+          {/* Desktop actions */}
+          <div className="hidden shrink-0 items-center gap-6 lg:flex">
+            <a
+              href={`tel:${contact.phonePrimaryTel}`}
+              className={`hidden min-h-[44px] items-center gap-2 rounded-sm text-[15px] text-white transition-colors hover:text-white/80 xl:inline-flex ${focusRing}`}
+            >
+              <Phone className="h-4 w-4 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+              {contact.phonePrimary}
+            </a>
+            <a
+              href={sectionHref("contact")}
+              className={`inline-flex h-11 items-center rounded-[4px] bg-brand-orange px-5 text-[15px] font-medium text-brand-charcoal transition-colors hover:bg-brand-orange-hover ${focusRing}`}
+            >
+              Request a quote
+            </a>
+          </div>
+
+          {/* Menu toggle */}
+          <button
+            ref={toggleRef}
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className={`relative -mr-2 inline-flex h-11 w-11 items-center justify-center rounded-[4px] text-white lg:hidden ${focusRing}`}
+          >
+            <span
+              aria-hidden="true"
+              className={`absolute h-[1.5px] w-6 bg-current transition-transform duration-200 motion-reduce:transition-none ${
+                menuOpen ? "rotate-45" : "-translate-y-[4px]"
+              }`}
+            />
+            <span
+              aria-hidden="true"
+              className={`absolute h-[1.5px] w-6 bg-current transition-transform duration-200 motion-reduce:transition-none ${
+                menuOpen ? "-rotate-45" : "translate-y-[4px]"
+              }`}
+            />
+          </button>
+        </div>
       </header>
 
-      {/* Premium Mobile Drawer Menu */}
+      {/* Mobile menu overlay */}
       <AnimatePresence>
-        {mobileMenuOpen && (
+        {menuOpen && (
           <motion.div
+            ref={overlayRef}
+            id="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            data-lenis-prevent
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 lg:hidden"
-            role="dialog"
-            aria-modal="true"
+            transition={{ duration: reduceMotion ? 0 : 0.25 }}
+            className="fixed inset-0 z-40 flex flex-col overflow-y-auto bg-brand-navy px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 sm:px-6 lg:hidden"
           >
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-
-            {/* Drawer */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed inset-y-0 right-0 max-w-sm w-full bg-gradient-to-b from-brand-navy to-brand-charcoal border-l border-white/10 p-8 flex flex-col justify-between shadow-2xl"
-            >
-              <div>
-                {/* Header */}
-                <div className="flex items-center justify-between pb-8 border-b border-white/10">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-brand-orange/20 flex items-center justify-center">
-                      <span className="text-brand-orange font-bold text-sm">FTE</span>
-                    </div>
-                    <span className="font-heading font-bold text-white text-lg tracking-wide">
-                      Menu
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-3 text-brand-stone hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-brand-orange"
-                    aria-label="Close menu"
+            <nav aria-label="Primary" className="flex-1">
+              <ul>
+                {NAV_LINKS.map((link, i) => (
+                  <motion.li
+                    key={link.id}
+                    initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: reduceMotion ? 0 : 0.06 * i, ease: "easeOut" }}
+                    className="border-b border-white/10"
                   >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Navigation Links */}
-                <nav className="mt-8 flex flex-col gap-1" aria-label="Mobile Navigation">
-                  {navLinks.map((item, index) => (
-                    <motion.a
-                      key={item.label}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className={`px-4 py-3.5 min-h-[48px] text-base font-semibold rounded-xl transition-all duration-300 ${
-                        activeSection === item.id
-                          ? "text-brand-orange bg-brand-orange/10 border border-brand-orange/30"
-                          : "text-white/90 hover:text-brand-orange hover:bg-white/5"
+                    <a
+                      href={sectionHref(link.id)}
+                      onClick={(e) => goToSection(e, link.id)}
+                      aria-current={active === link.id ? "true" : undefined}
+                      className={`flex min-h-[44px] items-center py-3 text-[28px] font-medium leading-tight ${focusRing} ${
+                        active === link.id ? "text-white" : "text-white/85"
                       }`}
                     >
-                      <span className="flex items-center justify-between">
-                        {item.label}
-                        <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </span>
-                    </motion.a>
-                  ))}
-                </nav>
-              </div>
+                      {link.label}
+                      {active === link.id && <span className="ml-3 h-[2px] w-5 bg-brand-orange" aria-hidden="true" />}
+                    </a>
+                  </motion.li>
+                ))}
+              </ul>
+            </nav>
 
-              {/* Footer */}
-              <div className="pt-8 border-t border-white/10 space-y-5">
-                {/* Contact Info */}
-                <div className="text-xs text-brand-stone space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-orange" />
-                    <p className="font-medium text-white">Islamabad Headquarters</p>
-                  </div>
-                  <p className="pl-3.5">{SITE_CONTENT.contact.address}</p>
-                  <p className="pl-3.5 text-white font-semibold">{SITE_CONTENT.contact.phoneDisplay}</p>
-                </div>
-
-                {/* CTA Button */}
-                <a
-                  href="/#contact"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-2.5 py-4 px-6 bg-gradient-to-r from-brand-orange to-brand-orange-hover text-brand-charcoal font-bold text-sm uppercase tracking-wider rounded-full shadow-lg hover:shadow-orange-500/40 transition-all duration-300"
-                >
-                  <span>Get a Quote</span>
-                  <ArrowUpRight className="w-4 h-4" />
-                </a>
-              </div>
-            </motion.div>
+            <div className="mt-10 space-y-1">
+              <a
+                href={`tel:${contact.phonePrimaryTel}`}
+                className={`flex min-h-[44px] items-center gap-3 rounded-sm text-[17px] text-white ${focusRing}`}
+              >
+                <Phone className="h-5 w-5 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+                Call {contact.phonePrimary}
+              </a>
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex min-h-[44px] items-center gap-3 rounded-sm text-[17px] text-white ${focusRing}`}
+              >
+                <MessageCircle className="h-5 w-5 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+                WhatsApp us
+              </a>
+              <a
+                href={sectionHref("contact")}
+                onClick={(e) => goToSection(e, "contact")}
+                className={`!mt-6 flex h-[52px] w-full items-center justify-center rounded-[4px] bg-brand-orange text-[16px] font-medium text-brand-charcoal transition-colors hover:bg-brand-orange-hover ${focusRing}`}
+              >
+                Request a quote
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

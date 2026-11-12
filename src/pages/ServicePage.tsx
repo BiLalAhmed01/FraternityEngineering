@@ -18,11 +18,11 @@ const CATEGORY_IMAGES: Record<string, string> = {
 };
 
 const quoteCta =
-  "inline-flex items-center justify-center gap-2 min-h-[44px] px-8 py-4 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm uppercase tracking-wider rounded-lg transition-colors";
+  "inline-flex items-center justify-center gap-2 min-h-[44px] px-8 py-4 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm rounded-lg transition-colors";
 
 export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service }) => {
   useEffect(() => {
-    document.title = `${service.name} | Fraternity Engineering & Co.`;
+    document.title = `${service.name} | Fraternity Engineering`;
     window.scrollTo(0, 0);
   }, [service]);
 
@@ -33,7 +33,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
       <div className="min-h-screen bg-brand-cream text-brand-brown font-body flex flex-col overflow-x-hidden">
         <Header />
 
-        <main className="flex-1">
+        <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
           {/* Hero */}
           <section className="relative bg-brand-navy text-white pt-32 pb-16 md:pt-40 md:pb-24" aria-label={service.name}>
             <div className="absolute inset-0 bg-blueprint-grid opacity-30 pointer-events-none" />
@@ -49,7 +49,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
                 <div className="w-16 h-1 bg-brand-orange mt-4 mb-5" />
                 <p className="text-base sm:text-lg text-brand-stone leading-relaxed max-w-xl">{service.overview}</p>
                 <a href="/#contact" className={`${quoteCta} mt-8`}>
-                  <span>Get a Quote</span>
+                  <span>Request a quote</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </a>
               </div>
@@ -70,7 +70,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
                 <p className="leading-relaxed">{service.summary}</p>
               </div>
               <div>
-                <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Typical scopes</h2>
+                <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">What we deliver</h2>
                 <div className="w-16 h-1 bg-brand-orange mt-4 mb-5" />
                 <ul className="space-y-3">
                   {service.subservices.map((item) => (
@@ -156,7 +156,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           {/* FAQ */}
           <section className="pb-16 md:pb-24" aria-label="Frequently asked questions">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Common questions</h2>
+              <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Questions</h2>
               <div className="w-16 h-1 bg-brand-orange mt-4 mb-8" />
               <FaqAccordion items={service.faq} idPrefix="svc-faq" />
             </div>
@@ -166,13 +166,13 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           <section className="bg-brand-navy text-white py-16 md:py-24 text-center" aria-label="Request a quote">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
               <h2 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight">
-                Need {service.name.toLowerCase()}?
+                Tell us about your project.
               </h2>
               <p className="text-brand-stone mt-4 mb-8">
-                Send us your scope, drawings or tender documents and we will reply with an itemized quote.
+                Send us your scope, drawings or tender documents and we will reply with an itemised quote.
               </p>
               <a href="/#contact" className={quoteCta}>
-                <span>Get a Quote</span>
+                <span>Request a quote</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </a>
               <p className="mt-10 text-xs font-mono uppercase tracking-wider text-brand-stone">Other services</p>

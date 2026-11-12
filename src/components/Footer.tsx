@@ -1,194 +1,186 @@
 import React from "react";
-import { BrandLogo } from "./BrandLogo";
+import { Facebook, Linkedin } from "lucide-react";
 import { SITE_CONTENT } from "../content";
-import { SERVICE_PAGES, serviceUrl } from "../servicesData";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { serviceUrl } from "../servicesData";
+import { NAV_LINKS, sectionHref } from "./Header";
+
+const DIRECTIONS_URL =
+  "https://www.google.com/maps/search/?api=1&query=Shop+01+Block+54+IT+Center+G-8%2F1+Islamabad";
+
+const SERVICE_LINKS = [
+  { label: "Construction", slug: "construction" },
+  { label: "Civil works", slug: "civil" },
+  { label: "Electrical", slug: "electrical" },
+  { label: "Fire and safety", slug: "fire-safety" },
+  { label: "Supply", slug: "supply" },
+];
+
+// Company column follows the navbar's names and anchors, minus Services (which has its own column).
+const COMPANY_ORDER = ["about", "work", "clients", "process", "faq", "contact"];
+const COMPANY_LINKS = COMPANY_ORDER.map((id) => NAV_LINKS.find((l) => l.id === id)!);
+
+const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange";
+const drawUnderline =
+  "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100 motion-reduce:after:transition-none";
+
+const FooterLink: React.FC<{ href: string; children: React.ReactNode; external?: boolean; className?: string }> = ({
+  href,
+  children,
+  external,
+  className = "text-white/78",
+}) => (
+  <a
+    href={href}
+    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+    className={`group inline-flex rounded-sm transition-colors duration-200 hover:text-white ${focusRing} ${className}`}
+  >
+    <span className={drawUnderline}>{children}</span>
+  </a>
+);
+
+const ColumnHeading: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <h2 className="text-[13px] font-medium text-white/50">{children}</h2>
+);
 
 export const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear();
+  const { contact, hero, about } = SITE_CONTENT;
+  const year = new Date().getFullYear();
+  const email = contact.domainEmail || contact.email;
 
-  const exploreLinks = [
-    { label: "Home", href: "/#hero" },
-    { label: "About Us", href: "/#about" },
-    { label: "Our Services", href: "/#services" },
-    { label: "Our Projects", href: "/#work" },
-    { label: "Our Clients", href: "/#clients" },
-    { label: "FAQ", href: "/#faq" },
-    { label: "Our Approach", href: "/#process" },
-    { label: "Contact Us", href: "/#contact" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms & Conditions", href: "/terms" },
-  ];
+  const credentials = [
+    "Fraternity Engineering & Co. (SMC-Pvt) Ltd.",
+    hero.pecCategory.trim() && `PEC ${hero.pecCategory.trim()}`,
+    about.credentials.ntn.trim() && `NTN ${about.credentials.ntn.trim()}`,
+  ].filter(Boolean) as string[];
 
-  const serviceLinks = SERVICE_PAGES.map((svc) => ({ label: svc.name, href: serviceUrl(svc.slug) }));
+  const socials = [
+    contact.social.linkedin && { label: "LinkedIn", href: contact.social.linkedin, Icon: Linkedin },
+    contact.social.facebook && { label: "Facebook", href: contact.social.facebook, Icon: Facebook },
+  ].filter(Boolean) as { label: string; href: string; Icon: typeof Linkedin }[];
 
   return (
-    <footer className="relative bg-[#14213D] text-[#F4EDE0] overflow-hidden pb-[72px] lg:pb-0">
-      {/* Architectural Grid Background */}
-      <div className="absolute inset-0 bg-blueprint-grid opacity-10 pointer-events-none" />
-
-      {/* Top Border Accent */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-orange to-transparent" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Large Brand Closing Statement */}
-        <div className="pt-20 pb-16 md:pt-28 md:pb-20 border-b border-white/10">
-          <div className="max-w-4xl">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tight leading-[1.1] mb-6">
-              <span className="text-[#F4EDE0]">ENGINEERING EXCELLENCE.</span>
-              <br />
-              <span className="text-brand-orange">RELIABLE EXECUTION.</span>
-            </h2>
-            {/* Orange Divider */}
-            <div className="mt-8 flex items-center gap-4">
-              <div className="h-px w-16 bg-brand-orange" />
-              <div className="h-1.5 w-1.5 rounded-full bg-brand-orange" />
-              <div className="h-px flex-1 bg-gradient-to-r from-brand-orange/40 to-transparent" />
-            </div>
+    <footer className="border-t border-white/10 bg-brand-navy-deep text-white pt-16 pb-[calc(2rem+56px+env(safe-area-inset-bottom))] md:pb-10 lg:pt-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12 lg:grid-cols-12">
+          {/* Brand */}
+          <div className="md:col-span-3 lg:col-span-4">
+            <a href="/" className={`inline-flex items-center gap-3 rounded-sm ${focusRing}`}>
+              <img src="/assets/logo-mark.webp" alt="" width={44} height={40} className="h-10 w-auto" />
+              <span className="text-[18px] font-medium text-white">Fraternity Engineering &amp; Co.</span>
+            </a>
+            <p className="mt-5 max-w-[34ch] text-[15px] leading-[1.7] text-white/65">
+              Construction, electrical, fire safety and supply under one contract, from Islamabad. One accountable team.
+            </p>
+            <ul className="mt-6 space-y-1.5 text-[13px] text-white/55">
+              {credentials.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
           </div>
-        </div>
 
-        {/* Main Footer Layout - Four Columns */}
-        <div className="py-16 md:py-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
-            {/* Column 1: Brand */}
-            <div className="space-y-6">
-              <BrandLogo variant="footer" isBlueBg={true} />
-              <p className="text-sm text-brand-stone/80 leading-relaxed max-w-xs">
-                Fraternity Engineering & Co. (SMC-Pvt) Ltd. provides integrated construction,
-                civil engineering, electrical installations, fire & safety systems, and general
-                order supplies across Pakistan.
-              </p>
-              <div className="pt-4 border-t border-white/10">
-                <p className="text-xs font-mono text-brand-orange/90 uppercase tracking-wider">
-                  Engineering | Construction | Electrical | Fire & Safety | General Order Supply
+          {/* Company */}
+          <nav aria-labelledby="footer-company" className="lg:col-span-2">
+            <div id="footer-company">
+              <ColumnHeading>Company</ColumnHeading>
+            </div>
+            <ul className="mt-5 space-y-3 text-[15px]">
+              {COMPANY_LINKS.map((l) => (
+                <li key={l.id}>
+                  <FooterLink href={sectionHref(l.id)}>{l.label}</FooterLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Services */}
+          <nav aria-labelledby="footer-services" className="lg:col-span-3">
+            <div id="footer-services">
+              <ColumnHeading>Services</ColumnHeading>
+            </div>
+            <ul className="mt-5 space-y-3 text-[15px]">
+              {SERVICE_LINKS.map((l) => (
+                <li key={l.slug}>
+                  <FooterLink href={serviceUrl(l.slug)}>{l.label}</FooterLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Contact */}
+          <div className="lg:col-span-3">
+            <ColumnHeading>Contact</ColumnHeading>
+            <address className="mt-5 space-y-4 text-[15px] not-italic leading-relaxed text-white/78">
+              <div>
+                <p>{contact.address}</p>
+                <FooterLink href={DIRECTIONS_URL} external className="mt-1 text-white">
+                  Get directions
+                </FooterLink>
+              </div>
+              <div className="space-y-1">
+                <p>
+                  <FooterLink href={`tel:${contact.phonePrimaryTel}`} className="text-white">
+                    {contact.phonePrimary}
+                  </FooterLink>
+                  <span className="text-white/50"> mobile / WhatsApp</span>
+                </p>
+                <p>
+                  <FooterLink href={`tel:${contact.phoneSecondaryTel}`} className="text-white">
+                    {contact.phoneSecondary}
+                  </FooterLink>
+                  <span className="text-white/50"> landline</span>
                 </p>
               </div>
-            </div>
-
-            {/* Column 2: Explore */}
-            <div className="space-y-6">
-              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#F4EDE0]">
-                Explore
-              </h3>
-              <ul className="space-y-0">
-                {exploreLinks.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="group relative inline-flex items-center min-h-[44px] text-sm text-brand-stone/90 hover:text-[#F4EDE0] transition-colors duration-300"
-                    >
-                      {link.label}
-                      <span className="absolute bottom-0 left-0 w-0 h-px bg-brand-orange transition-all duration-300 group-hover:w-full" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 3: Our Services */}
-            <div className="space-y-6">
-              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#F4EDE0]">
-                Our Services
-              </h3>
-              <ul className="space-y-0">
-                {serviceLinks.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="group relative inline-flex items-center min-h-[44px] text-sm text-brand-stone/90 hover:text-[#F4EDE0] transition-colors duration-300"
-                    >
-                      {link.label}
-                      <span className="absolute bottom-0 left-0 w-0 h-px bg-brand-orange transition-all duration-300 group-hover:w-full" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 4: Contact */}
-            <div className="space-y-6">
-              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#F4EDE0]">
-                Contact
-              </h3>
-              <div className="space-y-4 text-sm">
-                {/* Address */}
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
-                  <span className="text-brand-stone/80 leading-relaxed">
-                    {SITE_CONTENT.contact.address}
-                  </span>
-                </div>
-
-                {/* Phone */}
-                <div className="flex items-start gap-3">
-                  <Phone className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <a
-                      href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}
-                      className="block text-brand-stone/80 hover:text-[#F4EDE0] transition-colors"
-                    >
-                      0331-5095004
-                    </a>
-                    <span className="block text-xs text-brand-stone/75">Mobile</span>
-                    <a
-                      href={`tel:${SITE_CONTENT.contact.phoneSecondaryTel}`}
-                      className="block text-brand-stone/80 hover:text-[#F4EDE0] transition-colors"
-                    >
-                      051-2331654
-                    </a>
-                    <span className="block text-xs text-brand-stone/75">Landline</span>
-                  </div>
-                </div>
-
-                {/* Email (hidden until a domain email is set) */}
-                {SITE_CONTENT.contact.domainEmail && (
-                  <div className="flex items-start gap-3">
-                    <Mail className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
-                    <a
-                      href={`mailto:${SITE_CONTENT.contact.domainEmail}`}
-                      className="text-brand-stone/80 hover:text-[#F4EDE0] transition-colors break-all"
-                    >
-                      {SITE_CONTENT.contact.domainEmail}
-                    </a>
-                  </div>
-                )}
-
-                {/* Office Hours */}
-                <div className="flex items-start gap-3 pt-2 border-t border-white/10">
-                  <Clock className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
-                  <div className="space-y-1 text-xs text-brand-stone/80">
-                    <p>Monday to Saturday: 9:00 AM - 6:00 PM</p>
-                    <p>Friday Break: 1:00 PM - 2:30 PM</p>
-                  </div>
-                </div>
+              {email && (
+                <p className="break-all">
+                  <FooterLink href={`mailto:${email}`} className="text-white">
+                    {email}
+                  </FooterLink>
+                </p>
+              )}
+              <div>
+                <p>Mon to Sat, 9:00 AM - 6:00 PM</p>
+                <p className="text-white/50">Friday break 1:00 PM - 2:30 PM</p>
               </div>
+            </address>
+            {socials.length > 0 && (
+              <ul className="-ml-3 mt-5 flex gap-1">
+                {socials.map(({ label, href, Icon }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className={`inline-flex h-11 w-11 items-center justify-center rounded-sm text-white/70 transition-colors hover:text-white ${focusRing}`}
+                    >
+                      <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-8 text-[13px] text-white/55 md:flex-row md:items-center md:justify-between lg:mt-20">
+          <p>&copy; {year} Fraternity Engineering &amp; Co. (SMC-Pvt) Ltd. All rights reserved.</p>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-10">
+            <div className="flex items-center divide-x divide-white/15">
+              <FooterLink href="/privacy" className="pr-4 text-white/55">
+                Privacy Policy
+              </FooterLink>
+              <span className="pl-4">
+                <FooterLink href="/terms" className="text-white/55">
+                  Terms &amp; Conditions
+                </FooterLink>
+              </span>
             </div>
-          </div>
-        </div>
-
-        {/* Copyright Bar */}
-        <div className="py-8 border-t border-white/10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-brand-stone/75 font-light tracking-wide">
-              &copy; {currentYear} Fraternity Engineering. All Rights Reserved.
-            </p>
-          </div>
-        </div>
-
-        {/* Developer Credit */}
-        <div className="py-6 border-t border-white/10">
-          <div className="flex items-center justify-center">
-            <p className="text-xs text-brand-stone/75 font-light tracking-wide">
-              Powered by{" "}
-              <a
-                href="https://www.robosoftworks.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-orange hover:text-[#F4EDE0] transition-colors font-medium"
-              >
+            <p>
+              Website by{" "}
+              <FooterLink href="https://www.robosoftworks.com" external className="text-white/55">
                 RoboSoft Works
-              </a>
+              </FooterLink>
             </p>
           </div>
         </div>

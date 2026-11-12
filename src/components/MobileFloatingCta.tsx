@@ -1,37 +1,54 @@
-import React from "react";
-import { Phone, MessageCircle, FileText } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { FileText, MessageCircle, Phone } from "lucide-react";
 import { SITE_CONTENT } from "../content";
+import { sectionHref } from "./Header";
 
 /**
- * Sticky bottom bar on mobile and tablet: Call, WhatsApp, Quote.
- * It replaces the old floating WhatsApp/call buttons, so only one set of quick actions shows.
+ * Fixed quick actions on phones (<768px): Call, WhatsApp, Quote.
+ * Hidden while the mobile menu is open (CSS, via body[data-menu]) and while the contact form is on screen.
  */
 export const MobileFloatingCta: React.FC = () => {
+  const [contactInView, setContactInView] = useState(false);
+
+  useEffect(() => {
+    const contact = document.getElementById("contact");
+    if (!contact) return;
+    const observer = new IntersectionObserver(([entry]) => setContactInView(entry.isIntersecting), { threshold: 0.15 });
+    observer.observe(contact);
+    return () => observer.disconnect();
+  }, []);
+
   const item =
-    "flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[56px] text-[11px] font-bold uppercase tracking-wider focus-visible:outline-2 focus-visible:outline-offset-[-3px]";
+    "flex flex-1 items-center justify-center gap-2 text-[14px] font-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-orange";
 
   return (
     <nav
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex bg-brand-charcoal border-t border-white/15 pb-[env(safe-area-inset-bottom)]"
       aria-label="Quick contact"
+      aria-hidden={contactInView || undefined}
+      className={`quick-bar fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-brand-navy pb-[env(safe-area-inset-bottom)] transition-opacity duration-200 md:hidden ${
+        contactInView ? "pointer-events-none opacity-0" : "opacity-100"
+      }`}
     >
-      <a href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`} className={`${item} text-white hover:bg-white/10`}>
-        <Phone className="w-5 h-5" aria-hidden="true" />
-        <span>Call</span>
-      </a>
-      <a
-        href={SITE_CONTENT.contact.whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`${item} text-white hover:bg-white/10 border-x border-white/15`}
-      >
-        <MessageCircle className="w-5 h-5 text-[#25D366]" aria-hidden="true" />
-        <span>WhatsApp</span>
-      </a>
-      <a href="/#contact" className={`${item} bg-brand-orange text-brand-charcoal hover:bg-brand-orange-hover`}>
-        <FileText className="w-5 h-5" aria-hidden="true" />
-        <span>Quote</span>
-      </a>
+      <div className="flex h-14 divide-x divide-white/10">
+        <a href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`} tabIndex={contactInView ? -1 : undefined} className={`${item} text-white`}>
+          <Phone className="h-4 w-4 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+          Call
+        </a>
+        <a
+          href="https://wa.me/923315095004"
+          target="_blank"
+          rel="noopener noreferrer"
+          tabIndex={contactInView ? -1 : undefined}
+          className={`${item} text-white`}
+        >
+          <MessageCircle className="h-4 w-4 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+          WhatsApp
+        </a>
+        <a href={sectionHref("contact")} tabIndex={contactInView ? -1 : undefined} className={`${item} text-brand-orange`}>
+          <FileText className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+          Quote
+        </a>
+      </div>
     </nav>
   );
 };

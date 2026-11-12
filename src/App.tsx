@@ -48,10 +48,10 @@ export default function App() {
       <FilmGrain />
 
       <div className="min-h-screen bg-brand-cream text-brand-brown font-body flex flex-col selection:bg-brand-orange selection:text-brand-charcoal overflow-x-clip">
-        {/* Sticky/Fixed Header with Glass Transition & Orange Progress line */}
+        {/* Fixed navbar: transparent over the hero, solid navy once scrolled */}
         <Header />
 
-        <main className="flex-1">
+        <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
           {/* Hero: disciplines index with image slideshow, trust row */}
           <Hero />
 
@@ -87,7 +87,7 @@ export default function App() {
         {/* Footer */}
         <Footer />
 
-        {/* Floating Call & WhatsApp Buttons on Mobile */}
+        {/* Quick actions bar on phones */}
         <MobileFloatingCta />
 
         {/* Smooth-Scrolling Back to Top Button */}

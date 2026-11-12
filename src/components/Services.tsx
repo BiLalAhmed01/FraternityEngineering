@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import { SITE_CONTENT } from "../content";
 import { serviceUrl } from "../servicesData";
@@ -7,23 +7,23 @@ import { serviceUrl } from "../servicesData";
 // Section copy for the carousel cards. The detailed copy for each service page stays in content.ts.
 const CARD_COPY: Record<string, { description: string; alt: string }> = {
   construction: {
-    description: "Building development, renovation and structural works for commercial and institutional facilities.",
+    description: "New buildings, renovation and structural works for commercial, institutional and industrial clients, built to your drawings and specifications.",
     alt: "Multi-storey concrete building frame under construction with a tower crane at sunset",
   },
   civil: {
-    description: "Roads, drainage and site infrastructure that support building and facility development.",
+    description: "Roads, drainage, culverts and site development that prepare the ground for the buildings that follow, and keep it working.",
     alt: "Road roller compacting fresh asphalt while workers finish the kerb line",
   },
   electrical: {
-    description: "Installation, distribution and maintenance for commercial and institutional buildings.",
+    description: "Low-voltage distribution, panels, wiring and lighting, installed, tested and handed over with the documents your facility team needs.",
     alt: "Electrician in a hard hat wiring circuit breakers in a distribution panel",
   },
   "fire-safety": {
-    description: "Detection, alarm and protection systems for safer working environments.",
+    description: "Fire detection, alarm, hydrant and standpipe systems, tested and commissioned before handover.",
     alt: "Red fire sprinkler pipework, hose reel cabinet, alarm call point and extinguisher on a wall",
   },
   supply: {
-    description: "Procurement and delivery of engineering, construction and industrial materials.",
+    description: "Electrical, fire safety, hardware and construction materials, including construction chemicals, sourced to specification and delivered to site.",
     alt: "Warehouse shelving stocked with cables, pipes, safety helmets, tools and fire extinguishers",
   },
 };
@@ -39,64 +39,145 @@ const CARD_IMAGE: Record<string, { src: string; width: number; height: number }>
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
+// Infinite loop: the cards render three times and the track lives in the middle copy.
+// When scrolling settles in an outer copy, it jumps by one copy width to the identical middle position.
+// Only scrollLeft and scroll events are used, so it behaves the same in every browser.
+const COPIES = 3;
+const AUTOPLAY_MS = 4000;
+const RESUME_AFTER_TOUCH_MS = 6000;
+const SETTLE_MS = 140;
+
 export const Services: React.FC = () => {
   const services = SITE_CONTENT.services;
   const total = services.length;
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = !!useReducedMotion();
 
+  const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLUListElement>(null);
   const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
+  const indexRef = useRef(0);
+  const settleTimer = useRef<number | undefined>(undefined);
+  const touchTimer = useRef<number | undefined>(undefined);
 
-  const [state, setState] = useState({
-    index: 0,
-    canPrev: false,
-    canNext: true,
-    thumb: 1,
-    progress: 0,
-  });
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const [hovering, setHovering] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
+  const [touchHold, setTouchHold] = useState(false);
+  const [onScreen, setOnScreen] = useState(false);
+  const [tabHidden, setTabHidden] = useState(false);
 
-  // Derive counter, button states and progress line from the scroll position.
-  const sync = useCallback(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    const max = el.scrollWidth - el.clientWidth;
-    const progress = max > 0 ? Math.min(1, Math.max(0, el.scrollLeft / max)) : 0;
-    const atEnd = el.scrollLeft >= max - 2;
-    const card = el.querySelector<HTMLElement>("li");
-    const stepPx = card ? card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0") : 0;
-    // Counter follows the leftmost card; at the end of the track the last card is in view.
-    const leftmost = stepPx > 0 ? Math.round(el.scrollLeft / stepPx) : 0;
-    setState({
-      index: atEnd && max > 0 ? total - 1 : Math.min(leftmost, total - 1),
-      canPrev: el.scrollLeft > 2,
-      canNext: !atEnd,
-      thumb: el.scrollWidth > 0 ? el.clientWidth / el.scrollWidth : 1,
-      progress,
-    });
-  }, [total]);
-
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    sync();
-    el.addEventListener("scroll", sync, { passive: true });
-    const ro = new ResizeObserver(sync);
-    ro.observe(el);
-    return () => {
-      el.removeEventListener("scroll", sync);
-      ro.disconnect();
-    };
-  }, [sync]);
-
-  const step = () => {
+  /** Distance between card starts (card width + gap). */
+  const step = useCallback(() => {
     const el = trackRef.current;
     const card = el?.querySelector<HTMLElement>("li");
     if (!el || !card) return 0;
     return card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0");
-  };
+  }, []);
 
-  const scrollByCards = (dir: 1 | -1) => {
-    trackRef.current?.scrollBy({ left: dir * step(), behavior: reduceMotion ? "auto" : "smooth" });
+  /** Instant jump, ignoring smooth-scroll settings. */
+  const jumpTo = useCallback((left: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const prev = el.style.scrollBehavior;
+    el.style.scrollBehavior = "auto";
+    el.scrollLeft = left;
+    el.style.scrollBehavior = prev;
+  }, []);
+
+  /** Keep the track inside the middle copy. Only called once scrolling has settled. */
+  const recenter = useCallback(() => {
+    const el = trackRef.current;
+    const s = step();
+    if (!el || s <= 0 || el.dataset.dragging) return;
+    const copyWidth = s * total;
+    if (el.scrollLeft < copyWidth - s / 2) jumpTo(el.scrollLeft + copyWidth);
+    else if (el.scrollLeft >= copyWidth * 2 - s / 2) jumpTo(el.scrollLeft - copyWidth);
+  }, [step, total, jumpTo]);
+
+  const sync = useCallback(() => {
+    const el = trackRef.current;
+    const s = step();
+    if (!el || s <= 0) return;
+    const i = ((Math.round(el.scrollLeft / s) % total) + total) % total;
+    indexRef.current = i;
+    setIndex(i);
+  }, [step, total]);
+
+  // Start in the middle copy, and stay on the same card when the layout resizes.
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const place = () => {
+      const s = step();
+      if (s > 0) jumpTo(s * (total + indexRef.current));
+      sync();
+    };
+    place();
+    const ro = new ResizeObserver(place);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [step, total, jumpTo, sync]);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      sync();
+      window.clearTimeout(settleTimer.current);
+      settleTimer.current = window.setTimeout(recenter, SETTLE_MS);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.clearTimeout(settleTimer.current);
+    };
+  }, [sync, recenter]);
+
+  const scrollByCards = useCallback(
+    (dir: 1 | -1) => {
+      const el = trackRef.current;
+      const s = step();
+      if (!el || s <= 0) return;
+      recenter();
+      el.scrollBy({ left: dir * s, behavior: reduceMotion ? "auto" : "smooth" });
+    },
+    [step, recenter, reduceMotion]
+  );
+
+  // Autoplay runs only while the section is on screen, the tab is visible and nobody is interacting.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), { threshold: 0.25 });
+    io.observe(section);
+    const onVisibility = () => setTabHidden(document.hidden);
+    onVisibility();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
+
+  const autoplay = playing && !reduceMotion && onScreen && !tabHidden && !hovering && !focusWithin && !touchHold;
+
+  useEffect(() => {
+    if (!autoplay) return;
+    const id = window.setInterval(() => scrollByCards(1), AUTOPLAY_MS);
+    return () => window.clearInterval(id);
+  }, [autoplay, scrollByCards]);
+
+  useEffect(() => () => window.clearTimeout(touchTimer.current), []);
+
+  /** Touch or drag holds autoplay; it resumes a few seconds after release. */
+  const holdAutoplay = () => {
+    window.clearTimeout(touchTimer.current);
+    setTouchHold(true);
+  };
+  const releaseAutoplay = () => {
+    window.clearTimeout(touchTimer.current);
+    touchTimer.current = window.setTimeout(() => setTouchHold(false), RESUME_AFTER_TOUCH_MS);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -111,6 +192,7 @@ export const Services: React.FC = () => {
 
   // Mouse drag-to-scroll. Touch and pen use native scrolling.
   const onPointerDown = (e: React.PointerEvent<HTMLUListElement>) => {
+    holdAutoplay();
     if (e.pointerType !== "mouse" || e.button !== 0) return;
     const el = e.currentTarget;
     drag.current = { active: true, startX: e.clientX, startScroll: el.scrollLeft, moved: false };
@@ -130,6 +212,7 @@ export const Services: React.FC = () => {
   };
 
   const endDrag = (e: React.PointerEvent<HTMLUListElement>) => {
+    releaseAutoplay();
     const d = drag.current;
     if (!d.active) return;
     d.active = false;
@@ -153,11 +236,12 @@ export const Services: React.FC = () => {
   };
 
   const navBtn =
-    "inline-flex w-12 h-12 items-center justify-center rounded-full border border-brand-navy text-brand-navy transition-colors duration-200 hover:bg-brand-navy hover:text-white disabled:opacity-25 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange";
+    "inline-flex w-12 h-12 items-center justify-center rounded-full border border-brand-navy text-brand-navy transition-colors duration-200 hover:bg-brand-navy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange";
 
   return (
     <section
       id="services"
+      ref={sectionRef}
       className="svc relative bg-[#F5F3EF] text-brand-navy py-[72px] lg:py-[120px] overflow-hidden"
       aria-labelledby="services-heading"
     >
@@ -165,7 +249,7 @@ export const Services: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="svc-label">Our Services</p>
+            <p className="svc-label">What we do</p>
             <h2
               id="services-heading"
               className="mt-4 font-heading font-medium tracking-[-0.02em] leading-[1.05] text-[clamp(2rem,4vw,3.25rem)] [text-wrap:balance]"
@@ -173,32 +257,45 @@ export const Services: React.FC = () => {
               Five disciplines.<br className="hidden sm:block" /> One accountable team.
             </h2>
             <p className="mt-5 max-w-[55ch] text-base sm:text-lg leading-relaxed text-brand-navy/70">
-              Construction, civil, electrical, fire safety and supply, coordinated under one contract.
+              Construction, civil, electrical, fire safety and supply, planned and delivered together, so your project never depends on five contractors agreeing with each other.
             </p>
           </div>
 
           <div className="flex items-center gap-6 shrink-0">
             <p className="text-sm tabular-nums tracking-[0.12em] text-brand-navy/60" aria-hidden="true">
-              <span className="text-brand-navy">{pad(state.index + 1)}</span> / {pad(total)}
+              <span className="text-brand-navy">{pad(index + 1)}</span> / {pad(total)}
             </p>
-            <div className="hidden md:flex items-center gap-3">
+            <div className="flex items-center gap-3">
+              {!reduceMotion && (
+                <button
+                  type="button"
+                  onClick={() => setPlaying((p) => !p)}
+                  aria-label={playing ? "Pause services slideshow" : "Play services slideshow"}
+                  aria-controls="services-track"
+                  className={`${navBtn} !h-10 !w-10 !border-brand-navy/30`}
+                >
+                  {playing ? (
+                    <Pause className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
+                  ) : (
+                    <Play className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
+                  )}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => scrollByCards(-1)}
-                disabled={!state.canPrev}
                 aria-label="Previous service"
                 aria-controls="services-track"
-                className={navBtn}
+                className={`${navBtn} max-md:hidden`}
               >
                 <ArrowLeft className="w-5 h-5" strokeWidth={1.5} aria-hidden="true" />
               </button>
               <button
                 type="button"
                 onClick={() => scrollByCards(1)}
-                disabled={!state.canNext}
                 aria-label="Next service"
                 aria-controls="services-track"
-                className={navBtn}
+                className={`${navBtn} max-md:hidden`}
               >
                 <ArrowRight className="w-5 h-5" strokeWidth={1.5} aria-hidden="true" />
               </button>
@@ -207,13 +304,19 @@ export const Services: React.FC = () => {
         </div>
       </div>
 
-      {/* Carousel: left edge on the container, bleeding to the right viewport edge */}
+      {/* Looping carousel: left edge on the container, bleeding to the right viewport edge */}
       <div
         className="svc-viewport relative mt-12 lg:mt-16"
         role="region"
         aria-roledescription="carousel"
         aria-label="Services"
         onKeyDown={onKeyDown}
+        onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
+        onPointerLeave={() => setHovering(false)}
+        onFocus={() => setFocusWithin(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusWithin(false);
+        }}
       >
         <ul
           id="services-track"
@@ -222,86 +325,100 @@ export const Services: React.FC = () => {
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
+          onTouchStart={holdAutoplay}
+          onTouchEnd={releaseAutoplay}
           onClickCapture={onClickCapture}
+          aria-live={autoplay ? "off" : "polite"}
           className="svc-track"
         >
-          {services.map((service, i) => {
-            const copy = CARD_COPY[service.id];
-            const img = CARD_IMAGE[service.id];
-            const eager = i < 2;
-            return (
-              <li key={service.id} className="svc-card">
-                <a
-                  href={serviceUrl(service.id)}
-                  draggable={false}
-                  className="group block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-orange"
+          {Array.from({ length: COPIES }, (_, copyIndex) =>
+            services.map((service, i) => {
+              const copy = CARD_COPY[service.id];
+              const img = CARD_IMAGE[service.id];
+              // Only the middle copy is reachable by keyboard and assistive tech; the others are visual loop padding.
+              const isClone = copyIndex !== 1;
+              const eager = i < 2;
+              return (
+                <li
+                  key={`${copyIndex}-${service.id}`}
+                  className="svc-card"
+                  aria-hidden={isClone || undefined}
+                  role={isClone ? undefined : "group"}
+                  aria-roledescription={isClone ? undefined : "slide"}
+                  aria-label={isClone ? undefined : `${i + 1} of ${total}: ${service.name}`}
                 >
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-[6px] bg-brand-navy/10">
-                    <img
-                      src={img?.src ?? service.image}
-                      alt={copy?.alt ?? service.name}
-                      width={img?.width}
-                      height={img?.height}
-                      loading={eager ? "eager" : "lazy"}
-                      decoding="async"
-                      draggable={false}
-                      className="svc-photo absolute inset-0 h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-brand-navy/[0.12] transition-opacity duration-700 ease-out group-hover:opacity-0" />
-                    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/30 to-transparent" />
-                    <div className="absolute left-5 top-5 flex items-center gap-3 text-sm text-white tabular-nums" aria-hidden="true">
-                      <span>{pad(i + 1)}</span>
-                      <span className="h-px w-8 bg-white/40" />
-                    </div>
-                  </div>
-
-                  <div className="mt-6 border-t border-brand-navy/[0.12] pt-5">
-                    <p className="svc-label">{service.shortTag}</p>
-                    <h3 className="mt-2 font-heading text-2xl font-medium leading-tight tracking-[-0.01em] text-brand-navy">
-                      {service.name}
-                    </h3>
-                    {copy && (
-                      <p className="mt-3 text-[15px] leading-[1.6] text-brand-navy/70">{copy.description}</p>
-                    )}
-                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-navy">
-                      <span className="svc-underline">View service</span>
-                      <ArrowRight
-                        className="w-4 h-4 transition-transform duration-300 ease-out group-hover:translate-x-1"
-                        strokeWidth={1.5}
-                        aria-hidden="true"
+                  <a
+                    href={serviceUrl(service.id)}
+                    tabIndex={isClone ? -1 : undefined}
+                    draggable={false}
+                    className="group block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-orange"
+                  >
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-[6px] bg-brand-navy/10">
+                      <img
+                        src={img?.src ?? service.image}
+                        alt={isClone ? "" : (copy?.alt ?? service.name)}
+                        width={img?.width}
+                        height={img?.height}
+                        loading={eager ? "eager" : "lazy"}
+                        decoding="async"
+                        draggable={false}
+                        className="svc-photo absolute inset-0 h-full w-full object-cover"
                       />
-                    </span>
-                  </div>
-                </a>
-              </li>
-            );
-          })}
+                      <div className="absolute inset-0 bg-brand-navy/[0.12] transition-opacity duration-700 ease-out group-hover:opacity-0" />
+                      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/30 to-transparent" />
+                      <div className="absolute left-5 top-5 flex items-center gap-3 text-sm text-white tabular-nums" aria-hidden="true">
+                        <span>{pad(i + 1)}</span>
+                        <span className="h-px w-8 bg-white/40" />
+                      </div>
+                    </div>
+
+                    <div className="mt-6 border-t border-brand-navy/[0.12] pt-5">
+                      <p className="svc-label">{service.shortTag}</p>
+                      {isClone ? (
+                        <p className="mt-2 font-heading text-2xl font-medium leading-tight tracking-[-0.01em] text-brand-navy">
+                          {service.name}
+                        </p>
+                      ) : (
+                        <h3 className="mt-2 font-heading text-2xl font-medium leading-tight tracking-[-0.01em] text-brand-navy">
+                          {service.name}
+                        </h3>
+                      )}
+                      {copy && (
+                        <p className="mt-3 text-[15px] leading-[1.6] text-brand-navy/70">{copy.description}</p>
+                      )}
+                      <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-navy">
+                        <span className="svc-underline">View service</span>
+                        <ArrowRight
+                          className="w-4 h-4 transition-transform duration-300 ease-out group-hover:translate-x-1"
+                          strokeWidth={1.5}
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </div>
+                  </a>
+                </li>
+              );
+            })
+          )}
         </ul>
 
-        {/* Edge fades, shown only while cards are clipped on that side */}
+        {/* Edge fades: the track never ends, so both stay on */}
         <div
           aria-hidden="true"
-          className={`svc-fade-left pointer-events-none absolute inset-y-0 left-0 bg-gradient-to-r from-[#F5F3EF] to-transparent transition-opacity duration-300 ${
-            state.canPrev ? "opacity-100" : "opacity-0"
-          }`}
+          className="svc-fade-left pointer-events-none absolute inset-y-0 left-0 bg-gradient-to-r from-[#F5F3EF] to-transparent"
         />
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-[#F5F3EF] to-transparent transition-opacity duration-300 ${
-            state.canNext ? "opacity-100" : "opacity-0"
-          }`}
+          className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-[#F5F3EF] to-transparent"
         />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Scroll progress */}
+        {/* Position in the loop: one segment per service */}
         <div className="relative mt-10 h-[2px] bg-brand-navy/15" aria-hidden="true">
           <div
-            className="absolute inset-y-0 left-0 bg-brand-orange"
-            style={{
-              width: `${state.thumb * 100}%`,
-              transform: `translateX(${(state.progress * (1 - state.thumb) * 100) / Math.max(state.thumb, 0.01)}%)`,
-            }}
+            className="absolute inset-y-0 left-0 bg-brand-orange transition-transform duration-500 ease-out motion-reduce:transition-none"
+            style={{ width: `${100 / total}%`, transform: `translateX(${index * 100}%)` }}
           />
         </div>
 
@@ -311,9 +428,9 @@ export const Services: React.FC = () => {
           <div className="flex items-center gap-6">
             <a
               href="#contact"
-              className="inline-flex min-h-[48px] items-center justify-center px-6 rounded bg-brand-orange hover:bg-brand-orange-hover text-brand-navy text-sm font-bold uppercase tracking-[0.08em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+              className="inline-flex min-h-[48px] items-center justify-center px-6 rounded bg-brand-orange hover:bg-brand-orange-hover text-brand-navy text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
             >
-              Request a Quote
+              Request a quote
             </a>
             <a
               href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}

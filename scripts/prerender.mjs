@@ -111,14 +111,14 @@ try {
   const pages = [
     {
       file: "dist/privacy.html",
-      title: "Privacy Policy | Fraternity Engineering & Co.",
+      title: "Privacy Policy | Fraternity Engineering",
       desc: "Privacy Policy for Fraternity Engineering & Co. (SMC-Pvt) Ltd.",
       canonical: `${BASE}/privacy`,
       el: PrivacyPage,
     },
     {
       file: "dist/terms.html",
-      title: "Terms & Conditions | Fraternity Engineering & Co.",
+      title: "Terms & Conditions | Fraternity Engineering",
       desc: "Terms & Conditions for Fraternity Engineering & Co. (SMC-Pvt) Ltd.",
       canonical: `${BASE}/terms`,
       el: TermsPage,
@@ -134,8 +134,10 @@ try {
   // 3) Service pages -> dist/services/<slug>.html (app shell + server-rendered content)
   mkdirSync("dist/services", { recursive: true });
   for (const svc of SERVICE_PAGES) {
+    // Render with the page's own path so path-aware links (e.g. nav anchors) come out right.
+    window.location.pathname = `/services/${svc.slug}`;
     const body = renderToString(React.createElement(ServicePage, { service: svc }));
-    const title = `${svc.name} | Fraternity Engineering & Co.`;
+    const title = `${svc.name} | Fraternity Engineering`;
     const canonical = `${BASE}/services/${svc.slug}`;
     let html = appShell
       .replace('<div id="root"></div>', `<div id="root">${body}</div>`)

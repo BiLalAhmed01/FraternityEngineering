@@ -76,8 +76,7 @@ export const SITE_CONTENT = {
   company: {
     name: "Fraternity Engineering & Co. (SMC-Pvt) Ltd.",
     shortName: "FTE",
-    tagline: "Makes Life Easier.",
-    subline: "Construction, civil, electrical, fire and safety, and general supply. One dependable team.",
+    subline: "Construction, civil, electrical, fire safety and supply under one contract. One accountable team.",
     registration: "(SMC-Pvt) Ltd.",
     foundedLocation: "Islamabad, Pakistan",
   },
@@ -89,14 +88,16 @@ export const SITE_CONTENT = {
     phoneSecondary: "051-2331654",
     phonePrimaryTel: "+923315095004",
     phoneSecondaryTel: "+92512331654",
-    // Hours promised in the form success message. Left blank until confirmed; the message omits it when empty.
-    replyHours: "",
+    // Reply time promised in the Contact section, e.g. "1 working day". Every sentence that uses it is hidden while blank.
+    responseTime: "",
     phoneDisplay: "0331-5095004 · 051-2331654",
     email: "fraternityengineering@gmail.com",
     // Domain email for the footer. Left blank until provided; the footer hides it when empty.
     domainEmail: "",
     workingHours: "Monday to Saturday: 9:00 AM - 6:00 PM (Friday break: 1:00 PM - 2:30 PM)",
     googleMapsSearchUrl: "https://www.google.com/maps/search/?api=1&query=Shop+01+Block+54+IT+Center+G-8%2F1+Islamabad",
+    // Social profiles for the footer. Each icon is hidden while its URL is blank.
+    social: { linkedin: "", facebook: "" },
     whatsappUrl: "https://wa.me/923315095004?text=Hello%20Fraternity%20Engineering,%20I%20would%20like%20to%20inquire%20about%20your%20services.",
   },
 
@@ -124,8 +125,11 @@ export const SITE_CONTENT = {
   testimonials: [] as Testimonial[], // Section is hidden when empty.
 
   about: {
-    story:
-      "Fraternity Engineering & Co. (SMC-Pvt) Ltd. is an Islamabad-based contractor and supplier. We build, wire and protect facilities for government, public-sector and private clients, under one contract and one named point of contact, from site survey to handover.",
+    story: [
+      "Fraternity Engineering & Co. (SMC-Pvt) Ltd. is an Islamabad-based contractor and supplier. We take on construction, civil, electrical and fire safety works, and supply the materials that go with them, for government, corporate and industrial clients.",
+      "Projects slip in the gaps between trades. We close those gaps with one contract, one schedule and one engineer who answers for the work on site. If something is wrong, you know exactly who to call.",
+      "We work with facilities managers, procurement teams and project owners who want one contractor to call.",
+    ],
     // Image falls back to /assets/hero.webp if this file is missing.
     image: "/assets/about-team.webp",
     established: "", // e.g. "2015". The "Established" caption card is hidden when empty.
@@ -134,11 +138,11 @@ export const SITE_CONTENT = {
     mission:
       "To deliver construction, engineering and supply work as quoted, with direct accountability to the client.",
     vision:
-      "To be a dependable multi-discipline engineering and supply partner in the region.",
+      "To be the multi-discipline contractor that organisations in the region call first, and keep calling.",
     howWeWork: [
-      { title: "Direct accountability", description: "Engineers answer for the work on site." },
-      { title: "One point of contact", description: "A named coordinator from survey to handover." },
-      { title: "Documented handover", description: "Inspection records, as-built documents and warranties." },
+      { title: "Accountable", description: "A named engineer answers for the work, on site and on paper." },
+      { title: "Transparent", description: "Itemised quotations, so you see what each item costs." },
+      { title: "Documented", description: "Inspection logs, test records and a signed handover pack." },
     ],
     // Credentials row. PEC uses hero.pecCategory. Empty items are hidden; the row is hidden when all are empty.
     credentials: { ntn: "", secp: "", certification: "" },
@@ -200,8 +204,8 @@ export const SITE_CONTENT = {
   services: [
     {
       id: "construction",
-      name: "Construction Services",
-      shortTag: "Structural & Buildings",
+      name: "Construction",
+      shortTag: "Buildings and structures",
       summary: "Construction solutions for commercial, institutional and infrastructure requirements, from building development and renovation to structural works and project execution.",
       subservices: [
         "Building construction and renovation",
@@ -215,8 +219,8 @@ export const SITE_CONTENT = {
     },
     {
       id: "civil",
-      name: "Civil Engineering Works",
-      shortTag: "Infrastructure & Earthworks",
+      name: "Civil works",
+      shortTag: "Roads, drainage and sites",
       summary: "Civil engineering and infrastructure works supporting building development, facility improvement and site infrastructure requirements.",
       subservices: [
         "Civil construction and infrastructure works",
@@ -230,8 +234,8 @@ export const SITE_CONTENT = {
     },
     {
       id: "electrical",
-      name: "Electrical Works",
-      shortTag: "Power & Systems",
+      name: "Electrical",
+      shortTag: "Power and distribution",
       summary: "Electrical installation, distribution and maintenance services for commercial, institutional and building requirements.",
       subservices: [
         "Electrical installation and maintenance",
@@ -245,8 +249,8 @@ export const SITE_CONTENT = {
     },
     {
       id: "fire-safety",
-      name: "Fire & Safety Solutions",
-      shortTag: "Protection & Safety",
+      name: "Fire and safety",
+      shortTag: "Detection and protection",
       summary: "Fire protection, detection and safety solutions designed to support safer operational and working environments.",
       subservices: [
         "Firefighting equipment and supplies",
@@ -260,8 +264,8 @@ export const SITE_CONTENT = {
     },
     {
       id: "supply",
-      name: "General Order Supply",
-      shortTag: "Procurement & Supply",
+      name: "Supply",
+      shortTag: "Materials and equipment",
       summary: "Procurement and supply services for engineering, construction, industrial and operational requirements.",
       subservices: [
         "General engineering supplies",
@@ -300,7 +304,7 @@ export const SITE_CONTENT = {
     {
       step: "02",
       title: "Plan and quote",
-      summary: "Itemized bill of quantities (BOQ) with clear pricing, milestones and lead times.",
+      summary: "Itemised bill of quantities (BOQ) with clear pricing, milestones and lead times.",
       details: "Our estimators prepare the schedule and a full cost breakdown so you can see what each item costs.",
       description: "We prepare an itemised bill of quantities with pricing, milestones and lead times, so you can see what each item costs.",
       deliverable: "Itemised BOQ and project schedule",
