@@ -10,7 +10,6 @@ import { Services } from "./components/Services";
 import { WhyFTE } from "./components/WhyFTE";
 import { ClientsMarquee } from "./components/ClientsMarquee";
 import { About } from "./components/About";
-import { StatsBar } from "./components/StatsBar";
 import { Testimonials } from "./components/Testimonials";
 import { Faq } from "./components/Faq";
 import { Process } from "./components/Process";
@@ -20,10 +19,8 @@ import { MobileFloatingCta } from "./components/MobileFloatingCta";
 import { BackToTop } from "./components/BackToTop";
 import { CookieConsent } from "./components/CookieConsent";
 import { FilmGrain } from "./components/FilmGrain";
-import { CustomCursor } from "./components/CustomCursor";
 import { Preloader } from "./components/Preloader";
 import { SmoothScroll } from "./components/SmoothScroll";
-import { SlantedBeamDivider } from "./components/SlantedBeamDivider";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
 import { ServicePage } from "./pages/ServicePage";
@@ -47,36 +44,28 @@ export default function App() {
       {/* 1. Subtle Preloader under 1.2s */}
       <Preloader />
 
-      {/* 2. Custom Cursor with "VIEW" states for desktop */}
-      <CustomCursor />
-
-      {/* 3. Fine Film-Grain Overlay (3% opacity) */}
+      {/* 2. Fine Film-Grain Overlay (3% opacity) */}
       <FilmGrain />
 
-      <div className="min-h-screen bg-brand-cream text-brand-brown font-body flex flex-col selection:bg-brand-orange selection:text-brand-charcoal overflow-x-hidden">
+      <div className="min-h-screen bg-brand-cream text-brand-brown font-body flex flex-col selection:bg-brand-orange selection:text-brand-charcoal overflow-x-clip">
         {/* Sticky/Fixed Header with Glass Transition & Orange Progress line */}
         <Header />
 
         <main className="flex-1">
-          {/* Hero Section with 3D Visualization */}
+          {/* Hero: disciplines index with image slideshow, trust row */}
           <Hero />
-
-          {/* Stats Bar */}
-          <StatsBar />
 
           {/* Services (5 Interactive 3D Icons, Clean Accordion) */}
           <Services />
 
-          {/* Slanted Beam Divider */}
-          <SlantedBeamDivider fromColor="cream" toColor="charcoal" />
-
           {/* Our Work (Project Showcase) */}
-          <WhyFTE />
+          <WhyFTE
+            onRequestProject={(discipline, projectTitle) =>
+              contactRef.current?.prefillService(discipline, projectTitle)
+            }
+          />
 
-          {/* Slanted Beam Divider */}
-          <SlantedBeamDivider fromColor="cream" toColor="charcoal" flip />
-
-          {/* Clients (Plain Text List) */}
+          {/* Clients (Logo Band) */}
           <ClientsMarquee />
 
           {/* About (Story, Mission and Vision, Credentials) */}

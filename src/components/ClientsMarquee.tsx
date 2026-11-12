@@ -1,71 +1,91 @@
-import React from "react";
-import { SITE_CONTENT } from "../content";
+import React, { useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { SITE_CONTENT, ClientLogo } from "../content";
+import { Reveal } from "./Reveal";
+
+const LogoBox: React.FC<{ client: ClientLogo; decorative?: boolean }> = ({ client, decorative }) => (
+  <div className="client-logo flex h-14 w-full max-w-[140px] items-center justify-center" title={decorative ? undefined : client.fullName}>
+    <img
+      src={client.logo}
+      alt={decorative ? "" : `${client.fullName} (${client.name}) logo`}
+      width={140}
+      height={56}
+      loading="lazy"
+      decoding="async"
+      className="h-full w-full object-contain"
+    />
+  </div>
+);
 
 export const ClientsMarquee: React.FC = () => {
-  // Duplicate for seamless infinite marquee loop
-  const marqueeItems = [...SITE_CONTENT.clientLogos, ...SITE_CONTENT.clientLogos];
+  const logos = SITE_CONTENT.clientLogos;
+  const [touchPaused, setTouchPaused] = useState(false);
 
   return (
     <section
       id="clients"
-      className="relative bg-brand-navy text-white py-16 md:py-24 overflow-hidden"
-      aria-label="Client Organizations and Institutions"
+      className="relative bg-white text-brand-navy py-12 md:py-[72px] border-y border-brand-navy/10"
+      aria-labelledby="clients-title"
     >
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
-        <p className="kicker-label text-brand-orange mb-2">Trusted Client Relationships</p>
-        <h2 className="text-xl md:text-2xl font-heading font-bold text-white mb-3">
-          Organizations We've Worked With
-        </h2>
-        <p className="text-sm md:text-base text-brand-cream/80 max-w-2xl mx-auto leading-relaxed">
-          Our experience includes engagements with recognized government, public-sector, institutional and private-sector organizations.
-        </p>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Reveal className="text-center">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/60">Trusted by</p>
+          <h2
+            id="clients-title"
+            className="mt-3 font-heading font-medium text-[28px] md:text-[36px] leading-tight tracking-tight text-brand-navy [text-wrap:balance]"
+          >
+            Selected organizations we've worked with.
+          </h2>
+        </Reveal>
 
-      {/* Infinite marquee: pauses on hover and keyboard focus, replaced by a static grid for reduced motion */}
-      <div
-        className="relative w-full overflow-hidden motion-reduce:hidden group/marquee"
-        tabIndex={0}
-        role="group"
-        aria-label="Client logos"
-      >
-        <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-brand-navy to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-brand-navy to-transparent z-10 pointer-events-none" />
+        <Reveal className="mt-10 md:mt-12" delay={0.05}>
+          {/* Tablet/desktop (and reduced motion on mobile): static logo grid */}
+          <ul className="clients-static items-center gap-y-8 md:gap-y-10">
+            {logos.map((client) => (
+              <li key={client.name} className="flex justify-center px-3">
+                <LogoBox client={client} />
+              </li>
+            ))}
+          </ul>
 
-        <div className="animate-marquee flex items-center gap-12 sm:gap-16 lg:gap-24 py-6">
-          {marqueeItems.map((client, idx) => (
-            <div
-              key={`${client.name}-${idx}`}
-              aria-hidden={idx >= SITE_CONTENT.clientLogos.length}
-              className="flex flex-col items-center justify-center shrink-0 group cursor-default transition-all duration-300"
-            >
-              <img
-                src={client.logo}
-                alt={idx >= SITE_CONTENT.clientLogos.length ? "" : client.fullName}
-                loading="lazy"
-                className="h-10 sm:h-14 lg:h-20 w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300"
-              />
-              <span className="text-[10px] sm:text-xs font-mono text-brand-cream/80 group-hover:text-brand-cream transition-colors mt-2">
-                {client.name}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+          {/* Mobile: slow marquee, paused on hover/touch */}
+          <div
+            className="clients-marquee overflow-hidden"
+            role="group"
+            aria-label="Client logos"
+            onTouchStart={() => setTouchPaused(true)}
+            onTouchEnd={() => setTouchPaused(false)}
+            onTouchCancel={() => setTouchPaused(false)}
+          >
+            <ul className={`clients-marquee-track ${touchPaused ? "is-paused" : ""}`}>
+              {[...logos, ...logos].map((client, idx) => (
+                <li
+                  key={`${client.name}-${idx}`}
+                  className="w-[152px] shrink-0 pr-8"
+                  aria-hidden={idx >= logos.length || undefined}
+                >
+                  <LogoBox client={client} decorative={idx >= logos.length} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
 
-      <ul className="hidden motion-reduce:grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-5xl mx-auto px-4 py-6 place-items-center">
-        {SITE_CONTENT.clientLogos.map((client) => (
-          <li key={client.name} className="flex flex-col items-center">
-            <img src={client.logo} alt={client.fullName} loading="lazy" className="h-14 w-auto object-contain" />
-            <span className="text-xs font-mono text-brand-cream/80 mt-2">{client.name}</span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 text-center space-y-1">
-        {SITE_CONTENT.clientScopes.trim() !== "" && (
-          <p className="text-sm text-brand-cream/80">Scopes delivered include {SITE_CONTENT.clientScopes}.</p>
-        )}
-        <p className="text-xs font-mono text-brand-stone">References available on request.</p>
+        <Reveal className="mt-10 md:mt-12 text-center text-[14px] text-brand-navy/70" delay={0.1}>
+          <p className="inline">References available on request. </p>
+          <a
+            href="#contact"
+            className="group ml-1 inline-flex items-center gap-1.5 font-semibold text-brand-navy rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+          >
+            <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
+              Request references
+            </span>
+            <ArrowRight
+              className="w-3.5 h-3.5 text-brand-orange transition-transform duration-300 ease-out group-hover:translate-x-1"
+              aria-hidden="true"
+            />
+          </a>
+        </Reveal>
       </div>
     </section>
   );

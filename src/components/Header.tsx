@@ -86,7 +86,7 @@ export const Header: React.FC = () => {
       <header
         className={`fixed top-0 left-0 right-0 z-40 w-full transition-all duration-500 ${
           isScrolled
-            ? "py-2 bg-brand-navy/95 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/40"
+            ? "py-2 bg-brand-navy/95 backdrop-blur-xl border-b border-white/10"
             : "py-4 md:py-6 bg-transparent border-b border-transparent"
         }`}
       >

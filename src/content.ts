@@ -35,6 +35,11 @@ export interface ProcessStep {
   title: string;
   summary: string;
   details: string;
+  /** Homepage "How we work" copy */
+  description: string;
+  deliverable: string;
+  /** Typical timing for this stage. Hidden when empty. */
+  timing: string;
 }
 
 export interface Testimonial {
@@ -42,11 +47,6 @@ export interface Testimonial {
   name: string;
   role: string;
   organisation: string;
-}
-
-export interface StatItem {
-  value: string;
-  label: string;
 }
 
 export interface FaqItem {
@@ -110,15 +110,6 @@ export const SITE_CONTENT = {
     { label: "Contact", href: "#contact" },
   ],
 
-  // Stats bar. Values left blank are hidden. Fill in once confirmed.
-  stats: [
-    { value: "", label: "Years in operation" },
-    { value: "", label: "Projects completed" },
-    { value: "", label: "Disciplines" },
-    { value: "", label: "PEC registration" },
-    { value: "NTN/SECP", label: "Registered" },
-  ] as StatItem[],
-
   // Hero trust row. Each item is hidden while its value is blank. Fill in once confirmed.
   hero: {
     yearsInOperation: "", // e.g. "10" renders "10+ years"
@@ -134,47 +125,24 @@ export const SITE_CONTENT = {
 
   about: {
     story:
-      "Fraternity Engineering & Co. (SMC-Pvt) Ltd. is an Islamabad-based contractor and supplier. We handle construction, civil, electrical and fire and safety works, and general order supply, for government, public-sector and private clients.",
-    founder: { name: "", role: "" }, // Hidden when name is empty.
+      "Fraternity Engineering & Co. (SMC-Pvt) Ltd. is an Islamabad-based contractor and supplier. We build, wire and protect facilities for government, public-sector and private clients, under one contract and one named point of contact, from site survey to handover.",
+    // Image falls back to /assets/hero.webp if this file is missing.
+    image: "/assets/about-team.webp",
+    established: "", // e.g. "2015". The "Established" caption card is hidden when empty.
+    // Stats reuse hero.yearsInOperation and hero.projectsDelivered; blank values are hidden.
+    founder: { name: "", role: "", quote: "" }, // Founder note is hidden when name is empty.
     mission:
       "To deliver construction, engineering and supply work as quoted, with direct accountability to the client.",
     vision:
       "To be a dependable multi-discipline engineering and supply partner in the region.",
-    credentials: [] as string[], // e.g. "PEC: ...", "NTN: ...", "ISO ...". Row is hidden when empty.
+    howWeWork: [
+      { title: "Direct accountability", description: "Engineers answer for the work on site." },
+      { title: "One point of contact", description: "A named coordinator from survey to handover." },
+      { title: "Documented handover", description: "Inspection records, as-built documents and warranties." },
+    ],
+    // Credentials row. PEC uses hero.pecCategory. Empty items are hidden; the row is hidden when all are empty.
+    credentials: { ntn: "", secp: "", certification: "" },
   },
-
-  faq: [
-    {
-      question: "Which areas do you serve?",
-      answer:
-        "We are based in Islamabad and work for clients in Islamabad, Rawalpindi and across Pakistan.",
-    },
-    {
-      question: "Do you take tender and government work?",
-      answer:
-        "Yes. Our clients include government and public-sector organizations. Send us the tender documents and we will review the scope.",
-    },
-    {
-      question: "How quickly can I get a quote?",
-      answer:
-        "Send your scope, drawings or site details through the contact form. We confirm the time needed for the quote when we reply.",
-    },
-    {
-      question: "What warranty and after-sales support do you offer?",
-      answer:
-        "At handover we provide as-built documents and warranty sheets, and we stay available for support after delivery.",
-    },
-    {
-      question: "Where do you source materials?",
-      answer:
-        "We procure construction, electrical and fire safety materials and equipment ourselves through our general order supply service, and we list them in the quote.",
-    },
-    {
-      question: "What are your payment terms?",
-      answer:
-        "Payment terms are set per project and written in the quotation. They are agreed before work starts.",
-    },
-  ] as FaqItem[],
 
   workShowcase: [
     {
@@ -312,6 +280,7 @@ export const SITE_CONTENT = {
     { name: "NESCOM", fullName: "National Engineering & Scientific Commission", logo: "/assets/client-nescom.webp" },
     { name: "NDC", fullName: "National Development Complex", logo: "/assets/client-ndc.webp" },
     { name: "MTC", fullName: "Maritime Technologies Complex", logo: "/assets/client-mtc.webp" },
+    // TODO: verify this logo matches the client
     { name: "AWC", fullName: "Air Weapons Complex", logo: "/assets/client-awc.webp" },
     { name: "CDA", fullName: "Capital Development Authority", logo: "/assets/client-cda.webp" },
     { name: "Nayatel", fullName: "Nayatel", logo: "/assets/client-nayatel.webp" },
@@ -324,24 +293,36 @@ export const SITE_CONTENT = {
       title: "Consult",
       summary: "A direct discussion to define the site, constraints and scope.",
       details: "We meet on site or review the tender, and agree the technical requirements, materials and rough timeline.",
+      description: "We visit the site or review your tender to agree scope, constraints and technical requirements.",
+      deliverable: "Site assessment and scope notes",
+      timing: "",
     },
     {
       step: "02",
       title: "Plan and quote",
       summary: "Itemized bill of quantities (BOQ) with clear pricing, milestones and lead times.",
       details: "Our estimators prepare the schedule and a full cost breakdown so you can see what each item costs.",
+      description: "We prepare an itemised bill of quantities with pricing, milestones and lead times, so you can see what each item costs.",
+      deliverable: "Itemised BOQ and project schedule",
+      timing: "",
     },
     {
       step: "03",
       title: "Execute",
       summary: "Site management, supervised work and regular quality checks.",
       details: "Work is supervised on site and follows safety rules and quality checkpoints.",
+      description: "Qualified supervisors manage the works on site, following safety rules and quality checkpoints at each stage.",
+      deliverable: "Progress updates and inspection logs",
+      timing: "",
     },
     {
       step: "04",
       title: "Handover and support",
       summary: "Final walkthrough, signed documents and after-sales support.",
       details: "We run final tests and joint checks, then hand over as-built documents and warranty sheets.",
+      description: "We run final tests and a joint inspection, then hand over as-built documents, warranty sheets and after-sales support.",
+      deliverable: "Signed handover pack",
+      timing: "",
     },
   ] as ProcessStep[],
 };

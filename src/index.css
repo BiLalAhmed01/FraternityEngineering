@@ -6,6 +6,7 @@
   --color-brand-orange: #FF6B00;
   --color-brand-orange-hover: #E55F00;
   --color-brand-cream: #F4EDE0;
+  --color-brand-paper: #F5F3EF;
   --color-brand-stone: #D9C6B2;
   --color-brand-steel: #5B626C; /* darkened for WCAG AA text contrast on cream/white */
   --color-brand-brown: #4B3F36;
@@ -179,5 +180,191 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Services carousel ---------- */
+.svc-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgb(11 31 58 / 0.6);
+}
+
+/* The viewport is a size container so the track can line up with the page container (max-w-7xl + gutters). */
+.svc-viewport {
+  container-type: inline-size;
+}
+
+.svc-viewport > * {
+  --g: 1rem;
+  --inset: max(var(--g), calc((100cqw - 80rem) / 2 + var(--g)));
+  --inner: calc(min(100cqw, 80rem) - 2 * var(--g));
+}
+
+@media (min-width: 640px) {
+  .svc-viewport > * { --g: 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .svc-viewport > * { --g: 2rem; }
+}
+
+.svc-track {
+  display: flex;
+  gap: 28px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--inset);
+  padding: 8px var(--inset);
+  margin-block: -8px;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.svc-track::-webkit-scrollbar {
+  display: none;
+}
+
+.svc-track[data-dragging] {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+
+.svc-card {
+  flex: 0 0 calc(var(--inner) * 0.82);
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .svc-card { flex-basis: calc(var(--inner) * 0.44); }
+}
+
+@media (min-width: 1024px) {
+  .svc-card { flex-basis: calc(var(--inner) * 0.3); }
+}
+
+.svc-fade-left {
+  width: max(2.5rem, var(--inset));
+}
+
+/* One treatment for the whole photo set */
+.svc-photo {
+  filter: saturate(0.85) contrast(1.05);
+  transition: transform 700ms ease-out;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .svc-photo {
+    transform: scale(1.04);
+  }
+}
+
+/* Orange underline that draws in on hover/focus */
+.svc-underline {
+  position: relative;
+}
+
+.svc-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--color-brand-orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms ease-out;
+}
+
+.group:hover .svc-underline::after,
+.group:focus-visible .svc-underline::after {
+  transform: scaleX(1);
+}
+
+/* ---------- Clients ---------- */
+.client-logo img {
+  filter: grayscale(1);
+  opacity: 0.65;
+  transition: filter 250ms ease-out, opacity 250ms ease-out;
+}
+
+.client-logo:hover img,
+.client-logo:focus-within img {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+/* Mobile: marquee. Static grid replaces it on tablet/desktop and under reduced motion. */
+.clients-static {
+  display: none;
+}
+
+.clients-marquee {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+.clients-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+
+.clients-marquee:hover .clients-marquee-track,
+.clients-marquee-track.is-paused {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clients-marquee {
+    display: none;
+  }
+  .clients-static {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .clients-marquee {
+    display: none;
+  }
+  .clients-static {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .clients-static > li {
+    flex: 0 0 25%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .clients-static {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Hero ---------- */
+.hero-grade,
+.hero-slide-img {
+  filter: saturate(0.92) contrast(1.03);
+}
+
+/* Very slow settle from 1.04 to 1.0 across the crossfade and hold */
+@keyframes heroSettle {
+  from { transform: scale(1.04); }
+  to { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-slide-img.is-current {
+    animation: heroSettle 5900ms linear forwards;
   }
 }

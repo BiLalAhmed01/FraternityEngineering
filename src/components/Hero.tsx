@@ -1,380 +1,467 @@
-import React, { useEffect, useState } from "react";
-import {
-  ArrowRight,
-  Building2,
-  ChevronDown,
-  CircleCheck,
-  FireExtinguisher,
-  MessageCircle,
-  Phone,
-  TrafficCone,
-  Truck,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowRight, Pause, Phone, Play } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { SITE_CONTENT } from "../content";
 import { serviceUrl } from "../servicesData";
+import { CountUp } from "./CountUp";
 
-const SLIDE_INTERVAL_MS = 6000;
+/* ---------- Data ---------- */
 
-// Large-image crossfade. The first slide is preloaded in index.html.
-const SLIDES = [
+const DISCIPLINES = [
+  { name: "Construction", scope: "Structures and buildings", slug: "construction" },
+  { name: "Civil works", scope: "Infrastructure and earthworks", slug: "civil" },
+  { name: "Electrical", scope: "Power and systems", slug: "electrical" },
+  { name: "Fire and safety", scope: "Detection and protection", slug: "fire-safety" },
+  { name: "Supply and chemicals", scope: "Procurement and materials", slug: "supply" },
+];
+
+interface Slide {
+  id: string;
+  /** Index into DISCIPLINES, or null for the intro slide. */
+  row: number | null;
+  caption: string;
+  alt: string;
+  position: string;
+}
+
+const SLIDES: Slide[] = [
   {
-    src: "/assets/hero.webp",
-    width: 1600,
-    height: 1280,
-    caption: "Integrated engineering",
-    alt: "Modern glass office building at dusk beside a curved road interchange under construction",
+    id: "planning",
+    row: null,
+    caption: "Planned before it's built",
+    alt: "FTE helmet and site plans on a desk overlooking a building under construction at sunset",
+    position: "40% 50%",
   },
   {
-    src: "/assets/service-construction.webp",
-    width: 1024,
-    height: 1536,
-    caption: "Construction",
-    alt: "Building construction site with structural framework and work in progress",
+    id: "construction",
+    row: 0,
+    caption: "Drawings checked on site",
+    alt: "FTE engineer reviewing plans in front of a tower crane at a concrete building site",
+    position: "40% 50%",
   },
   {
-    src: "/assets/service-civil.webp",
-    width: 1024,
-    height: 1536,
-    caption: "Civil",
-    alt: "Civil engineering works: concrete, earthworks and site infrastructure",
+    id: "civil",
+    row: 1,
+    caption: "Foundation works",
+    alt: "FTE engineer reviewing drawings beside foundation walls and an excavator on a civil works site",
+    position: "30% 50%",
   },
   {
-    src: "/assets/service-electrical.webp",
-    width: 1024,
-    height: 1536,
-    caption: "Electrical",
-    alt: "Electrical installation with distribution panel wiring and cabling",
+    id: "electrical",
+    row: 2,
+    caption: "Distribution panel wiring",
+    alt: "FTE technician wiring a low-voltage distribution panel",
+    position: "50% 50%",
   },
   {
-    src: "/assets/service-fire.webp",
-    width: 1024,
-    height: 1536,
-    caption: "Fire & Safety",
-    alt: "Fire protection and safety equipment installed in a facility",
+    id: "fire-safety",
+    row: 3,
+    caption: "Fire alarm and protection",
+    alt: "FTE technician at a fire alarm control panel beside red fire protection pipework",
+    position: "50% 50%",
   },
   {
-    src: "/assets/service-supply.webp",
-    width: 1024,
-    height: 1536,
-    caption: "Supply",
-    alt: "Engineering materials and equipment ready for supply and delivery",
+    id: "general-supply",
+    row: 4,
+    caption: "Materials in stock",
+    alt: "Warehouse shelving with cables, pipes, breakers and safety equipment",
+    position: "50% 50%",
+  },
+  {
+    id: "chemicals",
+    row: 4,
+    caption: "Construction chemicals",
+    alt: "Warehouse stock of construction chemicals, adhesives and waterproofing products",
+    position: "35% 50%",
   },
 ];
 
-const STRIP_ICONS: Record<string, { label: string; icon: LucideIcon }> = {
-  construction: { label: "Construction", icon: Building2 },
-  civil: { label: "Civil", icon: TrafficCone },
-  electrical: { label: "Electrical", icon: Zap },
-  "fire-safety": { label: "Fire & Safety", icon: FireExtinguisher },
-  supply: { label: "Supply", icon: Truck },
-};
+const HSE_ALT = "FTE site team in a safety toolbox talk in front of an HSE board";
 
-const HERO_CLIENTS = ["NESCOM", "CDA", "PTCL", "Nayatel"];
+const imageSrc = (id: string) => `/assets/hero/${id}.webp`;
 
-const LOGO_SIZES: Record<string, { width: number; height: number }> = {
-  NESCOM: { width: 302, height: 330 },
-  CDA: { width: 400, height: 400 },
-  PTCL: { width: 400, height: 151 },
-  Nayatel: { width: 400, height: 133 },
-};
+const HOLD_MS = 5000;
+const PRELOAD_AT_MS = HOLD_MS - 1000;
+const SELECT_PAUSE_MS = 8000;
 
 const filled = (v: string) => v.trim() !== "";
 
+const HeroPicture: React.FC<{ id: string; alt: string; className?: string; style?: React.CSSProperties; eager?: boolean }> = ({
+  id,
+  alt,
+  className,
+  style,
+  eager,
+}) => (
+  <picture>
+    <source srcSet={imageSrc(id)} type="image/webp" />
+    <img
+      src={imageSrc(id)}
+      alt={alt}
+      width={1200}
+      height={1200}
+      loading={eager ? "eager" : "lazy"}
+      fetchPriority={eager ? "high" : undefined}
+      decoding="async"
+      className={className}
+      style={style}
+    />
+  </picture>
+);
+
+/* ---------- Hero ---------- */
+
 export const Hero: React.FC = () => {
-  const reduceMotion = useReducedMotion();
-  const [gridOffset, setGridOffset] = useState({ x: 0, y: 0 });
+  const reduceMotion = !!useReducedMotion();
+  const { hero, contact } = SITE_CONTENT;
+
   const [slide, setSlide] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [loaded, setLoaded] = useState<Set<number>>(() => new Set([0]));
+  const [playing, setPlaying] = useState(true);
+  const [hovering, setHovering] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
+  const [tabHidden, setTabHidden] = useState(false);
+  const [holding, setHolding] = useState(false);
 
-  const { hero, contact, services, clientLogos } = SITE_CONTENT;
+  const running = playing && !hovering && !focusWithin && !tabHidden && !holding && !reduceMotion;
+  const activeRow = SLIDES[slide].row;
 
-  // Crossfade the large image; paused on hover/focus, off for reduced motion.
-  useEffect(() => {
-    if (reduceMotion || paused) return;
-    const id = window.setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), SLIDE_INTERVAL_MS);
-    return () => window.clearInterval(id);
-  }, [reduceMotion, paused]);
+  const progressRef = useRef<HTMLSpanElement | null>(null);
+  const elapsedRef = useRef(0);
+  const holdTimer = useRef<number | undefined>(undefined);
 
-  // Scroll cue hides for good after the first scroll.
-  useEffect(() => {
-    if (scrolled) return;
-    const onScroll = () => {
-      if (window.scrollY > 8) setScrolled(true);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [scrolled]);
+  const ensureLoaded = useCallback((index: number) => {
+    setLoaded((prev) => (prev.has(index) ? prev : new Set(prev).add(index)));
+  }, []);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (reduceMotion) return;
-    const { clientX, clientY, currentTarget } = e;
-    const { width, height, left, top } = currentTarget.getBoundingClientRect();
-    const x = (clientX - left) / width - 0.5;
-    const y = (clientY - top) / height - 0.5;
-    setGridOffset({ x: x * 18, y: y * 18 });
+  const goTo = useCallback(
+    (index: number) => {
+      const next = (index + SLIDES.length) % SLIDES.length;
+      ensureLoaded(next);
+      elapsedRef.current = 0;
+      if (progressRef.current) progressRef.current.style.transform = "scaleX(0)";
+      setSlide(next);
+    },
+    [ensureLoaded]
+  );
+
+  /** User interaction: pause autoplay for 8 seconds. */
+  const holdAutoplay = useCallback(() => {
+    setHolding(true);
+    window.clearTimeout(holdTimer.current);
+    holdTimer.current = window.setTimeout(() => setHolding(false), SELECT_PAUSE_MS);
+  }, []);
+
+  useEffect(() => () => window.clearTimeout(holdTimer.current), []);
+
+  const selectRow = (row: number) => {
+    holdAutoplay();
+    if (activeRow === row) return;
+    goTo(SLIDES.findIndex((s) => s.row === row));
   };
 
-  // Staggered fade-up: 150ms steps, 500ms each.
-  const fadeUp = (step: number) =>
+  const step = (dir: 1 | -1) => {
+    holdAutoplay();
+    goTo(slide + dir);
+  };
+
+  // Autoplay clock: drives the row progress line, preloads the next slide 1s early, advances after the hold.
+  useEffect(() => {
+    if (!running) return;
+    let frame = 0;
+    let last = performance.now();
+    let preloaded = false;
+    const tick = (now: number) => {
+      elapsedRef.current += now - last;
+      last = now;
+      const elapsed = elapsedRef.current;
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${Math.min(elapsed / HOLD_MS, 1)})`;
+      if (!preloaded && elapsed >= PRELOAD_AT_MS) {
+        preloaded = true;
+        ensureLoaded((slide + 1) % SLIDES.length);
+      }
+      if (elapsed >= HOLD_MS) {
+        goTo(slide + 1);
+        return;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [running, slide, goTo, ensureLoaded]);
+
+  // Pause while the tab is hidden.
+  useEffect(() => {
+    const onVisibility = () => setTabHidden(document.hidden);
+    onVisibility();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
+
+  const onArrowKeys = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      step(1);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      step(-1);
+    }
+  };
+
+  const focusHandlers = {
+    onFocus: () => setFocusWithin(true),
+    onBlur: (e: React.FocusEvent) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusWithin(false);
+    },
+  };
+
+  // Staggered fade-up for the text column: 500ms each, 100ms apart.
+  const fadeUp = (i: number) =>
     reduceMotion
       ? {}
       : {
-          initial: { opacity: 0, y: 16 },
+          initial: { opacity: 0, y: 14 },
           animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.5, delay: step * 0.15, ease: [0.22, 1, 0.36, 1] as const },
+          transition: { duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
         };
 
-  const trustFacts = [
-    filled(hero.yearsInOperation) && `${hero.yearsInOperation}+ years`,
-    filled(hero.projectsDelivered) && `${hero.projectsDelivered}+ projects delivered`,
-    filled(hero.pecCategory) && `PEC ${hero.pecCategory} registered`,
-  ].filter(Boolean) as string[];
-
-  const assurances = [
-    "Free site visit",
-    "Itemised BOQ",
-    filled(contact.replyHours) && `Reply within ${contact.replyHours} hours`,
-  ].filter(Boolean) as string[];
-
-  const heroClients = HERO_CLIENTS.map((name) => clientLogos.find((c) => c.name === name)).filter(
-    (c): c is NonNullable<typeof c> => Boolean(c)
-  );
+  const trust = (
+    [
+      filled(hero.yearsInOperation) && { value: hero.yearsInOperation, suffix: "+", label: "Years in business", count: true },
+      filled(hero.projectsDelivered) && { value: hero.projectsDelivered, suffix: "+", label: "Projects delivered", count: true },
+      filled(hero.pecCategory) && { value: `PEC ${hero.pecCategory}`, suffix: "", label: "Registered" },
+      { value: "5", suffix: "", label: "Disciplines, one contract" },
+      { value: "G-8/1", suffix: "", label: "Office in Islamabad" },
+      { value: "Mon to Sat", suffix: "", label: "9:00 to 18:00" },
+    ].filter(Boolean) as { value: string; suffix: string; label: string; count?: boolean }[]
+  ).slice(0, 4);
 
   return (
     <section
       id="hero"
-      onMouseMove={handleMouseMove}
-      className="relative bg-brand-charcoal overflow-hidden text-white pt-[var(--nav-h)] [--nav-h:80px] md:[--nav-h:104px] lg:[--nav-h:112px]"
-      aria-label="Fraternity Engineering Introduction"
+      className="relative bg-brand-navy text-white border-b border-white/12 pt-[var(--nav-h)] [--nav-h:80px] md:[--nav-h:104px] lg:[--nav-h:112px]"
+      aria-labelledby="hero-title"
     >
-      {/* Background Layer 1: Interactive Blueprint Grid shifting with cursor (kept faint for text contrast) */}
-      <div
-        className="absolute inset-0 bg-blueprint-grid opacity-40 pointer-events-none transition-transform duration-300 ease-out"
-        style={{
-          transform: `translate3d(${gridOffset.x}px, ${gridOffset.y}px, 0)`,
-        }}
-      />
-
-      {/* Background Layer 2: Radial Vignette */}
-      <div className="absolute inset-0 bg-radial-gradient from-transparent via-brand-charcoal/50 to-brand-charcoal pointer-events-none" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full min-h-[calc(100svh-var(--nav-h))] flex flex-col">
-        {/* Main two-column content, vertically centred in the space above the strip */}
-        <div className="flex-1 flex items-center py-8 md:py-10">
-          <div className="grid w-full grid-cols-1 lg:grid-cols-[55fr_45fr] gap-10 lg:gap-12 items-center">
-            {/* Left Column: text and actions */}
-            <div className="min-w-0 space-y-6">
-              <motion.div
-                {...fadeUp(0)}
-                className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-brand-orange kicker-label !text-[0.75rem] sm:!text-[0.8125rem] backdrop-blur-md shadow-sm"
-              >
-                <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-orange" />
-                </span>
-                <span>Construction · Electrical · Fire Safety · Supply</span>
-              </motion.div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:min-h-[clamp(640px,calc(100svh-var(--nav-h)),900px)]">
+        <div className="flex-1 flex items-center py-8 lg:py-8">
+          <div className="grid w-full grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-20">
+            {/* Text column */}
+            <div className="lg:col-span-6 min-w-0">
+              <motion.p {...fadeUp(0)} className="flex items-start gap-3 text-[14px] leading-[1.5] text-white/60">
+                <span className="mt-[10px] h-px w-6 shrink-0 bg-brand-orange" aria-hidden="true" />
+                Islamabad contractor for government, corporate and industrial clients
+              </motion.p>
 
               <motion.h1
                 {...fadeUp(1)}
-                className="font-heading font-bold text-white tracking-tight leading-[1.08] [text-wrap:balance] text-[clamp(2rem,8.5vw,2.25rem)] sm:text-[clamp(2.25rem,4.5vw,4rem)]"
+                id="hero-title"
+                className="mt-5 font-heading font-medium text-[clamp(2.25rem,min(4.6vw,6.2svh),4.25rem)] leading-[1.06] tracking-[-0.02em] [text-wrap:balance]"
               >
                 Construction, electrical and fire safety.
                 <br />
-                <span className="text-brand-orange">One accountable team.</span>
+                <span className="text-white/55">One accountable team.</span>
               </motion.h1>
 
-              <motion.p
-                {...fadeUp(2)}
-                className="text-base sm:text-lg text-brand-stone font-normal max-w-[52ch] leading-relaxed [text-wrap:pretty]"
-              >
-                One contract and one point of contact, from site survey to handover. Serving government, corporate and industrial clients across Pakistan.
+              <motion.p {...fadeUp(2)} className="mt-5 max-w-[50ch] text-[18px] leading-[1.65] text-white/75 [text-wrap:pretty]">
+                Plus civil works, general supply and construction chemicals. One contract and one named contact,
+                from site survey to handover.
               </motion.p>
 
-              <motion.div {...fadeUp(3)} className="space-y-4 pt-1">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                  <a
-                    href="#contact"
-                    className="group inline-flex min-h-[52px] items-center justify-center gap-3 px-7 py-3.5 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm md:text-base uppercase tracking-wider rounded transition-colors shadow-xl hover:shadow-orange-500/25 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange focus-visible:ring-offset-brand-charcoal"
-                  >
-                    <span>Request a Quote</span>
-                    <ArrowRight className="w-4 h-4 stroke-[2.5] transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                  </a>
-
-                  <a
-                    href={`tel:${contact.phonePrimaryTel}`}
-                    className="inline-flex min-h-[52px] items-center justify-center gap-2.5 px-6 py-3.5 border border-white/30 hover:border-brand-orange hover:text-brand-orange text-white font-bold text-sm md:text-base tracking-wide rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange focus-visible:ring-offset-brand-charcoal"
-                  >
-                    <Phone className="w-4 h-4" aria-hidden="true" />
-                    <span>Call {contact.phonePrimary}</span>
-                  </a>
-
-                  <a
-                    href="https://wa.me/923315095004"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Chat on WhatsApp"
-                    title="Chat on WhatsApp"
-                    className="inline-flex min-h-[52px] sm:w-[52px] items-center justify-center gap-2.5 px-6 sm:px-0 border border-white/30 hover:border-[#25D366] text-white hover:text-[#25D366] font-bold text-sm rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange focus-visible:ring-offset-brand-charcoal"
-                  >
-                    <MessageCircle className="w-5 h-5" aria-hidden="true" />
-                    <span className="sm:hidden" aria-hidden="true">WhatsApp</span>
-                  </a>
-                </div>
-
-                <p className="flex items-start gap-2 text-sm text-brand-stone">
-                  <CircleCheck className="w-4 h-4 mt-0.5 shrink-0 text-brand-orange" aria-hidden="true" />
-                  <span>{assurances.join(" · ")}</span>
-                </p>
+              <motion.div {...fadeUp(3)} className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">
+                <a
+                  href="#contact"
+                  className="inline-flex h-[52px] items-center justify-center rounded px-7 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal text-[16px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                >
+                  Request a quote
+                </a>
+                <a
+                  href={`tel:${contact.phonePrimaryTel}`}
+                  className="group inline-flex min-h-[44px] items-center gap-2 rounded-sm text-[16px] font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                >
+                  <Phone className="h-4 w-4 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+                  <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
+                    Call {contact.phonePrimary}
+                  </span>
+                </a>
               </motion.div>
+
+              {/* Disciplines index: selects the image; a second click opens the service */}
+              <motion.nav {...fadeUp(4)} aria-label="Disciplines" className="mt-10 lg:mt-14">
+                <ol
+                  className="border-t border-white/12"
+                  onKeyDown={onArrowKeys}
+                  onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
+                  onPointerLeave={() => setHovering(false)}
+                  {...focusHandlers}
+                >
+                  {DISCIPLINES.map((d, i) => {
+                    const isActive = activeRow === i;
+                    return (
+                      <li key={d.slug} className="relative border-b border-white/12">
+                        <a
+                          href={serviceUrl(d.slug)}
+                          aria-current={isActive ? "true" : undefined}
+                          onPointerEnter={(e) => e.pointerType === "mouse" && selectRow(i)}
+                          onFocus={() => selectRow(i)}
+                          onClick={(e) => {
+                            // First tap selects; a click on the already-active row follows the link.
+                            if (!isActive) {
+                              e.preventDefault();
+                              selectRow(i);
+                            }
+                          }}
+                          className="group flex items-baseline gap-4 py-3 lg:py-4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-orange"
+                        >
+                          <span
+                            className={`flex-1 text-[18px] transition-colors duration-200 ${
+                              isActive ? "text-white" : "text-white/70 group-hover:text-white"
+                            }`}
+                          >
+                            {d.name}
+                          </span>
+                          <span
+                            className={`hidden sm:block text-[14px] transition-colors duration-200 ${
+                              isActive ? "text-white/60" : "text-white/35 group-hover:text-white/55"
+                            }`}
+                          >
+                            {d.scope}
+                          </span>
+                          <ArrowRight
+                            className={`h-4 w-4 self-center transition-[opacity,transform,color] duration-200 ${
+                              isActive
+                                ? "opacity-100 text-brand-orange"
+                                : "opacity-0 -translate-x-1 text-white/70 group-hover:opacity-100 group-hover:translate-x-0"
+                            }`}
+                            strokeWidth={1.5}
+                            aria-hidden="true"
+                          />
+                        </a>
+                        {isActive && !reduceMotion && (
+                          <span
+                            ref={progressRef}
+                            aria-hidden="true"
+                            className="pointer-events-none absolute -bottom-px left-0 h-[2px] w-full origin-left scale-x-0 bg-brand-orange"
+                          />
+                        )}
+                      </li>
+                    );
+                  })}
+                </ol>
+              </motion.nav>
             </div>
 
-            {/* Right Column: image composition */}
+            {/* Image frame */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-              className="relative min-w-0 lg:pl-8 lg:pr-5 lg:pb-10 lg:pt-6"
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="order-first lg:order-none lg:col-span-6 min-w-0"
             >
-              <div
-                className="relative aspect-[5/4] rounded-2xl overflow-hidden border border-white/15 bg-brand-navy shadow-2xl shadow-black/40"
-                onMouseEnter={() => setPaused(true)}
-                onMouseLeave={() => setPaused(false)}
-              >
-                {SLIDES.map((s, i) => (
-                  <img
-                    key={s.src}
-                    src={s.src}
-                    alt={s.alt}
-                    width={s.width}
-                    height={s.height}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    fetchPriority={i === 0 ? "high" : "low"}
-                    decoding={i === 0 ? "sync" : "async"}
-                    aria-hidden={i !== slide}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                      i === slide ? "opacity-100" : "opacity-0"
-                    }`}
-                  />
-                ))}
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-charcoal/40 via-transparent to-transparent pointer-events-none" />
-
-                {/* Current discipline caption */}
-                <span
-                  className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-charcoal/75 backdrop-blur-md border border-white/15 text-xs font-bold uppercase tracking-wider text-white"
-                  aria-hidden="true"
+              <div className="relative lg:ml-auto lg:w-full lg:max-w-[calc((100svh-160px)*0.8)]">
+                <div
+                  role="region"
+                  aria-roledescription="carousel"
+                  aria-label="Our disciplines"
+                  tabIndex={0}
+                  onKeyDown={onArrowKeys}
+                  onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
+                  onPointerLeave={() => setHovering(false)}
+                  {...focusHandlers}
+                  className="relative aspect-[4/3] lg:aspect-[4/5] overflow-hidden rounded-[6px] border border-white/10 bg-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-orange" />
-                  {SLIDES[slide].caption}
-                </span>
-              </div>
+                  <div aria-live={running ? "off" : "polite"}>
+                    {SLIDES.map((s, i) => {
+                      const isCurrent = i === slide;
+                      return (
+                        <div
+                          key={s.id}
+                          role="group"
+                          aria-roledescription="slide"
+                          aria-label={`${i + 1} of ${SLIDES.length}: ${s.caption}`}
+                          aria-hidden={!isCurrent}
+                          className={`absolute inset-0 transition-opacity duration-[900ms] ease-in-out motion-reduce:transition-none ${
+                            isCurrent ? "opacity-100" : "opacity-0"
+                          }`}
+                        >
+                          {loaded.has(i) && (
+                            <HeroPicture
+                              id={s.id}
+                              alt={s.alt}
+                              eager={i === 0}
+                              className={`hero-slide-img h-full w-full object-cover ${isCurrent ? "is-current" : ""}`}
+                              style={{
+                                objectPosition: s.position,
+                                animationPlayState: running ? "running" : "paused",
+                              }}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
 
-              {/* Overlapping detail images (desktop only) */}
-              <img
-                src="/assets/service-electrical.webp"
-                alt="Close-up of electrical distribution panel wiring"
-                width={1024}
-                height={1536}
-                loading="lazy"
-                decoding="async"
-                className="hidden lg:block absolute left-0 bottom-0 w-[30%] aspect-[3/4] object-cover rounded-xl border-4 border-brand-navy shadow-2xl shadow-black/50"
-              />
-              <img
-                src="/assets/service-fire.webp"
-                alt="Fire safety equipment mounted in a building"
-                width={1024}
-                height={1536}
-                loading="lazy"
-                decoding="async"
-                className="hidden lg:block absolute right-0 top-0 w-[24%] aspect-[3/4] object-cover rounded-xl border-4 border-brand-navy shadow-2xl shadow-black/50"
-              />
+                  {/* Caption over a soft navy gradient */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-brand-navy/70 to-transparent"
+                  />
+                  <p
+                    aria-hidden="true"
+                    className="pointer-events-none absolute bottom-5 left-5 min-[1100px]:left-[172px] pr-20 text-[16px] text-white"
+                  >
+                    <span className="mb-2.5 block h-px w-6 bg-white/40" />
+                    {SLIDES[slide].caption}
+                  </p>
 
-              {/* Floating glass badge (desktop only) */}
-              <div className="hidden lg:flex absolute right-6 bottom-2 items-center gap-3 px-4 py-3 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/30">
-                <span className="font-heading font-bold text-lg leading-none text-white">
-                  5 disciplines <span className="text-brand-orange">·</span> 1 contract
-                </span>
+                  {!reduceMotion && (
+                    <button
+                      type="button"
+                      onClick={() => setPlaying((p) => !p)}
+                      aria-label={playing ? "Pause slideshow" : "Play slideshow"}
+                      className="absolute bottom-4 right-4 inline-flex h-9 w-9 items-center justify-center rounded-[4px] border border-white/20 bg-brand-navy/40 text-white transition-colors hover:border-white/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                    >
+                      {playing ? (
+                        <Pause className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                      ) : (
+                        <Play className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                      )}
+                    </button>
+                  )}
+                </div>
+
+                {/* HSE inset (wide desktop only); fixed, not part of the slideshow */}
+                <figure className="absolute -left-8 -bottom-6 hidden w-[180px] min-[1100px]:block">
+                  <div className="aspect-[4/3] overflow-hidden rounded-t-[4px] border border-b-0 border-white/20">
+                    <HeroPicture id="hse" alt={HSE_ALT} className="h-full w-full object-cover hero-grade" />
+                  </div>
+                  <figcaption className="rounded-b-[4px] border border-t-0 border-white/20 bg-brand-navy px-3 py-1.5 text-[12px] text-white">
+                    HSE on every site
+                  </figcaption>
+                </figure>
               </div>
             </motion.div>
           </div>
         </div>
 
-        {/* Scroll cue (replaces the corner scroll arrow); hides after first scroll */}
-        <a
-          href="#services"
-          aria-label="Scroll to services"
-          tabIndex={scrolled ? -1 : 0}
-          className={`hidden md:flex self-center flex-col items-center gap-0.5 mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-stone hover:text-white transition-opacity duration-500 ${
-            scrolled ? "opacity-0 pointer-events-none" : "opacity-100"
-          }`}
-        >
-          <span>Scroll</span>
-          <ChevronDown className="w-4 h-4 text-brand-orange motion-safe:animate-bounce" aria-hidden="true" />
-        </a>
-
-        {/* Service strip + trust row, pinned to the bottom of the hero */}
-        <motion.div {...fadeUp(4)} className="pb-6 lg:pb-8">
-          <nav aria-label="Our services">
-            <ul className="-mx-4 px-4 sm:mx-0 sm:px-0 flex lg:grid lg:grid-cols-5 gap-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pt-1">
-              {services.map((svc) => {
-                const meta = STRIP_ICONS[svc.id];
-                if (!meta) return null;
-                const Icon = meta.icon;
-                return (
-                  <li key={svc.id} className="snap-start shrink-0 w-[72%] sm:w-[40%] lg:w-auto">
-                    <a
-                      href={serviceUrl(svc.id)}
-                      className="group flex h-full items-start gap-3 p-4 rounded-lg bg-white/[0.04] border border-white/10 border-t-2 border-t-transparent hover:border-t-brand-orange hover:bg-white/[0.07] hover:-translate-y-1 transition-[transform,background-color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
-                    >
-                      <Icon className="w-5 h-5 mt-0.5 shrink-0 text-brand-orange" strokeWidth={1.75} aria-hidden="true" />
-                      <span className="min-w-0">
-                        <span className="block font-heading font-bold text-base leading-tight text-white">{meta.label}</span>
-                        <span className="block mt-1 text-xs leading-snug text-brand-stone">{svc.shortTag}</span>
-                      </span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-white/10 pt-4">
-            {trustFacts.length > 0 && (
-              <p className="text-xs font-bold uppercase tracking-wider text-brand-stone">
-                {trustFacts.join(" · ")}
-              </p>
-            )}
-            {heroClients.length > 0 && (
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-6">
-                <span className="text-xs uppercase tracking-wider text-brand-stone shrink-0">Clients include</span>
-                <ul className="flex items-center gap-2 sm:gap-3">
-                  {heroClients.map((c) => (
-                    <li
-                      key={c.name}
-                      className="group/logo flex items-center h-10 sm:h-11 px-2.5 rounded-md bg-brand-cream/90 hover:bg-white transition-colors"
-                    >
-                      <img
-                        src={c.logo}
-                        alt={c.fullName}
-                        title={c.fullName}
-                        width={LOGO_SIZES[c.name]?.width}
-                        height={LOGO_SIZES[c.name]?.height}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-6 sm:h-7 w-auto object-contain grayscale opacity-75 group-hover/logo:grayscale-0 group-hover/logo:opacity-100 transition-[filter,opacity] duration-300"
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </motion.div>
+        {/* Trust row */}
+        {trust.length > 0 && (
+          <dl
+            className="grid grid-cols-2 gap-y-5 border-t border-white/12 py-6 sm:[grid-template-columns:repeat(var(--cols),minmax(0,1fr))]"
+            style={{ "--cols": trust.length } as React.CSSProperties}
+          >
+            {trust.map((t) => {
+              const numeric = /^\d+$/.test(t.value);
+              return (
+                <div key={t.label} className="flex flex-col-reverse">
+                  <dt className="mt-1 text-[13px] text-white/55">{t.label}</dt>
+                  <dd className="font-heading text-[26px] font-medium leading-none text-white">
+                    {t.count && numeric ? <CountUp value={Number(t.value)} suffix={t.suffix} /> : `${t.value}${t.suffix}`}
+                  </dd>
+                </div>
+              );
+            })}
+          </dl>
+        )}
       </div>
     </section>
   );

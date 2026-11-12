@@ -1,55 +1,153 @@
-import React from "react";
+import React, { useState } from "react";
+import { Check } from "lucide-react";
 import { SITE_CONTENT } from "../content";
+import { Reveal } from "./Reveal";
+import { CountUp } from "./CountUp";
+
+const FALLBACK_IMAGE = "/assets/hero.webp";
+
+const eyebrow = "text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-orange";
 
 export const About: React.FC = () => {
-  const { story, founder, mission, vision, credentials } = SITE_CONTENT.about;
+  const { story, image, established, founder, mission, vision, howWeWork, credentials } = SITE_CONTENT.about;
+  const { yearsInOperation, projectsDelivered, pecCategory } = SITE_CONTENT.hero;
+  const [imgSrc, setImgSrc] = useState(image || FALLBACK_IMAGE);
+
+  const stats = [
+    { value: yearsInOperation, suffix: "+", label: "Years in business" },
+    { value: projectsDelivered, suffix: "+", label: "Projects delivered" },
+    { value: "5", suffix: "", label: "Disciplines" },
+  ].filter((s) => s.value.trim() !== "" && !Number.isNaN(Number(s.value)));
+
+  const credentialItems = [
+    pecCategory && `PEC registered ${pecCategory}`,
+    credentials.ntn && `NTN ${credentials.ntn}`,
+    credentials.secp && `SECP ${credentials.secp}`,
+    credentials.certification,
+  ].filter((c): c is string => Boolean(c && c.trim()));
 
   return (
     <section
       id="about"
-      className="relative bg-brand-navy text-white py-16 md:py-24 overflow-hidden"
-      aria-label="About Fraternity Engineering"
+      className="relative bg-brand-navy text-white py-[72px] lg:py-[120px]"
+      aria-labelledby="about-title"
     >
-      <div className="absolute inset-0 bg-blueprint-grid opacity-30 pointer-events-none" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 items-start gap-14 lg:gap-20">
+          {/* Image */}
+          <Reveal className="lg:col-span-5 lg:sticky lg:top-28">
+            <figure className="relative mr-4 mb-6 lg:mr-6">
+              <img
+                src={imgSrc}
+                onError={() => imgSrc !== FALLBACK_IMAGE && setImgSrc(FALLBACK_IMAGE)}
+                alt={
+                  imgSrc === FALLBACK_IMAGE
+                    ? "Glass-fronted commercial building and flyover at dusk"
+                    : "The Fraternity Engineering team"
+                }
+                width={1200}
+                height={1500}
+                loading="lazy"
+                decoding="async"
+                className="aspect-[4/5] w-full rounded-[6px] border border-white/10 object-cover object-[62%_50%]"
+              />
+              {established.trim() !== "" && (
+                <figcaption className="absolute -right-4 -bottom-6 lg:-right-6 bg-brand-navy border border-white/12 rounded-[4px] p-4">
+                  <p className="text-[14px] font-medium text-white">Islamabad, Pakistan</p>
+                  <p className="mt-0.5 text-[13px] text-white/60">Established {established}</p>
+                </figcaption>
+              )}
+            </figure>
+          </Reveal>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="kicker-label text-brand-orange mb-2">About</p>
-        <h2 className="text-3xl sm:text-4xl font-heading font-bold text-white tracking-tight">
-          About Fraternity Engineering.
-        </h2>
-        <div className="w-16 h-1 bg-brand-orange mt-4 mb-10" />
+          {/* Copy */}
+          <div className="lg:col-span-7">
+            <Reveal>
+              <p className={eyebrow}>About</p>
+              <h2
+                id="about-title"
+                className="mt-4 font-heading font-medium text-[clamp(2rem,1.4rem+2.4vw,3rem)] leading-[1.1] tracking-tight text-white [text-wrap:balance]"
+              >
+                One team that builds, wires and protects.
+              </h2>
+              <p className="mt-6 max-w-[58ch] text-[17px] leading-[1.7] text-white/75">{story}</p>
+            </Reveal>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-          <div className="space-y-5">
-            <p className="text-brand-stone text-base leading-relaxed">{story}</p>
-            {founder.name.trim() !== "" && (
-              <div className="pt-4 border-t border-white/10">
-                <p className="font-heading font-bold text-white">{founder.name}</p>
-                {founder.role.trim() !== "" && (
-                  <p className="text-xs font-mono uppercase tracking-wider text-brand-stone">{founder.role}</p>
-                )}
-              </div>
+            {stats.length > 0 && (
+              <Reveal className="mt-10">
+                <dl className="flex divide-x divide-white/12">
+                  {stats.map((s) => (
+                    <div key={s.label} className="flex-1 max-w-[200px] px-5 first:pl-0 sm:px-8">
+                      <dt className="sr-only">{s.label}</dt>
+                      <dd className="font-heading font-medium text-[40px] leading-none text-white">
+                        <CountUp value={Number(s.value)} suffix={s.suffix} />
+                      </dd>
+                      <dd className="mt-2 text-[13px] text-white/60" aria-hidden="true">
+                        {s.label}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </Reveal>
             )}
-          </div>
 
-          <div className="space-y-6">
-            <div>
-              <h3 className="kicker-label text-brand-orange mb-1">Mission</h3>
-              <p className="text-brand-stone text-base leading-relaxed">{mission}</p>
-            </div>
-            <div>
-              <h3 className="kicker-label text-brand-orange mb-1">Vision</h3>
-              <p className="text-brand-stone text-base leading-relaxed">{vision}</p>
-            </div>
+            <Reveal className="mt-12 border-t border-white/12 pt-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12">
+                <div>
+                  <h3 className={eyebrow}>Mission</h3>
+                  <p className="mt-3 text-[16px] leading-relaxed text-white/75">{mission}</p>
+                </div>
+                <div>
+                  <h3 className={eyebrow}>Vision</h3>
+                  <p className="mt-3 text-[16px] leading-relaxed text-white/75">{vision}</p>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal className="mt-12">
+              <h3 className={eyebrow}>How we work</h3>
+              <ol className="mt-5 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/12 border-y border-white/12">
+                {howWeWork.map((item, i) => (
+                  <li key={item.title} className="py-6 md:px-6 md:first:pl-0 md:last:pr-0">
+                    <span className="text-[12px] font-medium tracking-[0.12em] text-white/45 tabular-nums">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <p className="mt-3 font-heading font-medium text-[17px] text-white">{item.title}</p>
+                    <p className="mt-1.5 text-[15px] leading-relaxed text-white/60">{item.description}</p>
+                  </li>
+                ))}
+              </ol>
+            </Reveal>
+
+            {founder.name.trim() !== "" && (
+              <Reveal className="mt-12">
+                <figure className="border-t border-white/12 pt-8">
+                  {founder.quote.trim() !== "" && (
+                    <blockquote className="max-w-[58ch] text-[15px] leading-[1.7] text-white/80">
+                      “{founder.quote}”
+                    </blockquote>
+                  )}
+                  <figcaption className="mt-4 text-[14px] text-white/60">
+                    <span className="font-medium text-white">{founder.name}</span>
+                    {founder.role.trim() !== "" && <>, {founder.role}</>}
+                  </figcaption>
+                </figure>
+              </Reveal>
+            )}
           </div>
         </div>
 
-        {credentials.length > 0 && (
-          <ul className="mt-10 pt-6 border-t border-white/10 flex flex-wrap gap-x-8 gap-y-2 text-xs font-mono uppercase tracking-wider text-brand-stone">
-            {credentials.map((c) => (
-              <li key={c}>{c}</li>
-            ))}
-          </ul>
+        {credentialItems.length > 0 && (
+          <Reveal className="mt-16 lg:mt-20 border-t border-white/12 pt-8">
+            <ul className="flex flex-wrap gap-x-10 gap-y-3" aria-label="Credentials">
+              {credentialItems.map((c) => (
+                <li key={c} className="flex items-center gap-2 text-[14px] text-white/75">
+                  <Check className="w-4 h-4 text-brand-orange" strokeWidth={2.5} aria-hidden="true" />
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         )}
       </div>
     </section>
