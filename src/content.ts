@@ -119,6 +119,13 @@ export const SITE_CONTENT = {
     { value: "NTN/SECP", label: "Registered" },
   ] as StatItem[],
 
+  // Hero trust row. Each item is hidden while its value is blank. Fill in once confirmed.
+  hero: {
+    yearsInOperation: "", // e.g. "10" renders "10+ years"
+    projectsDelivered: "", // e.g. "150" renders "150+ projects delivered"
+    pecCategory: "", // e.g. "C-3" renders "PEC C-3 registered"
+  },
+
   companyProfileUrl: "/assets/company-profile.pdf",
 
   clientScopes: "", // e.g. "electrical, fire alarm and civil works". Hidden when empty.

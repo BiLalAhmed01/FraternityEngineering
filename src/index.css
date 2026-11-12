@@ -44,10 +44,18 @@
     background: var(--color-brand-orange-hover);
   }
 
-  /* Custom Scrollbar - Firefox */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-brand-orange) var(--color-brand-navy);
+  /* No arrow buttons on the custom scrollbar (removes the small orange triangle in the corner) */
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  /* Custom Scrollbar - Firefox only. In Chromium, scrollbar-color overrides the
+     ::-webkit-scrollbar styles above and brings back the native arrow buttons. */
+  @supports (-moz-appearance: none) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-brand-orange) var(--color-brand-navy);
+    }
   }
 
   h1, h2, h3, h4, h5, h6 {
