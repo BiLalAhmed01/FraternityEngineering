@@ -10,6 +10,8 @@ test("validateContactForm accepts valid form submission", () => {
     email: "tariq@example.com",
     service: "Construction",
     message: "We need structural evaluation and renovation for a commercial office block in G-8 Islamabad.",
+    budget: "",
+    timeline: "",
   });
 
   assert.equal(result.isValid, true);
@@ -24,6 +26,8 @@ test("validateContactForm catches missing and invalid fields", () => {
     email: "invalid-email",
     service: "",
     message: "Hi",
+    budget: "",
+    timeline: "",
   });
 
   assert.equal(result.isValid, false);
@@ -42,8 +46,24 @@ test("formatWhatsAppMessage encodes fields properly", () => {
     email: "ahmed@example.com",
     service: "Electrical works",
     message: "Inquiry regarding cabling conduits.",
+    budget: "",
+    timeline: "",
   });
 
   assert.ok(encoded.includes("Ahmed%20Khan"));
   assert.ok(encoded.includes("Electrical%20works"));
+});
+
+test("validateContactForm treats email and organization as optional", () => {
+  const result = validateContactForm({
+    fullName: "Ali Raza",
+    companyName: "",
+    phone: "+923315095004",
+    email: "",
+    service: "Fire & safety",
+    message: "Need a fire alarm quote for a two storey office.",
+    budget: "",
+    timeline: "",
+  });
+  assert.equal(result.isValid, true);
 });

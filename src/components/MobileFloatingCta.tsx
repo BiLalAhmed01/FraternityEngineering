@@ -1,64 +1,37 @@
-import React, { useState } from "react";
-import { Phone, MessageCircle, X } from "lucide-react";
+import React from "react";
+import { Phone, MessageCircle, FileText } from "lucide-react";
 import { SITE_CONTENT } from "../content";
 
+/**
+ * Sticky bottom bar on mobile and tablet: Call, WhatsApp, Quote.
+ * It replaces the old floating WhatsApp/call buttons, so only one set of quick actions shows.
+ */
 export const MobileFloatingCta: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-
-  if (collapsed) {
-    return (
-      <button
-        type="button"
-        onClick={() => setCollapsed(false)}
-        className="lg:hidden fixed bottom-5 right-4 z-40 p-3 bg-brand-orange text-brand-charcoal rounded-full shadow-2xl border-2 border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
-        aria-label="Open contact quick actions"
-      >
-        <Phone className="w-5 h-5" />
-      </button>
-    );
-  }
+  const item =
+    "flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[56px] text-[11px] font-bold uppercase tracking-wider focus-visible:outline-2 focus-visible:outline-offset-[-3px]";
 
   return (
-    <div
-      className="lg:hidden fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2"
-      role="region"
-      aria-label="Quick contact buttons"
+    <nav
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex bg-brand-charcoal border-t border-white/15 pb-[env(safe-area-inset-bottom)]"
+      aria-label="Quick contact"
     >
-      <div className="flex items-center gap-2 bg-brand-charcoal/95 backdrop-blur-md p-1.5 pl-3 rounded-full border border-white/20 shadow-2xl">
-        <span className="text-[11px] font-mono font-bold text-brand-orange tracking-wider uppercase pr-1">
-          Quick Contact
-        </span>
-
-        {/* WhatsApp Button */}
-        <a
-          href={SITE_CONTENT.contact.whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white shadow transition-transform active:scale-95"
-          aria-label="Chat on WhatsApp"
-        >
-          <MessageCircle className="w-5 h-5" />
-        </a>
-
-        {/* Direct Call Button */}
-        <a
-          href={`tel:${SITE_CONTENT.contact.phonePrimary.replace(/-/g, "")}`}
-          className="flex items-center justify-center w-9 h-9 rounded-full bg-brand-orange text-brand-charcoal shadow font-bold transition-transform active:scale-95"
-          aria-label="Direct Call to Fraternity Engineering"
-        >
-          <Phone className="w-4 h-4" />
-        </a>
-
-        {/* Minimize Button */}
-        <button
-          type="button"
-          onClick={() => setCollapsed(true)}
-          className="p-1 text-brand-stone hover:text-white rounded-full"
-          aria-label="Minimize quick contact actions"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
+      <a href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`} className={`${item} text-white hover:bg-white/10`}>
+        <Phone className="w-5 h-5" aria-hidden="true" />
+        <span>Call</span>
+      </a>
+      <a
+        href={SITE_CONTENT.contact.whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${item} text-white hover:bg-white/10 border-x border-white/15`}
+      >
+        <MessageCircle className="w-5 h-5 text-[#25D366]" aria-hidden="true" />
+        <span>WhatsApp</span>
+      </a>
+      <a href="/#contact" className={`${item} bg-brand-orange text-brand-charcoal hover:bg-brand-orange-hover`}>
+        <FileText className="w-5 h-5" aria-hidden="true" />
+        <span>Quote</span>
+      </a>
+    </nav>
   );
 };

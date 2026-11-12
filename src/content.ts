@@ -42,8 +42,16 @@ export interface Testimonial {
   name: string;
   role: string;
   organisation: string;
-  result: string;
-  isPlaceholder: true;
+}
+
+export interface StatItem {
+  value: string;
+  label: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
 }
 
 export interface WorkShowcaseItem {
@@ -53,6 +61,7 @@ export interface WorkShowcaseItem {
   scope: string;
   clientType: string;
   location: string;
+  year?: string;
   delivered: string;
   isPlaceholder: true;
 }
@@ -74,12 +83,18 @@ export const SITE_CONTENT = {
   },
 
   contact: {
-    address: "Shop # 01, Block # 54, I&T Center, G-8/1, Islamabad",
+    address: "Shop #01, Block 54, I&T Center, G-8/1, Islamabad",
     city: "Islamabad, 44000",
     phonePrimary: "0331-5095004",
     phoneSecondary: "051-2331654",
+    phonePrimaryTel: "+923315095004",
+    phoneSecondaryTel: "+92512331654",
+    // Hours promised in the form success message. Left blank until confirmed; the message omits it when empty.
+    replyHours: "",
     phoneDisplay: "0331-5095004 · 051-2331654",
     email: "fraternityengineering@gmail.com",
+    // Domain email for the footer. Left blank until provided; the footer hides it when empty.
+    domainEmail: "",
     workingHours: "Monday to Saturday: 9:00 AM - 6:00 PM (Friday break: 1:00 PM - 2:30 PM)",
     googleMapsSearchUrl: "https://www.google.com/maps/search/?api=1&query=Shop+01+Block+54+IT+Center+G-8%2F1+Islamabad",
     whatsappUrl: "https://wa.me/923315095004?text=Hello%20Fraternity%20Engineering,%20I%20would%20like%20to%20inquire%20about%20your%20services.",
@@ -91,8 +106,68 @@ export const SITE_CONTENT = {
     { label: "Clients", href: "#clients" },
     { label: "Process", href: "#process" },
     { label: "About", href: "#about" },
+    { label: "FAQ", href: "#faq" },
     { label: "Contact", href: "#contact" },
   ],
+
+  // Stats bar. Values left blank are hidden. Fill in once confirmed.
+  stats: [
+    { value: "", label: "Years in operation" },
+    { value: "", label: "Projects completed" },
+    { value: "", label: "Disciplines" },
+    { value: "", label: "PEC registration" },
+    { value: "NTN/SECP", label: "Registered" },
+  ] as StatItem[],
+
+  companyProfileUrl: "/assets/company-profile.pdf",
+
+  clientScopes: "", // e.g. "electrical, fire alarm and civil works". Hidden when empty.
+
+  testimonials: [] as Testimonial[], // Section is hidden when empty.
+
+  about: {
+    story:
+      "Fraternity Engineering & Co. (SMC-Pvt) Ltd. is an Islamabad-based contractor and supplier. We handle construction, civil, electrical and fire and safety works, and general order supply, for government, public-sector and private clients.",
+    founder: { name: "", role: "" }, // Hidden when name is empty.
+    mission:
+      "To deliver construction, engineering and supply work as quoted, with direct accountability to the client.",
+    vision:
+      "To be a dependable multi-discipline engineering and supply partner in the region.",
+    credentials: [] as string[], // e.g. "PEC: ...", "NTN: ...", "ISO ...". Row is hidden when empty.
+  },
+
+  faq: [
+    {
+      question: "Which areas do you serve?",
+      answer:
+        "We are based in Islamabad and work for clients in Islamabad, Rawalpindi and across Pakistan.",
+    },
+    {
+      question: "Do you take tender and government work?",
+      answer:
+        "Yes. Our clients include government and public-sector organizations. Send us the tender documents and we will review the scope.",
+    },
+    {
+      question: "How quickly can I get a quote?",
+      answer:
+        "Send your scope, drawings or site details through the contact form. We confirm the time needed for the quote when we reply.",
+    },
+    {
+      question: "What warranty and after-sales support do you offer?",
+      answer:
+        "At handover we provide as-built documents and warranty sheets, and we stay available for support after delivery.",
+    },
+    {
+      question: "Where do you source materials?",
+      answer:
+        "We procure construction, electrical and fire safety materials and equipment ourselves through our general order supply service, and we list them in the quote.",
+    },
+    {
+      question: "What are your payment terms?",
+      answer:
+        "Payment terms are set per project and written in the quotation. They are agreed before work starts.",
+    },
+  ] as FaqItem[],
 
   workShowcase: [
     {
@@ -209,7 +284,7 @@ export const SITE_CONTENT = {
       image: "/assets/service-fire.webp",
     },
     {
-      id: "general-supply",
+      id: "supply",
       name: "General Order Supply",
       shortTag: "Procurement & Supply",
       summary: "Procurement and supply services for engineering, construction, industrial and operational requirements.",
@@ -236,49 +311,30 @@ export const SITE_CONTENT = {
     { name: "PTCL", fullName: "Pakistan Telecommunication Company Limited", logo: "/assets/client-ptcl.webp" },
   ] as ClientLogo[],
 
-  missionVision: {
-    mission: {
-      kicker: "Our Mission",
-      title: "Dependable Engineering That Reduces Complexity",
-      paragraphs: [
-        "To deliver dependable engineering, construction, and procurement solutions that simplify complex projects for public and private organizations across Pakistan through technical integrity and direct accountability.",
-        "We strive to eliminate unnecessary contractor layers, offering clients practical problem-solving, transparent pricing, and robust craft on every milestone.",
-      ],
-    },
-    vision: {
-      kicker: "Our Vision",
-      title: "A Benchmark For Reliable Engineering Services",
-      paragraphs: [
-        "To be the most dependable multi-discipline engineering and supply partner in the region, recognized for solid execution, prompt responsiveness, and lasting professional relationships.",
-        "We aim to grow through the trust earned from zero-compromise safety, durable works, and seamless institutional cooperation.",
-      ],
-    },
-  },
-
   processSteps: [
     {
       step: "01",
       title: "Consult",
-      summary: "Direct technical consultation to define site parameters, operational constraints, and scope boundaries.",
-      details: "We meet on site or review project tenders, establishing specific technical requirements, material expectations, and preliminary timeline limits.",
+      summary: "A direct discussion to define the site, constraints and scope.",
+      details: "We meet on site or review the tender, and agree the technical requirements, materials and rough timeline.",
     },
     {
       step: "02",
       title: "Plan and quote",
-      summary: "Itemized bill of quantities (BOQ) with unambiguous pricing, clear milestones, and verified lead times.",
-      details: "Our engineering estimators prepare comprehensive schedules, transparent cost breakdowns, and risk assessments with zero hidden charges.",
+      summary: "Itemized bill of quantities (BOQ) with clear pricing, milestones and lead times.",
+      details: "Our estimators prepare the schedule and a full cost breakdown so you can see what each item costs.",
     },
     {
       step: "03",
       title: "Execute",
-      summary: "Disciplined site management, experienced craft supervision, and proactive quality compliance checks.",
-      details: "Works proceed under continuous supervision by qualified personnel, adhering strictly to safety regulations and quality checkpoints.",
+      summary: "Site management, supervised work and regular quality checks.",
+      details: "Work is supervised on site and follows safety rules and quality checkpoints.",
     },
     {
       step: "04",
       title: "Handover and support",
-      summary: "Formal inspection walkthrough, signed documentation, and dependable after-sales maintenance backup.",
-      details: "We conduct final load tests and joint verifications, handing over as-built manuals, warranty sheets, and responsive post-delivery support.",
+      summary: "Final walkthrough, signed documents and after-sales support.",
+      details: "We run final tests and joint checks, then hand over as-built documents and warranty sheets.",
     },
   ] as ProcessStep[],
 };

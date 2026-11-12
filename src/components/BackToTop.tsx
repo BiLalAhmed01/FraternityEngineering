@@ -36,7 +36,7 @@ export const BackToTop: React.FC = () => {
           transition={{ duration: 0.25, ease: "easeOut" }}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
-          className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 p-3 sm:p-3.5 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal rounded-full shadow-xl shadow-black/25 border-2 border-white/20 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange focus-visible:ring-offset-brand-navy"
+          className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-40 p-3.5 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal rounded-full shadow-xl shadow-black/25 border-2 border-white/20 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange focus-visible:ring-offset-brand-navy"
           aria-label="Back to top of page"
           title="Back to top"
         >

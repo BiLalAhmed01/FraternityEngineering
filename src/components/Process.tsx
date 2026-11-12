@@ -39,7 +39,7 @@ export const Process: React.FC = () => {
     <section
       id="process"
       ref={containerRef}
-      className="bg-brand-charcoal text-white py-20 md:py-28 relative overflow-hidden"
+      className="bg-brand-charcoal text-white py-16 md:py-24 relative overflow-hidden"
       aria-label="Engineering Execution Process"
     >
       <div className="absolute inset-0 bg-blueprint-grid opacity-35 pointer-events-none" />
@@ -47,14 +47,13 @@ export const Process: React.FC = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="max-w-2xl mb-16">
-          <p className="kicker-label text-brand-orange mb-2">Our Operating Method</p>
+          <p className="kicker-label text-brand-orange mb-2">How We Work</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-white tracking-tight">
             How we deliver your project.
           </h2>
           <div className="w-16 h-1 bg-brand-orange mt-4 mb-4" />
           <p className="text-base text-brand-stone">
-            A structured four-phase delivery workflow designed to eliminate ambiguity, enforce budget
-            discipline, and guarantee technical compliance.
+            Four steps from first meeting to handover, with clear pricing and documented sign-off.
           </p>
         </div>
 
@@ -133,7 +132,7 @@ export const Process: React.FC = () => {
           </div>
         </div>
 
-        {/* Milestone Guarantee Banner */}
+        {/* Sign-off Banner */}
         <div className="mt-12 p-6 rounded-lg bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 rounded-full bg-brand-orange animate-pulse" />

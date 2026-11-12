@@ -49,7 +49,7 @@ export const Hero: React.FC = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-orange" />
               </span>
-              <span>Makes Life Easier.</span>
+              <span>Integrated engineering, Islamabad</span>
             </motion.div>
 
             {/* Main Headline: Concrete utility */}
@@ -136,7 +136,7 @@ export const Hero: React.FC = () => {
                     FTE | INTEGRATED ENGINEERING
                   </span>
                 </div>
-                <div className="font-mono text-[10px] text-brand-stone/70">
+                <div className="font-mono text-[10px] text-brand-stone/80">
                   ISLAMABAD, PAKISTAN
                 </div>
               </div>
@@ -151,12 +151,6 @@ export const Hero: React.FC = () => {
                 />
                 {/* Subtle dark overlay for text readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-charcoal/20 to-transparent pointer-events-none" />
-              </div>
-
-              {/* Clean Footer */}
-              <div className="px-4 py-2.5 border-t border-white/10 bg-black/30 flex items-center justify-between text-[10px] font-mono text-brand-stone/70">
-                <span>PROJECT PHOTOGRAPHY</span>
-                <span className="text-brand-orange">REAL ENGINEERING WORK</span>
               </div>
             </div>
           </motion.div>

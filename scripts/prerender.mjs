@@ -6,7 +6,7 @@
 import { createServer } from "vite";
 import { renderToString } from "react-dom/server";
 import React from "react";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
 // --- Minimal browser stubs (render phase only; effects never run) ---
 const noop = () => {};
@@ -73,12 +73,15 @@ try {
   const { default: App } = await server.ssrLoadModule("/src/App.tsx");
   const { PrivacyPage } = await server.ssrLoadModule("/src/pages/PrivacyPage.tsx");
   const { TermsPage } = await server.ssrLoadModule("/src/pages/TermsPage.tsx");
+  const { ServicePage } = await server.ssrLoadModule("/src/pages/ServicePage.tsx");
+  const { SERVICE_PAGES } = await server.ssrLoadModule("/src/servicesData.ts");
 
   const render = (el) => renderToString(React.createElement(el));
 
   // 1) Homepage -> dist/index.html (inject into #root)
   const indexPath = "dist/index.html";
   let indexHtml = readFileSync(indexPath, "utf8");
+  const appShell = indexHtml; // untouched shell, reused for service pages
   const homeHtml = render(App);
   indexHtml = indexHtml.replace('<div id="root"></div>', `<div id="root">${homeHtml}</div>`);
   writeFileSync(indexPath, indexHtml);
@@ -126,6 +129,20 @@ try {
     const body = render(p.el);
     writeFileSync(p.file, shell({ ...p, bodyHtml: body }));
     console.log(`[prerender] ${p.file} written,`, body.length, "bytes");
+  }
+
+  // 3) Service pages -> dist/services/<slug>.html (app shell + server-rendered content)
+  mkdirSync("dist/services", { recursive: true });
+  for (const svc of SERVICE_PAGES) {
+    const body = renderToString(React.createElement(ServicePage, { service: svc }));
+    const title = `${svc.name} | Fraternity Engineering & Co.`;
+    const canonical = `${BASE}/services/${svc.slug}`;
+    let html = appShell
+      .replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+      .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
+      .replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${canonical}" />`);
+    writeFileSync(`dist/services/${svc.slug}.html`, html);
+    console.log(`[prerender] dist/services/${svc.slug}.html written,`, body.length, "bytes");
   }
 } finally {
   await server.close();

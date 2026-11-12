@@ -9,7 +9,10 @@ import { Hero } from "./components/Hero";
 import { Services } from "./components/Services";
 import { WhyFTE } from "./components/WhyFTE";
 import { ClientsMarquee } from "./components/ClientsMarquee";
-import { MissionVision } from "./components/MissionVision";
+import { About } from "./components/About";
+import { StatsBar } from "./components/StatsBar";
+import { Testimonials } from "./components/Testimonials";
+import { Faq } from "./components/Faq";
 import { Process } from "./components/Process";
 import { Contact, ContactRef } from "./components/Contact";
 import { Footer } from "./components/Footer";
@@ -23,6 +26,9 @@ import { SmoothScroll } from "./components/SmoothScroll";
 import { SlantedBeamDivider } from "./components/SlantedBeamDivider";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
+import { ServicePage } from "./pages/ServicePage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { getServicePage } from "./servicesData";
 
 export default function App() {
   const contactRef = useRef<ContactRef>(null);
@@ -30,6 +36,11 @@ export default function App() {
 
   if (path === "/privacy") return <PrivacyPage />;
   if (path === "/terms") return <TermsPage />;
+  if (path.startsWith("/services/")) {
+    const service = getServicePage(path.slice("/services/".length).replace(/\/$/, ""));
+    return service ? <ServicePage service={service} /> : <NotFoundPage />;
+  }
+  if (path !== "/" && path !== "") return <NotFoundPage />;
 
   return (
     <SmoothScroll>
@@ -50,13 +61,16 @@ export default function App() {
           {/* Hero Section with 3D Visualization */}
           <Hero />
 
+          {/* Stats Bar */}
+          <StatsBar />
+
           {/* Services (5 Interactive 3D Icons, Clean Accordion) */}
           <Services />
 
           {/* Slanted Beam Divider */}
           <SlantedBeamDivider fromColor="cream" toColor="charcoal" />
 
-          {/* Our Work (Project Showcase with Quote Preview) */}
+          {/* Our Work (Project Showcase) */}
           <WhyFTE />
 
           {/* Slanted Beam Divider */}
@@ -65,11 +79,17 @@ export default function App() {
           {/* Clients (Plain Text List) */}
           <ClientsMarquee />
 
-          {/* Mission and Vision (Side-by-Side Panels on Navy) */}
-          <MissionVision />
+          {/* About (Story, Mission and Vision, Credentials) */}
+          <About />
+
+          {/* Testimonials (hidden when empty) */}
+          <Testimonials />
 
           {/* Process (4-Step Timeline with Scroll-Linked Progress Line) */}
           <Process />
+
+          {/* FAQ */}
+          <Faq />
 
           {/* Contact (Floating Labels, Inline Validation, Draw Checkmark) */}
           <Contact ref={contactRef} />

@@ -7,7 +7,7 @@
   --color-brand-orange-hover: #E55F00;
   --color-brand-cream: #F4EDE0;
   --color-brand-stone: #D9C6B2;
-  --color-brand-steel: #8A8F98;
+  --color-brand-steel: #5B626C; /* darkened for WCAG AA text contrast on cream/white */
   --color-brand-brown: #4B3F36;
 
   --font-heading: "Barlow", sans-serif;
@@ -17,6 +17,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5rem; /* sticky header height */
     font-family: var(--font-body);
     color: var(--color-brand-brown);
     background-color: var(--color-brand-cream);
@@ -102,8 +103,17 @@
   animation-play-state: running;
 }
 
-.animate-marquee:hover {
+.animate-marquee:hover,
+.group\/marquee:hover .animate-marquee,
+.group\/marquee:focus-within .animate-marquee,
+.group\/marquee:focus .animate-marquee {
   animation-play-state: paused;
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-brand-orange);
+  outline-offset: 2px;
 }
 
 /* Respect reduced motion preference */

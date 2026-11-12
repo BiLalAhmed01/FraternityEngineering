@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import { SITE_CONTENT } from "../content";
-import { HardHat } from "lucide-react";
+import { Download } from "lucide-react";
 import { motion } from "motion/react";
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  Construction: "/assets/service-construction.webp",
+  Civil: "/assets/service-civil.webp",
+  Electrical: "/assets/service-electrical.webp",
+  "Fire & safety": "/assets/service-fire.webp",
+  Supply: "/assets/service-supply.webp",
+};
 
 export const WhyFTE: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -15,7 +23,7 @@ export const WhyFTE: React.FC = () => {
   return (
     <section
       id="work"
-      className="relative bg-brand-cream text-brand-brown py-20 md:py-28"
+      className="relative bg-brand-cream text-brand-brown py-16 md:py-24"
       aria-label="Our Work"
     >
       <div className="absolute inset-0 bg-blueprint-grid-light opacity-50 pointer-events-none" />
@@ -41,7 +49,7 @@ export const WhyFTE: React.FC = () => {
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 aria-pressed={activeCategory === cat}
-                className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded transition-colors ${
+                className={`px-4 min-h-[44px] text-xs font-mono uppercase tracking-wider rounded transition-colors ${
                   activeCategory === cat
                     ? "bg-brand-navy text-white border border-brand-navy"
                     : "bg-white border border-brand-stone/60 text-brand-navy hover:border-brand-orange hover:text-brand-orange"
@@ -64,15 +72,16 @@ export const WhyFTE: React.FC = () => {
               transition={{ duration: 0.5, delay: index * 0.08 }}
               className="bg-white rounded-xl border border-brand-stone/60 overflow-hidden hover:border-brand-navy hover:shadow-xl transition-all duration-300"
             >
-              {/* Project Header - branded panel */}
-              <div className="aspect-video bg-brand-navy relative overflow-hidden">
-                <div className="absolute inset-0 bg-blueprint-grid opacity-40" />
-                <div className="absolute inset-0 bg-gradient-to-br from-brand-orange/10 via-transparent to-transparent" />
+              {/* Project photo */}
+              <div className="aspect-[4/3] bg-brand-navy relative overflow-hidden">
+                <img
+                  src={CATEGORY_IMAGES[work.category]}
+                  alt={`${work.category} work`}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute top-3 left-3 px-2 py-1 bg-brand-orange text-brand-charcoal text-[10px] font-mono uppercase tracking-wider rounded font-bold">
                   {work.category}
-                </div>
-                <div className="absolute bottom-3 right-3 w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-                  <HardHat className="w-5 h-5 text-brand-orange" />
                 </div>
               </div>
 
@@ -84,23 +93,25 @@ export const WhyFTE: React.FC = () => {
                 <p className="text-sm text-brand-brown/85 mb-3">
                   {work.scope}
                 </p>
-                <div className="space-y-1.5 text-xs text-brand-steel font-mono">
-                  <div className="flex justify-between">
-                    <span>Client:</span>
-                    <span className="text-brand-navy">{work.clientType}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Location:</span>
-                    <span className="text-brand-navy">{work.location}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Delivered:</span>
-                    <span className="text-brand-navy">{work.delivered}</span>
-                  </div>
-                </div>
+                <p className="text-xs text-brand-steel font-mono mb-3">
+                  {work.location}
+                  {work.year ? ` · ${work.year}` : ""}
+                </p>
+                <p className="text-sm font-medium text-brand-navy">{work.delivered}</p>
               </div>
             </motion.div>
           ))}
+        </div>
+
+        <div className="flex justify-center">
+          <a
+            href={SITE_CONTENT.companyProfileUrl}
+            download
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-navy hover:bg-brand-orange hover:text-brand-charcoal text-white font-bold text-sm uppercase tracking-wider rounded transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download Company Profile (PDF)</span>
+          </a>
         </div>
       </div>
     </section>

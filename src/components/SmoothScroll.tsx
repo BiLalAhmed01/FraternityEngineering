@@ -12,6 +12,7 @@ export const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       touchMultiplier: 1.3,
+      anchors: { offset: -80 },
     });
 
     let animationFrameId: number;

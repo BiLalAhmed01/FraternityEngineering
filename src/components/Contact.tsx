@@ -1,8 +1,12 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { SITE_CONTENT } from "../content";
 import {
   validateContactForm,
+  validateField,
+  validateFile,
   formatWhatsAppMessage,
+  BUDGET_RANGES,
+  TIMELINES,
   ContactFormData,
   ValidationErrors,
   VALID_SERVICES,
@@ -16,6 +20,8 @@ import {
   ExternalLink,
   MessageCircle,
   RotateCcw,
+  Loader2,
+  Paperclip,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { MagneticButton } from "./MagneticButton";
@@ -32,7 +38,11 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     email: "",
     service: "Construction",
     message: "",
+    budget: "",
+    timeline: "",
   });
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -64,6 +74,26 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     }
   };
 
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const name = e.target.name as "fullName" | "email" | "phone" | "service" | "message";
+    const err = validateField(name, formData);
+    setErrors((prev) => ({ ...prev, [name]: err }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = e.target.files?.[0] ?? null;
+    const err = validateFile(picked);
+    setErrors((prev) => ({ ...prev, file: err }));
+    if (err) {
+      e.target.value = "";
+      setFile(null);
+    } else {
+      setFile(picked);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
@@ -75,8 +105,9 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     }
 
     const validation = validateContactForm(formData);
-    if (!validation.isValid) {
-      setErrors(validation.errors);
+    const fileError = validateFile(file);
+    if (!validation.isValid || fileError) {
+      setErrors({ ...validation.errors, file: fileError });
       return;
     }
 
@@ -89,26 +120,30 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     setIsSubmitting(true);
 
     try {
+      const body = new FormData();
+      body.append("_subject", `New Quote Request - ${formData.service} - ${formData.fullName}`);
+      body.append("_template", "table");
+      body.append("name", formData.fullName);
+      body.append("company", formData.companyName || "Not provided");
+      body.append("phone", formData.phone);
+      body.append("email", formData.email || "Not provided");
+      body.append("service", formData.service);
+      body.append("budget", formData.budget || "Not provided");
+      body.append("timeline", formData.timeline || "Not provided");
+      body.append("message", formData.message);
+      if (file) body.append("attachment", file);
+
       const response = await fetch("https://formsubmit.co/ajax/fraternityengineering@gmail.com", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          _subject: `New Quote Request - ${formData.service} - ${formData.fullName}`,
-          _template: "table",
-          name: formData.fullName,
-          company: formData.companyName || "Not provided",
-          phone: formData.phone,
-          email: formData.email,
-          service: formData.service,
-          message: formData.message,
-        }),
+        headers: { Accept: "application/json" },
+        body,
       });
 
       if (!response.ok) throw new Error("Submission failed");
       setIsSubmitted(true);
     } catch {
       setSubmitError(
-        "We couldn't send your request automatically. Please try again or reach us directly via phone or WhatsApp."
+        "We couldn't send your request. Please try again, or send it to us on WhatsApp instead."
       );
     } finally {
       setIsSubmitting(false);
@@ -123,7 +158,11 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
       email: "",
       service: "Construction",
       message: "",
+      budget: "",
+      timeline: "",
     });
+    setFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
     setErrors({});
     setIsSubmitted(false);
     setAgreedToPrivacy(false);
@@ -133,7 +172,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
   return (
     <section
       id="contact"
-      className="relative bg-brand-cream text-brand-brown py-20 md:py-28 border-t border-brand-stone/40"
+      className="relative bg-brand-cream text-brand-brown py-16 md:py-24 border-t border-brand-stone/40"
       aria-label="Contact and Quotation Request"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -182,12 +221,14 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
                 <div className="space-y-2">
                   <h3 className="font-heading font-bold text-2xl sm:text-3xl text-brand-navy">
-                    Quotation Request Logged
+                    Request sent
                   </h3>
                   <p className="text-sm text-brand-brown/85 max-w-md mx-auto">
                     Thank you, <span className="font-semibold text-brand-navy">{formData.fullName}</span>.
                     Your request for <span className="font-semibold text-brand-navy">{formData.service}</span> has
-                    been recorded. Our engineering department will contact you within one business day.
+                    been sent.
+                    {SITE_CONTENT.contact.replyHours.trim() !== "" &&
+                      ` We reply within ${SITE_CONTENT.contact.replyHours} hours.`}
                   </p>
                 </div>
 
@@ -241,7 +282,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
                 {/* Row 1: Full Name & Company with Floating Labels */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Floating Label: Full Name */}
+                  {/* Floating Label: Name */}
                   <div className="relative">
                     <input
                       id="fullName"
@@ -251,6 +292,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       placeholder=" "
                       value={formData.fullName}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
                         errors.fullName
                           ? "border-red-500 ring-1 ring-red-500"
@@ -260,7 +302,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     />
                     <label
                       htmlFor="fullName"
-                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/60 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
+                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
                     >
                       Full Name *
                     </label>
@@ -270,7 +312,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
-                          className="mt-1 text-xs text-red-600 font-medium"
+                          className="mt-1 text-xs text-red-700 font-medium"
                         >
                           {errors.fullName}
                         </motion.p>
@@ -287,13 +329,14 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       placeholder=" "
                       value={formData.companyName}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       className="peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors"
                     />
                     <label
                       htmlFor="companyName"
-                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/60 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
+                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
                     >
-                      Organization / Company
+                      Organization (optional)
                     </label>
                   </div>
                 </div>
@@ -310,6 +353,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       placeholder=" "
                       value={formData.phone}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
                         errors.phone
                           ? "border-red-500 ring-1 ring-red-500"
@@ -319,7 +363,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     />
                     <label
                       htmlFor="phone"
-                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/60 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
+                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
                     >
                       Phone Number *
                     </label>
@@ -329,7 +373,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
-                          className="mt-1 text-xs text-red-600 font-medium"
+                          className="mt-1 text-xs text-red-700 font-medium"
                         >
                           {errors.phone}
                         </motion.p>
@@ -343,10 +387,10 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       id="email"
                       name="email"
                       type="email"
-                      required
                       placeholder=" "
                       value={formData.email}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       className={`peer w-full px-3.5 pt-5 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
                         errors.email
                           ? "border-red-500 ring-1 ring-red-500"
@@ -356,9 +400,9 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     />
                     <label
                       htmlFor="email"
-                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/60 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
+                      className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
                     >
-                      Email Address *
+                      Email (optional)
                     </label>
                     <AnimatePresence>
                       {errors.email && (
@@ -366,7 +410,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
-                          className="mt-1 text-xs text-red-600 font-medium"
+                          className="mt-1 text-xs text-red-700 font-medium"
                         >
                           {errors.email}
                         </motion.p>
@@ -385,6 +429,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     name="service"
                     value={formData.service}
                     onChange={handleChange}
+                      onBlur={handleBlur}
                     className="w-full px-3.5 py-3 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-white text-brand-brown transition-colors focus:outline-none"
                   >
                     {VALID_SERVICES.map((svc) => (
@@ -393,6 +438,45 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       </option>
                     ))}
                   </select>
+                  {errors.service && <p className="mt-1 text-xs text-red-700 font-medium">{errors.service}</p>}
+                </div>
+
+                {/* Optional: budget and timeline */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="budget" className="block text-xs font-bold text-brand-navy mb-1.5 uppercase tracking-wider">
+                      Budget range (optional)
+                    </label>
+                    <select
+                      id="budget"
+                      name="budget"
+                      value={formData.budget}
+                      onChange={handleChange}
+                      className="w-full min-h-[44px] px-3.5 py-3 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-white text-brand-brown transition-colors"
+                    >
+                      <option value="">Select a range</option>
+                      {BUDGET_RANGES.map((b) => (
+                        <option key={b} value={b}>{b}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="timeline" className="block text-xs font-bold text-brand-navy mb-1.5 uppercase tracking-wider">
+                      Timeline (optional)
+                    </label>
+                    <select
+                      id="timeline"
+                      name="timeline"
+                      value={formData.timeline}
+                      onChange={handleChange}
+                      className="w-full min-h-[44px] px-3.5 py-3 text-base sm:text-sm rounded-lg border border-brand-stone hover:border-brand-navy focus:border-brand-navy bg-white text-brand-brown transition-colors"
+                    >
+                      <option value="">Select a timeline</option>
+                      {TIMELINES.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Floating Label: Message / Scope */}
@@ -405,6 +489,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     placeholder=" "
                     value={formData.message}
                     onChange={handleChange}
+                      onBlur={handleBlur}
                     className={`peer w-full px-3.5 pt-6 pb-2 text-base sm:text-sm rounded-lg border bg-brand-cream/15 text-brand-brown focus:bg-white focus:outline-none transition-colors ${
                       errors.message
                         ? "border-red-500 ring-1 ring-red-500"
@@ -414,9 +499,9 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                   />
                   <label
                     htmlFor="message"
-                    className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/60 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
+                    className="absolute left-3.5 top-2 text-[10px] uppercase font-mono font-bold tracking-wider text-brand-steel transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-placeholder-shown:text-brand-brown/80 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-brand-orange pointer-events-none"
                   >
-                    Project Scope / Bill of Quantities Summary *
+                    Project scope *
                   </label>
                   <AnimatePresence>
                     {errors.message && (
@@ -424,12 +509,36 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="mt-1 text-xs text-red-600 font-medium"
+                        className="mt-1 text-xs text-red-700 font-medium"
                       >
                         {errors.message}
                       </motion.p>
                     )}
                   </AnimatePresence>
+                </div>
+
+                {/* Optional file upload */}
+                <div>
+                  <label htmlFor="attachment" className="block text-xs font-bold text-brand-navy mb-1.5 uppercase tracking-wider">
+                    Attach drawings or BOQ (optional)
+                  </label>
+                  <input
+                    ref={fileInputRef}
+                    id="attachment"
+                    name="attachment"
+                    type="file"
+                    accept=".pdf,.dwg,.xlsx"
+                    onChange={handleFileChange}
+                    aria-describedby="attachment-help"
+                    className="block w-full text-sm text-brand-brown file:mr-3 file:min-h-[44px] file:px-4 file:rounded-lg file:border-0 file:bg-brand-navy file:text-white file:font-bold file:cursor-pointer hover:file:bg-brand-orange hover:file:text-brand-charcoal"
+                  />
+                  <p id="attachment-help" className="mt-1 text-xs text-brand-steel flex items-center gap-1.5">
+                    <Paperclip className="w-3 h-3" aria-hidden="true" />
+                    PDF, DWG or XLSX. Maximum 10 MB.
+                  </p>
+                  {errors.file && (
+                    <p className="mt-1 text-xs text-red-700 font-medium" role="alert">{errors.file}</p>
+                  )}
                 </div>
 
                 {/* Submit error message */}
@@ -439,10 +548,19 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       initial={{ opacity: 0, y: -4 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
-                      className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700"
+                      className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-800"
                       role="alert"
                     >
-                      {submitError}
+                      <p>{submitError}</p>
+                      <a
+                        href={`https://wa.me/923315095004?text=${formatWhatsAppMessage(formData)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-2 min-h-[44px] px-4 rounded-lg bg-[#25D366] hover:bg-[#20ba59] text-brand-charcoal font-bold text-xs uppercase tracking-wider"
+                      >
+                        <MessageCircle className="w-4 h-4" aria-hidden="true" />
+                        <span>Send on WhatsApp</span>
+                      </a>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -474,7 +592,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="mt-1 text-xs text-red-600 font-medium"
+                        className="mt-1 text-xs text-red-700 font-medium"
                         role="alert"
                       >
                         {consentError}
@@ -488,9 +606,10 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                   <MagneticButton
                     type="submit"
                     disabled={isSubmitting}
+                    aria-busy={isSubmitting}
                     className="w-full py-4 px-6 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm uppercase tracking-wider rounded-lg transition-colors shadow-md flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange disabled:opacity-75"
                   >
-                    <Send className="w-4 h-4" />
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Send className="w-4 h-4" />}
                     <span>{isSubmitting ? "Sending..." : "Submit Quotation Request"}</span>
                   </MagneticButton>
                   <p className="mt-2.5 text-center text-[11px] text-brand-steel">
@@ -532,7 +651,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       Registered Address
                     </p>
                     <p className="text-white font-medium mt-0.5 leading-snug">
-                      Shop # 01, Block # 54, I&amp;T Center, G-8/1, Islamabad
+                      Shop #01, Block 54, I&amp;T Center, G-8/1, Islamabad
                     </p>
                     <p className="text-xs text-brand-stone mt-1">Federal Capital Area, Pakistan</p>
                   </div>
@@ -548,13 +667,13 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     </p>
                     <div className="mt-0.5 space-y-0.5">
                       <a
-                        href="tel:03315095004"
+                        href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}
                         className="block text-white font-medium hover:text-brand-orange transition-colors"
                       >
                         0331-5095004 (Mobile / WhatsApp)
                       </a>
                       <a
-                        href="tel:0512331654"
+                        href={`tel:${SITE_CONTENT.contact.phoneSecondaryTel}`}
                         className="block text-white font-medium hover:text-brand-orange transition-colors"
                       >
                         051-2331654 (Landline)
@@ -601,7 +720,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-heading font-bold text-sm text-brand-navy">
-                    Location Matrix // G-8/1 Islamabad
+                    Our location, G-8/1 Islamabad
                   </h4>
                   <p className="text-[11px] text-brand-steel font-mono">
                     Sector G-8/1, Industrial &amp; Trade Center
@@ -634,12 +753,8 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                     <MapPin className="w-5 h-5 stroke-[2.5]" />
                   </div>
                   <div className="mt-1 px-2.5 py-1 bg-brand-charcoal/95 rounded text-[10px] font-mono text-white border border-brand-orange/60 shadow">
-                    Shop # 01, Block 54
+                    Shop #01, Block 54
                   </div>
-                </div>
-
-                <div className="absolute bottom-1 right-2 text-[9px] font-mono text-brand-stone/60">
-                  LAT: 33.6938° N / LON: 73.0378° E
                 </div>
               </div>
 

@@ -5,10 +5,15 @@ import { Menu, X, Phone, ArrowUpRight } from "lucide-react";
 import { MagneticButton } from "./MagneticButton";
 import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
 
+export const HEADER_OFFSET = 80;
+
 export const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
+  const isHome = window.location.pathname === "/";
+  const [activeSection, setActiveSection] = useState(
+    window.location.pathname.startsWith("/services") ? "services" : ""
+  );
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -27,26 +32,22 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Track active section for navigation highlighting
+  // Highlight the section under the sticky header (home page only)
   useEffect(() => {
-    const sections = ["services", "work", "clients", "process", "about", "contact"];
+    if (!isHome) return;
+    const sections = ["services", "work", "clients", "about", "process", "faq", "contact"];
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 100;
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section);
-            break;
-          }
-        }
+      let current = "";
+      for (const id of sections) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= HEADER_OFFSET + 40) current = id;
       }
+      setActiveSection(current);
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isHome]);
 
   // Close mobile drawer on escape
   useEffect(() => {
@@ -72,12 +73,12 @@ export const Header: React.FC = () => {
   }, [mobileMenuOpen]);
 
   const navLinks = [
-    { label: "Services", href: "#services", id: "services" },
-    { label: "Our Work", href: "#work", id: "work" },
-    { label: "Clients", href: "#clients", id: "clients" },
-    { label: "Process", href: "#process", id: "process" },
-    { label: "About", href: "#about", id: "about" },
-    { label: "Contact", href: "#contact", id: "contact" },
+    { label: "Services", href: "/#services", id: "services" },
+    { label: "Our Work", href: "/#work", id: "work" },
+    { label: "Clients", href: "/#clients", id: "clients" },
+    { label: "About", href: "/#about", id: "about" },
+    { label: "Process", href: "/#process", id: "process" },
+    { label: "Contact", href: "/#contact", id: "contact" },
   ];
 
   return (
@@ -102,7 +103,7 @@ export const Header: React.FC = () => {
                 <a
                   key={item.label}
                   href={item.href}
-                  className={`relative group px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange ${
+                  className={`relative group px-4 min-h-[44px] inline-flex items-center text-sm font-medium transition-all duration-300 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange ${
                     activeSection === item.id
                       ? "text-brand-orange"
                       : "text-brand-stone hover:text-white"
@@ -127,8 +128,8 @@ export const Header: React.FC = () => {
             <div className="hidden sm:flex items-center gap-4">
               {/* Phone number with enhanced styling */}
               <a
-                href={`tel:${SITE_CONTENT.contact.phonePrimary.replace(/-/g, "")}`}
-                className="hidden xl:flex items-center gap-2.5 text-xs font-semibold text-brand-stone hover:text-white transition-all duration-300 py-2 px-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10"
+                href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}
+                className="hidden xl:flex items-center gap-2.5 text-xs font-semibold text-brand-stone hover:text-white transition-all duration-300 min-h-[44px] px-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10"
                 title="Call office directly"
               >
                 <div className="p-1.5 rounded-full bg-brand-orange/20">
@@ -140,8 +141,8 @@ export const Header: React.FC = () => {
               {/* Premium Get a Quote button */}
               <MagneticButton
                 as="a"
-                href="#contact"
-                className="relative inline-flex items-center justify-center gap-2.5 px-6 py-3 text-xs md:text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-brand-orange to-brand-orange-hover hover:from-brand-orange-hover hover:to-brand-orange text-brand-charcoal transition-all duration-300 rounded-full shadow-lg hover:shadow-orange-500/40 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange focus-visible:ring-offset-brand-navy group"
+                href="/#contact"
+                className="relative inline-flex min-h-[44px] items-center justify-center gap-2.5 px-6 py-3 text-xs md:text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-brand-orange to-brand-orange-hover hover:from-brand-orange-hover hover:to-brand-orange text-brand-charcoal transition-all duration-300 rounded-full shadow-lg hover:shadow-orange-500/40 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-orange focus-visible:ring-offset-brand-navy group"
               >
                 <span className="relative z-10">Get a Quote</span>
                 <ArrowUpRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
@@ -151,17 +152,11 @@ export const Header: React.FC = () => {
             </div>
 
             {/* Mobile Menu Button with premium styling */}
-            <div className="flex sm:hidden items-center gap-3">
-              <a
-                href="#contact"
-                className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-brand-orange to-brand-orange-hover text-brand-charcoal rounded-full shadow-lg"
-              >
-                Quote
-              </a>
+            <div className="flex lg:hidden items-center gap-3">
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="relative p-2.5 text-brand-stone hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
+                className="relative p-3 text-brand-stone hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
                 aria-expanded={mobileMenuOpen}
                 aria-label="Toggle navigation menu"
               >
@@ -225,7 +220,7 @@ export const Header: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="p-2.5 text-brand-stone hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-brand-orange"
+                    className="p-3 text-brand-stone hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-brand-orange"
                     aria-label="Close menu"
                   >
                     <X className="w-5 h-5" />
@@ -242,7 +237,7 @@ export const Header: React.FC = () => {
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className={`px-4 py-3.5 text-base font-semibold rounded-xl transition-all duration-300 ${
+                      className={`px-4 py-3.5 min-h-[48px] text-base font-semibold rounded-xl transition-all duration-300 ${
                         activeSection === item.id
                           ? "text-brand-orange bg-brand-orange/10 border border-brand-orange/30"
                           : "text-white/90 hover:text-brand-orange hover:bg-white/5"
@@ -271,11 +266,11 @@ export const Header: React.FC = () => {
 
                 {/* CTA Button */}
                 <a
-                  href="#contact"
+                  href="/#contact"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full flex items-center justify-center gap-2.5 py-4 px-6 bg-gradient-to-r from-brand-orange to-brand-orange-hover text-brand-charcoal font-bold text-sm uppercase tracking-wider rounded-full shadow-lg hover:shadow-orange-500/40 transition-all duration-300"
                 >
-                  <span>Request a Quote</span>
+                  <span>Get a Quote</span>
                   <ArrowUpRight className="w-4 h-4" />
                 </a>
               </div>

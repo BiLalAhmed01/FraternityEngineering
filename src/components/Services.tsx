@@ -1,36 +1,29 @@
 import React, { useState, useRef } from "react";
 import { SITE_CONTENT, ServiceItem } from "../content";
-import { ArrowRight, Check, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { serviceUrl } from "../servicesData";
 
 interface ServiceCardProps {
   service: ServiceItem;
   index: number;
-  onExplore: (service: ServiceItem) => void;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
   service,
   index,
-  onExplore,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div
+    <a
+      href={serviceUrl(service.id)}
+      aria-label={`Explore ${service.name}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative bg-brand-navy rounded-2xl border border-white/10 overflow-hidden group shadow-2xl transition-all duration-500 hover:border-brand-orange/60 hover:shadow-orange-500/20 hover:-translate-y-2 w-full h-[540px] flex-shrink-0 cursor-pointer"
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
+      className="relative bg-brand-navy rounded-2xl border border-white/10 overflow-hidden group shadow-2xl transition-all duration-500 hover:border-brand-orange/60 hover:shadow-orange-500/20 hover:-translate-y-2 w-full h-[540px] flex-shrink-0 block focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-orange"
       style={{ width: "100%", maxWidth: "360px", minWidth: "0" }}
-      onClick={() => onExplore(service)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onExplore(service);
-        }
-      }}
     >
       {/* Image Section */}
       <div className="relative h-[400px] overflow-hidden flex-shrink-0">
@@ -55,7 +48,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
         {/* Service Title Overlay with enhanced typography */}
         <div className="absolute bottom-4 left-4 right-4">
-          <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-cream/70 font-semibold">
+          <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-cream/80 font-semibold">
             {service.shortTag}
           </span>
           <h3 className="font-heading font-bold text-2xl text-white leading-tight mt-2 group-hover:text-brand-orange transition-colors duration-300">
@@ -81,124 +74,21 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         </p>
 
         {/* Explore Button with enhanced styling */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onExplore(service);
-          }}
-          className="w-full inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-navy bg-brand-orange hover:bg-brand-orange-hover py-3.5 px-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-orange-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 focus-visible:ring-offset-brand-navy group-hover:scale-[1.02]"
-        >
+        <span className="w-full inline-flex items-center justify-center gap-2 min-h-[44px] text-xs font-bold uppercase tracking-[0.15em] text-brand-navy bg-brand-orange group-hover:bg-brand-orange-hover py-3.5 px-4 rounded-xl transition-all duration-300 shadow-lg group-hover:shadow-orange-500/30">
           <span>Explore Services</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-        </button>
+        </span>
       </div>
 
       {/* Bottom accent line */}
       <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-orange via-brand-orange-hover to-brand-orange transition-all duration-500 ${
         isHovered ? "opacity-100" : "opacity-0"
       }`} />
-    </div>
-  );
-};
-
-interface ServiceDetailModalProps {
-  service: ServiceItem | null;
-  onClose: () => void;
-}
-
-const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({ service, onClose }) => {
-  if (!service) return null;
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative bg-brand-navy rounded-2xl border border-white/10 max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Close Button */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-brand-navy/80 backdrop-blur-sm border border-white/20 text-white hover:bg-brand-orange hover:text-brand-navy transition-all duration-300 flex items-center justify-center"
-            aria-label="Close service details"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          {/* Image Header */}
-          <div className="relative h-64 overflow-hidden">
-            <img
-              src={service.image}
-              alt={service.name}
-              loading="lazy"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/40 to-transparent" />
-            <div className="absolute bottom-4 left-6 right-6">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-brand-cream/80 font-semibold">
-                {service.shortTag}
-              </span>
-              <h2 className="font-heading font-bold text-3xl text-white mt-1">
-                {service.name}
-              </h2>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-256px)]">
-            <p className="text-brand-cream/90 leading-relaxed mb-6">
-              {service.summary}
-            </p>
-
-            <h3 className="font-heading font-bold text-lg text-white mb-4">
-              Sub-Services &amp; Scope
-            </h3>
-            <ul className="space-y-3 mb-8">
-              {service.subservices.map((sub, idx) => (
-                <li
-                  key={idx}
-                  className="flex items-start gap-3 text-brand-cream/90"
-                >
-                  <div className="w-5 h-5 rounded-full bg-brand-orange/20 border border-brand-orange/40 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check className="w-3 h-3 text-brand-orange stroke-[3]" />
-                  </div>
-                  <span className="leading-relaxed">{sub}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* CTA */}
-            <div className="pt-4 border-t border-white/10">
-              <a
-                href="#contact"
-                onClick={onClose}
-                className="inline-flex items-center justify-center gap-2 w-full px-6 py-4 bg-brand-orange hover:bg-brand-orange-hover text-brand-navy font-bold text-sm uppercase tracking-wider rounded-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 focus-visible:ring-offset-brand-navy"
-              >
-                <span>Request a Quote</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+    </a>
   );
 };
 
 export const Services: React.FC = () => {
-  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -230,7 +120,7 @@ export const Services: React.FC = () => {
   return (
     <section
       id="services"
-      className="relative bg-brand-navy text-brand-cream py-20 md:py-28 overflow-hidden"
+      className="relative bg-brand-navy text-brand-cream py-16 md:py-24 overflow-hidden"
       aria-label="Engineering Services"
     >
       <div className="absolute inset-0 bg-blueprint-grid opacity-30 pointer-events-none" />
@@ -303,7 +193,6 @@ export const Services: React.FC = () => {
               <ServiceCard
                 service={service}
                 index={index}
-                onExplore={setSelectedService}
               />
             </div>
           ))}
@@ -332,19 +221,13 @@ export const Services: React.FC = () => {
           </p>
           <a
             href="#contact"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-brand-orange hover:bg-brand-orange-hover text-brand-navy font-bold text-sm uppercase tracking-wider rounded-lg transition-all duration-300 shadow-lg hover:shadow-orange-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 focus-visible:ring-offset-brand-navy"
+            className="inline-flex items-center justify-center gap-2 min-h-[44px] px-8 py-4 bg-brand-orange hover:bg-brand-orange-hover text-brand-navy font-bold text-sm uppercase tracking-wider rounded-lg transition-all duration-300 shadow-lg hover:shadow-orange-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 focus-visible:ring-offset-brand-navy"
           >
             <span>Speak with our engineering team</span>
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>
       </div>
-
-      {/* Service Detail Modal */}
-      <ServiceDetailModal
-        service={selectedService}
-        onClose={() => setSelectedService(null)}
-      />
     </section>
   );
 };
