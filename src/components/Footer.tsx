@@ -12,7 +12,7 @@ const SERVICE_LINKS = [
   { label: "Civil works", slug: "civil" },
   { label: "Electrical", slug: "electrical" },
   { label: "Fire and safety", slug: "fire-safety" },
-  { label: "Supply", slug: "supply" },
+  { label: "Chemicals and materials", slug: "supply" },
 ];
 
 // Company column follows the navbar's names and anchors, minus Services (which has its own column).

@@ -28,7 +28,7 @@ export const VALID_SERVICES = [
   "Civil works",
   "Electrical",
   "Fire and safety",
-  "Supply",
+  "Chemicals and materials",
   "Several disciplines",
   "Not sure yet",
 ] as const;

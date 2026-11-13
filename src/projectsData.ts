@@ -39,7 +39,7 @@ export const CATEGORY_TO_DISCIPLINE: Record<ProjectCategory, string> = {
   Electrical: "Electrical",
   Construction: "Construction",
   Civil: "Civil works",
-  Supply: "Supply",
+  Supply: "Chemicals and materials",
 };
 
 export const PROJECTS: Project[] = [

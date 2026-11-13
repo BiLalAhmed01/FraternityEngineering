@@ -12,7 +12,7 @@ const DISCIPLINES = [
   { name: "Civil works", scope: "Infrastructure and earthworks", slug: "civil" },
   { name: "Electrical", scope: "Power and systems", slug: "electrical" },
   { name: "Fire and safety", scope: "Detection and protection", slug: "fire-safety" },
-  { name: "Supply and chemicals", scope: "Procurement and materials", slug: "supply" },
+  { name: "Chemicals and materials", scope: "Procurement and chemical supplies", slug: "supply" },
 ];
 
 interface Slide {
@@ -63,7 +63,7 @@ const SLIDES: Slide[] = [
   {
     id: "general-supply",
     row: 4,
-    caption: "Materials in stock",
+    caption: "Chemical supplies in stock",
     alt: "Warehouse shelving with cables, pipes, breakers and safety equipment",
     position: "50% 50%",
   },
@@ -89,6 +89,9 @@ const PRELOAD_AT_MS = HOLD_MS - 1000;
 const SELECT_PAUSE_MS = 8000;
 
 const filled = (v: string) => v.trim() !== "";
+
+/* established 2017 */
+const ESTABLISHED_YEAR = 2017;
 
 const HeroPicture: React.FC<{
   id: string;
@@ -229,7 +232,7 @@ export const Hero: React.FC = () => {
 
   const trust = (
     [
-      filled(hero.yearsInOperation) && { value: hero.yearsInOperation, suffix: "+", label: "Years in business", count: true },
+      { value: String(new Date().getFullYear() - ESTABLISHED_YEAR), suffix: "+", label: "Years in business", count: true },
       filled(hero.projectsDelivered) && { value: hero.projectsDelivered, suffix: "+", label: "Projects delivered", count: true },
       filled(hero.pecCategory) && { value: `PEC ${hero.pecCategory}`, suffix: "", label: "Registered" },
       { value: "5", suffix: "", label: "Disciplines" },
@@ -249,7 +252,7 @@ export const Hero: React.FC = () => {
             <div className="lg:col-span-6 min-w-0">
               <p style={riseDelay(0)} className="hero-rise flex items-start gap-3 text-[14px] leading-[1.5] text-fg-subtle">
                 <span className="mt-[10px] h-px w-6 shrink-0 bg-line-strong" aria-hidden="true" />
-                Engineering contractor · Islamabad, Pakistan
+                Since 2017 · Islamabad, Pakistan
               </p>
 
               {/* Alternative headline: "Construction, electrical and fire safety." / "One accountable team." */}
@@ -265,8 +268,7 @@ export const Hero: React.FC = () => {
               </h1>
 
               <p style={riseDelay(2)} className="hero-rise mt-5 max-w-[50ch] text-[18px] leading-[1.65] text-fg-muted [text-wrap:pretty]">
-                Fraternity Engineering is an Islamabad contractor for construction, civil, electrical, fire safety and
-                supply, delivered under one contract from planning to handover.
+                Civil, telecommunications, electrical and fire and safety, delivered by one team across Pakistan. One contract, one point of accountability, and quality built to last at a price that makes sense.
               </p>
 
               <div style={riseDelay(3)} className="hero-rise mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">

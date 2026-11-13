@@ -41,8 +41,8 @@ const DISCIPLINE_ALIASES: Record<string, string> = {
   electrical: "Electrical",
   fire: "Fire and safety",
   "fire-safety": "Fire and safety",
-  supply: "Supply",
-  "general-supply": "Supply",
+  supply: "Chemicals and materials",
+  "general-supply": "Chemicals and materials",
   multiple: "Several disciplines",
   several: "Several disciplines",
 };

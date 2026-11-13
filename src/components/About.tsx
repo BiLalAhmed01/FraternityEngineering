@@ -10,15 +10,15 @@ const FALLBACK_SRCSET = [480, 768, 1200].map((w) => `/assets/about-fallback-${w}
 const eyebrow = "text-[12px] font-semibold uppercase tracking-[0.12em] text-label";
 
 export const About: React.FC = () => {
-  const { story, image, established, founder, mission, vision, howWeWork, credentials } = SITE_CONTENT.about;
-  const { yearsInOperation, projectsDelivered, pecCategory } = SITE_CONTENT.hero;
+  const { story, image, established, founder, mission, vision, coreValues, credentials } = SITE_CONTENT.about;
+  const { projectsDelivered, pecCategory } = SITE_CONTENT.hero;
   const [imgSrc, setImgSrc] = useState(image || FALLBACK_IMAGE);
 
-  const stats = [
-    { value: yearsInOperation, suffix: "+", label: "Years in business" },
-    { value: projectsDelivered, suffix: "+", label: "Projects delivered" },
-    { value: "5", suffix: "", label: "Disciplines" },
-  ].filter((s) => s.value.trim() !== "" && !Number.isNaN(Number(s.value)));
+  const stats: { text?: string; value?: number; suffix?: string; label: string }[] = [
+    established.trim() !== "" && { text: `Since ${established.trim()}`, label: "Established" },
+    projectsDelivered.trim() !== "" && !Number.isNaN(Number(projectsDelivered)) && { value: Number(projectsDelivered), suffix: "+", label: "Projects delivered" },
+    { value: 5, suffix: "", label: "Disciplines" },
+  ].filter(Boolean) as { text?: string; value?: number; suffix?: string; label: string }[];
 
   const credentialItems = [
     pecCategory && `PEC registered ${pecCategory}`,
@@ -84,10 +84,10 @@ export const About: React.FC = () => {
               <Reveal className="mt-10">
                 <dl className="flex divide-x divide-line">
                   {stats.map((s) => (
-                    <div key={s.label} className="flex-1 max-w-[200px] px-5 first:pl-0 sm:px-8">
+                    <div key={s.label} className="flex-1 px-5 first:pl-0 sm:px-8">
                       <dt className="sr-only">{s.label}</dt>
-                      <dd className="font-heading font-medium text-[40px] leading-none text-white">
-                        <CountUp value={Number(s.value)} suffix={s.suffix} />
+                      <dd className="font-heading font-medium text-[32px] sm:text-[40px] leading-none whitespace-nowrap text-white">
+                        {s.text ?? <CountUp value={s.value ?? 0} suffix={s.suffix ?? ""} />}
                       </dd>
                       <dd className="mt-2 text-[13px] text-fg-subtle" aria-hidden="true">
                         {s.label}
@@ -111,21 +111,6 @@ export const About: React.FC = () => {
               </div>
             </Reveal>
 
-            <Reveal className="mt-12">
-              <h3 className={eyebrow}>Principles</h3>
-              <ol className="mt-5 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-line border-y border-line">
-                {howWeWork.map((item, i) => (
-                  <li key={item.title} className="py-6 md:px-6 md:first:pl-0 md:last:pr-0">
-                    <span className="text-[12px] font-medium tracking-[0.12em] text-fg-subtle tabular-nums">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <p className="mt-3 font-heading font-medium text-[17px] text-white">{item.title}</p>
-                    <p className="mt-1.5 text-[15px] leading-relaxed text-fg-subtle">{item.description}</p>
-                  </li>
-                ))}
-              </ol>
-            </Reveal>
-
             {founder.name.trim() !== "" && (
               <Reveal className="mt-12">
                 <figure className="border-t border-line pt-8">
@@ -143,6 +128,66 @@ export const About: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Core values */}
+        <Reveal className="mt-16 lg:mt-20 border-t border-line pt-10">
+          <h3 className={eyebrow}>Our core values</h3>
+          <p className="mt-3 text-[17px] leading-[1.7] text-fg-muted">We cherish five core values.</p>
+          <ol className="mt-8 border-b border-line">
+            {coreValues.map((v, i) => (
+              <li key={v.title} className="grid grid-cols-1 gap-3 border-t border-line py-7 lg:grid-cols-12 lg:gap-8">
+                <div className="flex items-baseline gap-4 lg:col-span-4">
+                  <span className="text-[13px] tabular-nums text-fg-subtle">{String(i + 1).padStart(2, "0")}</span>
+                  <h4 className="font-heading text-[22px] font-medium leading-snug text-white">{v.title}</h4>
+                </div>
+                <p className="max-w-[62ch] text-[16px] leading-[1.7] text-fg-muted lg:col-span-8">{v.description}</p>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
+
+        {/* Project and programme management */}
+        <Reveal className="mt-16 lg:mt-20">
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-6">
+              <h3 className={eyebrow}>Project and programme management</h3>
+              <h4 className="mt-4 font-heading text-[28px] font-medium leading-tight text-white">Four measures on every project.</h4>
+              <p className="mt-4 max-w-[52ch] text-[16px] leading-[1.7] text-fg-muted">
+                Every project is managed on scope, time, cost and quality.
+              </p>
+            </div>
+            <div className="lg:col-span-6">
+              <svg
+                role="img"
+                viewBox="0 0 420 380"
+                className="mx-auto block w-full max-w-[420px]"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <title>Project management triangle: scope, time and cost around quality</title>
+                <desc>An equilateral triangle with scope at the top, time at the bottom left and cost at the bottom right, and quality at the centre.</desc>
+                <path className="tri-path" pathLength={1} d="M210 70 L360 330 L60 330 Z" stroke="var(--white)" strokeOpacity={0.7} strokeWidth={1.5} />
+                <g stroke="var(--white)" strokeOpacity={0.25} strokeWidth={1}>
+                  <line x1="210" y1="222" x2="210" y2="75" />
+                  <line x1="166" y1="269" x2="65" y2="327" />
+                  <line x1="254" y1="269" x2="355" y2="327" />
+                </g>
+                <g fill="var(--accent)">
+                  <circle cx="210" cy="70" r="5" />
+                  <circle cx="60" cy="330" r="5" />
+                  <circle cx="360" cy="330" r="5" />
+                </g>
+                <g fill="var(--white)" fontSize="14" letterSpacing="1.68" textAnchor="middle" fontFamily="inherit">
+                  <text x="210" y="46">SCOPE</text>
+                  <text x="60" y="360">TIME</text>
+                  <text x="360" y="360">COST</text>
+                </g>
+                <text x="210" y="248" fill="var(--accent)" fontSize="14" letterSpacing="1.68" textAnchor="middle" fontFamily="inherit">QUALITY</text>
+              </svg>
+            </div>
+          </div>
+        </Reveal>
 
         {credentialItems.length > 0 && (
           <Reveal className="mt-16 lg:mt-20 border-t border-line pt-8">

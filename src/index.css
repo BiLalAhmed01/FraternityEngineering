@@ -354,6 +354,25 @@ html.theme-switching *::after {
 .modal-root.is-closing { animation: fadeOut 250ms ease-in both; pointer-events: none; }
 .modal-panel { animation: panelIn 250ms ease-out both; }
 
+/* About: project management triangle draws in once when it enters view */
+@keyframes triDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+.js .tri-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.js .is-visible .tri-path {
+  animation: triDraw 1.2s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .tri-path { stroke-dashoffset: 0; }
+  .js .is-visible .tri-path { animation: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -542,7 +561,7 @@ html.theme-switching *::after {
 @media (min-width: 1024px) {
   .clients-static {
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
 

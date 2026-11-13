@@ -113,7 +113,7 @@ export const SITE_CONTENT = {
 
   // Hero trust row. Each item is hidden while its value is blank. Fill in once confirmed.
   hero: {
-    yearsInOperation: "", // e.g. "10" renders "10+ years"
+    // Years in business is computed from the 2017 founding year (see Hero.tsx).
     projectsDelivered: "", // e.g. "150" renders "150+ projects delivered"
     pecCategory: "", // e.g. "C-3" renders "PEC C-3 registered"
   },
@@ -126,23 +126,24 @@ export const SITE_CONTENT = {
 
   about: {
     story: [
-      "Fraternity Engineering & Co. (SMC-Pvt) Ltd. is an Islamabad-based contractor and supplier. We take on construction, civil, electrical and fire safety works, and supply the materials that go with them, for government, corporate and industrial clients.",
-      "Projects slip in the gaps between trades. We close those gaps with one contract, one schedule and one engineer who answers for the work on site. If something is wrong, you know exactly who to call.",
-      "We work with facilities managers, procurement teams and project owners who want one contractor to call.",
+      "Fraternity Engineering was established in 2017. We provide civil, telecommunications, electrical and fire and safety solutions in Pakistan, with a clear vision to deliver high quality at an economical price. We have experienced unprecedented growth in recent years.",
+      "Our commitment is to anticipate and satisfy our customers' requirements with a range of top-quality products and services. We work together as a team, sharing experience and knowledge, and concentrate on developing high-quality, value-added services. With the spirit of pioneers, we encourage creativity and innovation to stay competitive and cutting edge. We strive to combine the power of a corporate player with the dynamism and enthusiasm of an entrepreneurial start-up.",
     ],
     // Team photo, e.g. "/assets/about-team.webp". Blank uses the building photo instead (no request for a missing file).
     image: "",
-    established: "", // e.g. "2015". The "Established" caption card is hidden when empty.
-    // Stats reuse hero.yearsInOperation and hero.projectsDelivered; blank values are hidden.
+    established: "2017", // The "Established" caption card and the first stat are hidden when empty.
+    // Stats reuse hero.projectsDelivered; blank values are hidden.
     founder: { name: "", role: "", quote: "" }, // Founder note is hidden when name is empty.
     mission:
-      "To deliver construction, engineering and supply work as quoted, with direct accountability to the client.",
+      "Our mission is to establish long-term, mutually rewarding relationships with each of our valued clients by consistently surpassing their expectations and gaining their trust through exemplary and dedicated performance by every member of the FTE team.",
     vision:
-      "To be the multi-discipline contractor that organisations in the region call first, and keep calling.",
-    howWeWork: [
-      { title: "Accountable", description: "A named engineer answers for the work, on site and on paper." },
-      { title: "Transparent", description: "Itemised quotations, so you see what each item costs." },
-      { title: "Documented", description: "Inspection logs, test records and a signed handover pack." },
+      "To be the most professional and respected commercial civil and electrical contractor and service provider. We understand that our clients appreciate the focus on preventative and proactive maintenance and the resulting peace of mind that comes from working with us.",
+    coreValues: [
+      { title: "Customer focus", description: "We concentrate our efforts towards a better and long-term relationship with our clients, and ensure we build a trust-based relationship with them." },
+      { title: "Service", description: "We strive to ensure excellent service in everything we do, and we do it with honesty, integrity and professionalism." },
+      { title: "Competitive", description: "FTE operates a competitive business, offering customers a service at a price that can assure customer satisfaction while still providing a reasonable profit from operations for FTE." },
+      { title: "Teamwork", description: "We value collaboration and team contribution, encourage creativity, initiatives and new solutions, and align to the utmost result exceeding success." },
+      { title: "Commitment", description: "We monitor every project thoroughly from beginning to end. We have the energy to ignite others to perform. Our team makes sure that we treat our colleagues, customers, suppliers and community with integrity, respect and empathy." },
     ],
     // Credentials row. PEC uses hero.pecCategory. Empty items are hidden; the row is hidden when all are empty.
     credentials: { ntn: "", secp: "", certification: "" },
@@ -264,7 +265,7 @@ export const SITE_CONTENT = {
     },
     {
       id: "supply",
-      name: "Supply",
+      name: "Chemicals and Materials",
       shortTag: "Materials and equipment",
       summary: "Procurement and supply services for engineering, construction, industrial and operational requirements.",
       subservices: [
@@ -289,6 +290,7 @@ export const SITE_CONTENT = {
     { name: "CDA", fullName: "Capital Development Authority", logo: "/assets/clients/cda.webp" },
     { name: "Nayatel", fullName: "Nayatel", logo: "/assets/clients/nayatel.webp" },
     { name: "PTCL", fullName: "Pakistan Telecommunication Company Limited", logo: "/assets/clients/ptcl.webp" },
+    { name: "NPB", fullName: "National Police Bureau", logo: "/assets/clients/npb.webp" },
   ] as ClientLogo[],
 
   processSteps: [

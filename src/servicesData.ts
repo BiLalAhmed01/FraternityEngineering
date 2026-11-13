@@ -88,7 +88,7 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
         question: "Can you source items to a specific specification?",
         answer: "Yes. Send us the item list or specification and we will quote it as a client-specific procurement.",
       },
-      ...quoteFaq("Supply"),
+      ...quoteFaq("Chemicals and materials"),
     ],
   },
 };
