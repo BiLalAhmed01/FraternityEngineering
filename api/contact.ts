@@ -2,7 +2,7 @@
  * POST /api/contact: validates a quote request on the server, then forwards it by email through
  * the existing FormSubmit address. Responses are generic; no stack traces or personal data are logged.
  */
-import { checkSubmission, rateLimited } from "../src/utils/contactServer";
+import { checkSubmission, rateLimited } from "../src/utils/contactServer.js";
 
 declare const process: { env: Record<string, string | undefined> };
 

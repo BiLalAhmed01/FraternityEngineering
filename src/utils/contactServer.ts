@@ -2,7 +2,7 @@
  * Server-side checks for quote requests (used by api/contact.ts). Never trust the browser:
  * every field is trimmed, stripped of markup, length-limited and validated again here.
  */
-import { BUDGET_RANGES, TIMELINES, VALID_SERVICES, validateContactForm, ContactFormData } from "./validation";
+import { BUDGET_RANGES, TIMELINES, VALID_SERVICES, validateContactForm, ContactFormData } from "./validation.js";
 
 export const LIMITS = { name: 100, company: 150, phone: 20, email: 254, message: 4000, file: 10 * 1024 * 1024 } as const;
 export const MIN_FILL_MS = 3000;

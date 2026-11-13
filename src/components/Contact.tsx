@@ -255,8 +255,9 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
       let response = await fetch("/api/contact", { method: "POST", headers: { Accept: "application/json" }, body });
 
-      // Static hosting without the API (e.g. a local preview): send straight to the mail relay as before.
-      if (response.status === 404 || response.status === 405) {
+      // API missing (e.g. a local preview) or failing on the server: send straight to the mail relay so the
+      // request still arrives. Validation errors (4xx) are shown to the visitor instead.
+      if (response.status === 404 || response.status === 405 || response.status >= 500) {
         const direct = new FormData();
         direct.append("_subject", `New Quote Request - ${formData.service} - ${formData.fullName}`);
         direct.append("_template", "table");
