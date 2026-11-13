@@ -17,7 +17,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   return (
     <a
       href="/"
-      className={`inline-flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange rounded-sm ${className}`}
+      className={`inline-flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm ${className}`}
       aria-label="Fraternity Engineering & Co. homepage"
     >
       {/* Logo mark image - larger and more visible */}

@@ -266,13 +266,13 @@ export const Services: React.FC = () => {
   };
 
   const navBtn =
-    "inline-flex w-12 h-12 items-center justify-center rounded-full border border-brand-navy text-brand-navy transition-colors duration-200 hover:bg-brand-navy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange";
+    "inline-flex w-12 h-12 items-center justify-center rounded-full border border-fg text-fg transition-colors duration-200 hover:bg-fg hover:text-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
   return (
     <section
       id="services"
       ref={sectionRef}
-      className="svc relative bg-[#F5F3EF] text-brand-navy py-[clamp(72px,9vw,120px)] overflow-hidden"
+      className="svc cad-grid relative bg-bg text-fg py-[clamp(72px,9vw,120px)] overflow-hidden"
       aria-labelledby="services-heading"
     >
       {/* Header */}
@@ -286,14 +286,14 @@ export const Services: React.FC = () => {
             >
               Five disciplines.<br className="hidden sm:block" /> One accountable team.
             </h2>
-            <p className="mt-5 max-w-[55ch] text-base sm:text-lg leading-relaxed text-brand-navy/70">
+            <p className="mt-5 max-w-[55ch] text-base sm:text-lg leading-relaxed text-fg-muted">
               Construction, civil, electrical, fire safety and supply, planned and delivered together, so your project never depends on five contractors agreeing with each other.
             </p>
           </div>
 
           <div className="flex items-center gap-6 shrink-0">
-            <p className="text-sm tabular-nums tracking-[0.12em] text-brand-navy/70" aria-hidden="true">
-              <span className="text-brand-navy">{pad(index + 1)}</span> / {pad(total)}
+            <p className="text-sm tabular-nums tracking-[0.12em] text-fg-muted" aria-hidden="true">
+              <span className="text-fg">{pad(index + 1)}</span> / {pad(total)}
             </p>
             <div className="flex items-center gap-3">
               {!reduceMotion && (
@@ -302,7 +302,7 @@ export const Services: React.FC = () => {
                   onClick={() => setPlaying((p) => !p)}
                   aria-label={playing ? "Pause services slideshow" : "Play services slideshow"}
                   aria-controls="services-track"
-                  className={`${navBtn} !h-10 !w-10 !border-brand-navy/30`}
+                  className={`${navBtn} !h-10 !w-10 !border-line-strong`}
                 >
                   {playing ? (
                     <Pause className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
@@ -380,9 +380,9 @@ export const Services: React.FC = () => {
                     href={serviceUrl(service.id)}
                     tabIndex={isClone ? -1 : undefined}
                     draggable={false}
-                    className="group block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-orange"
+                    className="group block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
                   >
-                    <div className="relative aspect-[4/5] overflow-hidden rounded-[6px] bg-brand-navy/10">
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-[6px] bg-surface">
                       <img
                         src={img?.src ?? service.image}
                         srcSet={img ? `${img.src.replace(".webp", "-480.webp")} 480w, ${img.src} ${img.width}w` : undefined}
@@ -395,29 +395,28 @@ export const Services: React.FC = () => {
                         draggable={false}
                         className="svc-photo absolute inset-0 h-full w-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-brand-navy/[0.12] transition-opacity duration-700 ease-out group-hover:opacity-0" />
-                      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/30 to-transparent" />
+                      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-midnight/40 to-transparent" />
                       <div className="absolute left-5 top-5 flex items-center gap-3 text-sm text-white tabular-nums" aria-hidden="true">
                         <span>{pad(i + 1)}</span>
                         <span className="h-px w-8 bg-white/40" />
                       </div>
                     </div>
 
-                    <div className="mt-6 border-t border-brand-navy/[0.12] pt-5">
+                    <div className="mt-6 border-t border-line pt-5">
                       <p className="svc-label">{service.shortTag}</p>
                       {isClone ? (
-                        <p className="mt-2 font-heading text-2xl font-medium leading-tight tracking-[-0.01em] text-brand-navy">
+                        <p className="mt-2 font-heading text-2xl font-medium leading-tight tracking-[-0.01em] text-fg">
                           {service.name}
                         </p>
                       ) : (
-                        <h3 className="mt-2 font-heading text-2xl font-medium leading-tight tracking-[-0.01em] text-brand-navy">
+                        <h3 className="mt-2 font-heading text-2xl font-medium leading-tight tracking-[-0.01em] text-fg">
                           {service.name}
                         </h3>
                       )}
                       {copy && (
-                        <p className="mt-3 text-[15px] leading-[1.6] text-brand-navy/70">{copy.description}</p>
+                        <p className="mt-3 text-[15px] leading-[1.6] text-fg-muted">{copy.description}</p>
                       )}
-                      <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-navy">
+                      <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-fg">
                         <span className="svc-underline">View service</span>
                         <ArrowRight
                           className="w-4 h-4 transition-transform duration-300 ease-out group-hover:translate-x-1"
@@ -436,36 +435,36 @@ export const Services: React.FC = () => {
         {/* Edge fades: the track never ends, so both stay on */}
         <div
           aria-hidden="true"
-          className="svc-fade-left pointer-events-none absolute inset-y-0 left-0 bg-gradient-to-r from-[#F5F3EF] to-transparent"
+          className="svc-fade-left pointer-events-none absolute inset-y-0 left-0 bg-gradient-to-r from-bg to-transparent"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-[#F5F3EF] to-transparent"
+          className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-bg to-transparent"
         />
       </div>
 
       <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         {/* Position in the loop: one segment per service */}
-        <div className="relative mt-10 h-[2px] bg-brand-navy/15" aria-hidden="true">
+        <div className="relative mt-10 h-[2px] bg-line" aria-hidden="true">
           <div
-            className="absolute inset-y-0 left-0 bg-brand-orange transition-transform duration-500 ease-out motion-reduce:transition-none"
+            className="absolute inset-y-0 left-0 bg-accent transition-transform duration-500 ease-out motion-reduce:transition-none"
             style={{ width: `${100 / total}%`, transform: `translateX(${index * 100}%)` }}
           />
         </div>
 
         {/* Closing line */}
         <div className="mt-16 lg:mt-20 flex flex-col items-center justify-center gap-5 text-center sm:flex-row sm:flex-wrap sm:gap-x-7">
-          <p className="text-base sm:text-lg text-brand-navy">Need more than one discipline on your project?</p>
+          <p className="text-base sm:text-lg text-fg">Need more than one discipline on your project?</p>
           <div className="flex items-center gap-6">
             <a
               href="#contact"
-              className="inline-flex min-h-[48px] items-center justify-center px-6 rounded bg-brand-orange hover:bg-brand-orange-hover text-brand-navy text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+              className="inline-flex min-h-[48px] items-center justify-center px-6 rounded-[4px] bg-accent hover:bg-accent-hover text-on-accent text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             >
               Request a quote
             </a>
             <a
               href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}
-              className="group inline-flex min-h-[44px] items-center text-sm font-semibold text-brand-navy"
+              className="group inline-flex min-h-[44px] items-center text-sm font-semibold text-fg"
             >
               <span className="svc-underline">Call {SITE_CONTENT.contact.phonePrimary}</span>
             </a>

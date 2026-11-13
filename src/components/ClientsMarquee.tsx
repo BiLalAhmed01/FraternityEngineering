@@ -35,15 +35,15 @@ export const ClientsMarquee: React.FC = () => {
   return (
     <section
       id="clients"
-      className="relative bg-white text-brand-navy py-[clamp(48px,6vw,72px)] border-y border-brand-navy/10"
+      className="theme-paper relative bg-white text-fg py-[clamp(48px,6vw,72px)] border-y border-line"
       aria-labelledby="clients-title"
     >
       <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <Reveal className="text-center">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/70">Trusted by</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-fg-muted">Trusted by</p>
           <h2
             id="clients-title"
-            className="mt-3 font-heading font-medium text-[28px] md:text-[36px] leading-tight tracking-tight text-brand-navy [text-wrap:balance]"
+            className="mt-3 font-heading font-medium text-[28px] md:text-[36px] leading-tight tracking-tight text-fg [text-wrap:balance]"
           >
             Selected organisations we've worked with.
           </h2>
@@ -83,17 +83,17 @@ export const ClientsMarquee: React.FC = () => {
           </div>
         </Reveal>
 
-        <Reveal className="mt-10 md:mt-12 text-center text-[14px] text-brand-navy/70" delay={0.1}>
+        <Reveal className="mt-10 md:mt-12 text-center text-[14px] text-fg-muted" delay={0.1}>
           <p className="inline">References available on request. </p>
           <a
             href="#contact"
-            className="group ml-1 inline-flex items-center gap-1.5 font-semibold text-brand-navy rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+            className="group ml-1 inline-flex items-center gap-1.5 font-semibold text-fg rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           >
-            <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
+            <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-fg after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
               Request references
             </span>
             <ArrowRight
-              className="w-3.5 h-3.5 text-brand-orange transition-transform duration-300 ease-out group-hover:translate-x-1"
+              className="w-3.5 h-3.5 text-label transition-transform duration-300 ease-out group-hover:translate-x-1"
               aria-hidden="true"
             />
           </a>

@@ -19,15 +19,15 @@ const SERVICE_LINKS = [
 const COMPANY_ORDER = ["about", "work", "clients", "process", "faq", "contact"];
 const COMPANY_LINKS = COMPANY_ORDER.map((id) => NAV_LINKS.find((l) => l.id === id)!);
 
-const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange";
+const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 const drawUnderline =
-  "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100 motion-reduce:after:transition-none";
+  "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-fg after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100 motion-reduce:after:transition-none";
 
 const FooterLink: React.FC<{ href: string; children: React.ReactNode; external?: boolean; className?: string }> = ({
   href,
   children,
   external,
-  className = "text-white/78",
+  className = "text-fg-muted",
 }) => (
   <a
     href={href}
@@ -39,7 +39,7 @@ const FooterLink: React.FC<{ href: string; children: React.ReactNode; external?:
 );
 
 const ColumnHeading: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <h2 className="text-[13px] font-medium text-white/50">{children}</h2>
+  <h2 className="text-[13px] font-medium text-fg-subtle">{children}</h2>
 );
 
 export const Footer: React.FC = () => {
@@ -59,19 +59,19 @@ export const Footer: React.FC = () => {
   ].filter(Boolean) as { label: string; href: string; Icon: typeof Linkedin }[];
 
   return (
-    <footer className="border-t border-white/10 bg-brand-navy-deep text-white pt-16 pb-[calc(2rem+56px+env(safe-area-inset-bottom))] md:pb-10 lg:pt-24">
+    <footer className="theme-dark border-t border-white/10 bg-navy text-fg pt-16 pb-[calc(2rem+56px+env(safe-area-inset-bottom))] md:pb-10 lg:pt-24">
       <div className="mx-auto max-w-7xl px-[clamp(20px,5vw,64px)]">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12 lg:grid-cols-12">
           {/* Brand */}
           <div className="md:col-span-3 lg:col-span-4">
             <a href="/" className={`inline-flex items-center gap-3 rounded-sm ${focusRing}`}>
               <img src="/assets/logo-mark-160.webp" alt="" width={44} height={40} decoding="async" className="h-10 w-auto" />
-              <span className="text-[18px] font-medium text-white">Fraternity Engineering &amp; Co.</span>
+              <span className="text-[18px] font-medium text-fg">Fraternity Engineering &amp; Co.</span>
             </a>
-            <p className="mt-5 max-w-[34ch] text-[15px] leading-[1.7] text-white/65">
+            <p className="mt-5 max-w-[34ch] text-[15px] leading-[1.7] text-fg-muted">
               Construction, electrical, fire safety and supply under one contract, from Islamabad. One accountable team.
             </p>
-            <ul className="mt-6 space-y-1.5 text-[13px] text-white/55">
+            <ul className="mt-6 space-y-1.5 text-[13px] text-fg-subtle">
               {credentials.map((c) => (
                 <li key={c}>{c}</li>
               ))}
@@ -109,7 +109,7 @@ export const Footer: React.FC = () => {
           {/* Contact */}
           <div className="lg:col-span-3">
             <ColumnHeading>Contact</ColumnHeading>
-            <address className="mt-5 space-y-4 text-[15px] not-italic leading-relaxed text-white/78">
+            <address className="mt-5 space-y-4 text-[15px] not-italic leading-relaxed text-fg-muted">
               <div>
                 <p>{contact.address}</p>
                 <FooterLink href={DIRECTIONS_URL} external className="mt-1 text-white">
@@ -121,13 +121,13 @@ export const Footer: React.FC = () => {
                   <FooterLink href={`tel:${contact.phonePrimaryTel}`} className="text-white">
                     {contact.phonePrimary}
                   </FooterLink>
-                  <span className="text-white/50"> mobile / WhatsApp</span>
+                  <span className="text-fg-subtle"> mobile / WhatsApp</span>
                 </p>
                 <p>
                   <FooterLink href={`tel:${contact.phoneSecondaryTel}`} className="text-white">
                     {contact.phoneSecondary}
                   </FooterLink>
-                  <span className="text-white/50"> landline</span>
+                  <span className="text-fg-subtle"> landline</span>
                 </p>
               </div>
               {email && (
@@ -139,7 +139,7 @@ export const Footer: React.FC = () => {
               )}
               <div>
                 <p>Mon to Sat, 9:00 AM - 6:00 PM</p>
-                <p className="text-white/50">Friday break 1:00 PM - 2:30 PM</p>
+                <p className="text-fg-subtle">Friday break 1:00 PM - 2:30 PM</p>
               </div>
             </address>
             {socials.length > 0 && (
@@ -151,7 +151,7 @@ export const Footer: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={label}
-                      className={`inline-flex h-11 w-11 items-center justify-center rounded-sm text-white/70 transition-colors hover:text-white ${focusRing}`}
+                      className={`inline-flex h-11 w-11 items-center justify-center rounded-sm text-icon transition-colors hover:text-white ${focusRing}`}
                     >
                       <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
                     </a>
@@ -163,22 +163,22 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-8 text-[13px] text-white/55 md:flex-row md:items-center md:justify-between lg:mt-20">
+        <div className="mt-16 flex flex-col gap-4 border-t border-line pt-8 text-[13px] text-fg-subtle md:flex-row md:items-center md:justify-between lg:mt-20">
           <p>&copy; {year} Fraternity Engineering &amp; Co. (SMC-Pvt) Ltd. All rights reserved.</p>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-10">
-            <div className="flex items-center divide-x divide-white/15">
-              <FooterLink href="/privacy" className="pr-4 text-white/55">
+            <div className="flex items-center divide-x divide-line">
+              <FooterLink href="/privacy" className="pr-4 text-fg-subtle">
                 Privacy Policy
               </FooterLink>
               <span className="pl-4">
-                <FooterLink href="/terms" className="text-white/55">
+                <FooterLink href="/terms" className="text-fg-subtle">
                   Terms &amp; Conditions
                 </FooterLink>
               </span>
             </div>
             <p>
               Website by{" "}
-              <FooterLink href="https://www.robosoftworks.com" external className="text-white/55">
+              <FooterLink href="https://www.robosoftworks.com" external className="text-fg-subtle">
                 RoboSoft Works
               </FooterLink>
             </p>

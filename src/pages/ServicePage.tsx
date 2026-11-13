@@ -4,7 +4,7 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { FaqAccordion } from "../components/Faq";
 import { MobileFloatingCta } from "../components/MobileFloatingCta";
-import { BackToTop } from "../components/BackToTop";
+import { WhatsAppBubble } from "../components/WhatsAppBubble";
 import { SmoothScroll } from "../components/SmoothScroll";
 import { SITE_CONTENT } from "../content";
 import { ServicePageData, SERVICE_PAGES, serviceUrl } from "../servicesData";
@@ -22,7 +22,7 @@ const photoSrcSet = (src: string) =>
   `${src.replace(".webp", "-480.webp")} 480w, ${src.replace(".webp", "-768.webp")} 768w, ${src} 1024w`;
 
 const quoteCta =
-  "inline-flex items-center justify-center gap-2 min-h-[44px] px-8 py-4 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm rounded-lg transition-colors";
+  "inline-flex items-center justify-center gap-2 min-h-[44px] px-8 py-4 bg-accent hover:bg-accent-hover text-on-accent font-bold text-sm rounded-[4px] transition-colors";
 
 export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service }) => {
   useEffect(() => {
@@ -34,24 +34,23 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
 
   return (
     <SmoothScroll>
-      <div className="min-h-screen bg-brand-cream text-brand-brown font-body flex flex-col overflow-x-hidden">
+      <div className="min-h-screen bg-bg text-fg font-body flex flex-col overflow-x-hidden">
         <Header />
 
         <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
           {/* Hero */}
-          <section className="relative bg-brand-navy text-white pt-32 pb-16 md:pt-40 md:pb-24" aria-label={service.name}>
-            <div className="absolute inset-0 bg-blueprint-grid opacity-30 pointer-events-none" />
+          <section className="theme-dark cad-grid relative bg-midnight text-fg pt-32 pb-16 md:pt-40 md:pb-24" aria-label={service.name}>
             <div className="relative max-w-7xl mx-auto px-[clamp(20px,5vw,64px)] grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
               <div>
-                <nav aria-label="Breadcrumb" className="text-xs font-mono text-brand-stone mb-4">
+                <nav aria-label="Breadcrumb" className="text-xs font-mono text-fg-muted mb-4">
                   <a href="/" className="hover:text-white underline-offset-2 hover:underline">Home</a>
                   <span aria-hidden="true"> / </span>
                   <a href="/#services" className="hover:text-white underline-offset-2 hover:underline">Services</a>
                 </nav>
-                <p className="kicker-label text-brand-orange mb-2">{service.shortTag}</p>
+                <p className="kicker-label text-label mb-2">{service.shortTag}</p>
                 <h1 className="text-4xl sm:text-5xl font-heading font-bold tracking-tight">{service.name}</h1>
-                <div className="w-16 h-1 bg-brand-orange mt-4 mb-5" />
-                <p className="text-base sm:text-lg text-brand-stone leading-relaxed max-w-xl">{service.overview}</p>
+                <div className="w-16 h-1 bg-line-strong mt-4 mb-5" />
+                <p className="text-base sm:text-lg text-fg-muted leading-relaxed max-w-xl">{service.overview}</p>
                 <a href="/#contact" className={`${quoteCta} mt-8`}>
                   <span>Request a quote</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -66,7 +65,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
                 fetchPriority="high"
                 decoding="async"
                 alt={service.name}
-                className="w-full aspect-[4/3] object-cover rounded-2xl border border-white/15 shadow-2xl"
+                className="w-full aspect-[4/3] object-cover rounded-2xl border border-line-strong"
               />
             </div>
           </section>
@@ -75,17 +74,17 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           <section className="py-16 md:py-24" aria-label="Typical scopes">
             <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)] grid grid-cols-1 lg:grid-cols-2 gap-12">
               <div>
-                <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Overview</h2>
-                <div className="w-16 h-1 bg-brand-orange mt-4 mb-5" />
+                <h2 className="text-3xl font-heading font-bold text-fg tracking-tight">Overview</h2>
+                <div className="w-16 h-1 bg-line-strong mt-4 mb-5" />
                 <p className="leading-relaxed">{service.summary}</p>
               </div>
               <div>
-                <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">What we deliver</h2>
-                <div className="w-16 h-1 bg-brand-orange mt-4 mb-5" />
+                <h2 className="text-3xl font-heading font-bold text-fg tracking-tight">What we deliver</h2>
+                <div className="w-16 h-1 bg-line-strong mt-4 mb-5" />
                 <ul className="space-y-3">
                   {service.subservices.map((item) => (
                     <li key={item} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-brand-orange shrink-0 mt-0.5" aria-hidden="true" />
+                      <Check className="w-5 h-5 text-icon shrink-0 mt-0.5" aria-hidden="true" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -98,12 +97,12 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           {service.standards.length > 0 && (
             <section className="pb-16 md:pb-24" aria-label="Standards followed">
               <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
-                <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Standards followed</h2>
-                <div className="w-16 h-1 bg-brand-orange mt-4 mb-5" />
+                <h2 className="text-3xl font-heading font-bold text-fg tracking-tight">Standards followed</h2>
+                <div className="w-16 h-1 bg-line-strong mt-4 mb-5" />
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {service.standards.map((std) => (
-                    <li key={std} className="flex items-start gap-3 bg-white rounded-lg border border-brand-stone/60 p-4">
-                      <Check className="w-5 h-5 text-brand-orange shrink-0 mt-0.5" aria-hidden="true" />
+                    <li key={std} className="flex items-start gap-3 bg-surface rounded-lg border border-line p-4">
+                      <Check className="w-5 h-5 text-icon shrink-0 mt-0.5" aria-hidden="true" />
                       <span>{std}</span>
                     </li>
                   ))}
@@ -113,16 +112,16 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           )}
 
           {/* Mini process */}
-          <section className="bg-brand-charcoal text-white py-16 md:py-24" aria-label="How we work">
+          <section className="theme-dark bg-navy text-fg py-16 md:py-24" aria-label="How we work">
             <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
               <h2 className="text-3xl font-heading font-bold tracking-tight">How we work</h2>
-              <div className="w-16 h-1 bg-brand-orange mt-4 mb-8" />
+              <div className="w-16 h-1 bg-line-strong mt-4 mb-8" />
               <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {SITE_CONTENT.processSteps.map((step) => (
-                  <li key={step.step} className="rounded-xl border border-white/10 bg-white/[0.04] p-6 hover:border-brand-orange/60 transition-colors">
-                    <span className="text-xs font-bold text-[#FF9A57]">STEP {step.step}</span>
+                  <li key={step.step} className="rounded-xl border border-line bg-surface-2 p-6 hover:border-line-strong transition-colors">
+                    <span className="text-xs font-bold text-label">STEP {step.step}</span>
                     <h3 className="font-heading font-bold text-xl mt-2 mb-2">{step.title}</h3>
-                    <p className="text-sm text-brand-stone leading-relaxed">{step.summary}</p>
+                    <p className="text-sm text-fg-muted leading-relaxed">{step.summary}</p>
                   </li>
                 ))}
               </ol>
@@ -133,13 +132,13 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           {service.relatedProjects.length > 0 && (
             <section className="py-16 md:py-24" aria-label="Related projects">
               <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
-                <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Related projects</h2>
-                <div className="w-16 h-1 bg-brand-orange mt-4 mb-8" />
+                <h2 className="text-3xl font-heading font-bold text-fg tracking-tight">Related projects</h2>
+                <div className="w-16 h-1 bg-line-strong mt-4 mb-8" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {service.relatedProjects.map((work) => (
                     <article
                       key={work.id}
-                      className="bg-white rounded-xl border border-brand-stone/60 overflow-hidden hover:border-brand-navy hover:shadow-xl transition-all duration-300"
+                      className="bg-surface rounded-xl border border-line overflow-hidden hover:border-line-strong transition-colors duration-300"
                     >
                       <img
                         src={CATEGORY_IMAGES[work.category]}
@@ -153,13 +152,13 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
                         className="w-full aspect-[16/9] object-cover"
                       />
                       <div className="p-5">
-                        <h3 className="font-heading font-bold text-lg text-brand-navy mb-2">{work.title}</h3>
+                        <h3 className="font-heading font-bold text-lg text-fg mb-2">{work.title}</h3>
                         <p className="text-sm mb-3">{work.scope}</p>
-                        <p className="text-xs font-mono text-brand-steel mb-2">
+                        <p className="text-xs font-mono text-fg-subtle mb-2">
                           {work.location}
                           {work.year ? ` · ${work.year}` : ""}
                         </p>
-                        <p className="text-sm font-medium text-brand-navy">{work.delivered}</p>
+                        <p className="text-sm font-medium text-fg">{work.delivered}</p>
                       </div>
                     </article>
                   ))}
@@ -171,32 +170,32 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           {/* FAQ */}
           <section className="pb-16 md:pb-24" aria-label="Frequently asked questions">
             <div className="max-w-3xl mx-auto px-[clamp(20px,5vw,64px)]">
-              <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Questions</h2>
-              <div className="w-16 h-1 bg-brand-orange mt-4 mb-8" />
+              <h2 className="text-3xl font-heading font-bold text-fg tracking-tight">Questions</h2>
+              <div className="w-16 h-1 bg-line-strong mt-4 mb-8" />
               <FaqAccordion items={service.faq} idPrefix="svc-faq" />
             </div>
           </section>
 
           {/* Quote CTA */}
-          <section className="bg-brand-navy text-white py-16 md:py-24 text-center" aria-label="Request a quote">
+          <section className="theme-dark bg-navy text-fg py-16 md:py-24 text-center" aria-label="Request a quote">
             <div className="max-w-3xl mx-auto px-[clamp(20px,5vw,64px)]">
               <h2 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight">
                 Tell us about your project.
               </h2>
-              <p className="text-brand-stone mt-4 mb-8">
+              <p className="text-fg-muted mt-4 mb-8">
                 Send us your scope, drawings or tender documents and we will reply with an itemised quote.
               </p>
               <a href="/#contact" className={quoteCta}>
                 <span>Request a quote</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </a>
-              <p className="mt-10 text-xs font-mono uppercase tracking-wider text-brand-stone">Other services</p>
+              <p className="mt-10 text-xs font-mono uppercase tracking-wider text-fg-muted">Other services</p>
               <ul className="mt-3 flex flex-wrap justify-center gap-x-6 gap-y-1">
                 {others.map((o) => (
                   <li key={o.slug}>
                     <a
                       href={serviceUrl(o.slug)}
-                      className="inline-flex items-center min-h-[44px] text-sm text-brand-cream hover:text-brand-orange underline-offset-4 hover:underline"
+                      className="inline-flex items-center min-h-[44px] text-sm text-fg hover:underline hover:underline-offset-4 underline-offset-4 hover:underline"
                     >
                       {o.name}
                     </a>
@@ -209,7 +208,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
 
         <Footer />
         <MobileFloatingCta />
-        <BackToTop />
+        <WhatsAppBubble />
       </div>
     </SmoothScroll>
   );

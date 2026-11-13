@@ -59,12 +59,12 @@ const formatBytes = (bytes: number) =>
 /* ---------- Shared field styles ---------- */
 
 const capsLabel = "text-[12px] font-semibold uppercase tracking-[0.12em]";
-const ERROR_HEX = "#C2410C";
+const ERROR_COLOR = "var(--form-error)";
 const controlBase =
-  "w-full rounded-[4px] border bg-white px-4 text-[16px] text-brand-navy placeholder:text-brand-navy/40 transition-colors focus:outline-2 focus:outline-offset-2 focus:outline-brand-orange focus:border-brand-navy";
-const controlState = (hasError: boolean) => (hasError ? "border-[#C2410C]" : "border-brand-navy/20 hover:border-brand-navy/40");
+  "w-full rounded-[4px] border bg-white px-4 text-[16px] text-fg placeholder:text-fg-subtle transition-colors focus:outline-2 focus:outline-offset-2 focus:outline-focus focus:border-focus";
+const controlState = (hasError: boolean) => (hasError ? "border-form-error" : "border-line-strong hover:border-fg");
 const drawUnderline =
-  "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100";
+  "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-fg after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100";
 
 const Field: React.FC<{
   id: string;
@@ -75,10 +75,10 @@ const Field: React.FC<{
   children: React.ReactNode;
 }> = ({ id, label, required, error, className = "", children }) => (
   <div className={className}>
-    <label htmlFor={id} className="mb-2 block text-[13px] font-medium text-brand-navy">
+    <label htmlFor={id} className="mb-2 block text-[13px] font-medium text-fg">
       {label}
       {required && (
-        <span className="text-brand-navy/50" aria-hidden="true">
+        <span className="text-fg-subtle" aria-hidden="true">
           {" "}
           *
         </span>
@@ -86,7 +86,7 @@ const Field: React.FC<{
     </label>
     {children}
     {error && (
-      <p id={`${id}-error`} className="mt-1.5 text-[13px]" style={{ color: ERROR_HEX }}>
+      <p id={`${id}-error`} className="mt-1.5 text-[13px]" style={{ color: ERROR_COLOR }}>
         {error}
       </p>
     )}
@@ -101,18 +101,18 @@ const Select: React.FC<
       {...props}
       value={value}
       className={`${controlBase} ${controlState(hasError)} h-[52px] appearance-none pr-11 ${
-        value ? "text-brand-navy" : "text-brand-navy/40"
+        value ? "text-fg" : "text-fg-subtle"
       }`}
     >
       <option value="">{placeholder}</option>
       {options.map((o) => (
-        <option key={o} value={o} className="text-brand-navy">
+        <option key={o} value={o} className="text-fg">
           {o}
         </option>
       ))}
     </select>
     <ChevronDown
-      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-navy/60"
+      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle"
       strokeWidth={1.5}
       aria-hidden="true"
     />
@@ -310,7 +310,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
             { href: `tel:${contact.phonePrimaryTel}`, text: contact.phonePrimary },
             { href: `tel:${contact.phoneSecondaryTel}`, text: contact.phoneSecondary },
           ].map((p) => (
-            <a key={p.href} href={p.href} className="group inline-flex w-fit min-h-[32px] items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange">
+            <a key={p.href} href={p.href} className="group inline-flex w-fit min-h-[32px] items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
               <span className={drawUnderline}>{p.text}</span>
             </a>
           ))}
@@ -320,7 +320,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     {
       label: "WhatsApp",
       content: (
-        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-[32px] items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange">
+        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-[32px] items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
           <span className={drawUnderline}>Message us</span>
         </a>
       ),
@@ -330,7 +330,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
           {
             label: "Email",
             content: (
-              <a href={`mailto:${email}`} className="group inline-flex min-h-[32px] items-center rounded-sm break-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange">
+              <a href={`mailto:${email}`} className="group inline-flex min-h-[32px] items-center rounded-sm break-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
                 <span className={drawUnderline}>{email}</span>
               </a>
             ),
@@ -342,7 +342,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
       content: (
         <>
           <p>{OFFICE_ADDRESS}</p>
-          <p className="mt-1 text-[15px] text-white/60">Federal Capital Area, Pakistan</p>
+          <p className="mt-1 text-[15px] text-fg-subtle">Federal Capital Area, Pakistan</p>
         </>
       ),
     },
@@ -351,7 +351,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
       content: (
         <>
           <p>Monday to Saturday, 9:00 AM - 6:00 PM</p>
-          <p className="mt-1 text-[15px] text-white/60">Friday break 1:00 PM - 2:30 PM</p>
+          <p className="mt-1 text-[15px] text-fg-subtle">Friday break 1:00 PM - 2:30 PM</p>
         </>
       ),
     },
@@ -366,40 +366,40 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
   return (
     <section
       id="contact"
-      className="relative bg-brand-navy text-white border-t border-white/10 py-[clamp(72px,9vw,120px)]"
+      className="cad-grid relative bg-bg text-fg border-t border-line py-[clamp(72px,9vw,120px)]"
       aria-labelledby="contact-title"
     >
       <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <div className="grid grid-cols-1 items-start gap-14 lg:grid-cols-12 lg:gap-24">
           {/* Left: introduction and direct contacts */}
           <Reveal className="lg:col-span-5">
-            <p className={`${capsLabel} text-brand-orange`}>Contact</p>
+            <p className={`${capsLabel} text-label`}>Contact</p>
             <h2
               id="contact-title"
-              className="mt-4 font-heading font-medium text-[clamp(2rem,1.3rem+2.6vw,3.25rem)] leading-[1.08] tracking-tight text-white [text-wrap:balance]"
+              className="mt-4 font-heading font-medium text-[clamp(2rem,1.3rem+2.6vw,3.25rem)] leading-[1.08] tracking-tight text-fg [text-wrap:balance]"
             >
               Tell us about your project.
             </h2>
-            <p className="mt-6 max-w-[44ch] text-[17px] leading-[1.7] text-white/72">
+            <p className="mt-6 max-w-[44ch] text-[17px] leading-[1.7] text-fg-muted">
               Send your scope, drawings or BOQ, or call us directly. We review every request and reply with a clear next
               step.
             </p>
 
-            <dl className="mt-10 border-t border-white/12">
+            <dl className="mt-10 border-t border-line">
               {directRows.map((row) => (
-                <div key={row.label} className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 border-b border-white/12 py-5">
-                  <dt className={`${capsLabel} pt-1 text-white/50`}>{row.label}</dt>
-                  <dd className="text-[18px] leading-snug text-white">{row.content}</dd>
+                <div key={row.label} className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 border-b border-line py-5">
+                  <dt className={`${capsLabel} pt-1 text-fg-subtle`}>{row.label}</dt>
+                  <dd className="text-[18px] leading-snug text-fg">{row.content}</dd>
                 </div>
               ))}
             </dl>
 
             <div className="mt-10">
-              <h3 className={`${capsLabel} text-white/50`}>What happens next</h3>
+              <h3 className={`${capsLabel} text-fg-subtle`}>What happens next</h3>
               <ol className="mt-4 space-y-3">
                 {nextSteps.map((stepText, i) => (
-                  <li key={stepText} className="flex gap-4 text-[15px] leading-relaxed text-white/80">
-                    <span className="w-6 shrink-0 font-medium tabular-nums text-brand-orange">
+                  <li key={stepText} className="flex gap-4 text-[15px] leading-relaxed text-fg-muted">
+                    <span className="w-6 shrink-0 font-medium tabular-nums text-fg-subtle">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span>{stepText}</span>
@@ -411,27 +411,27 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
           {/* Right: form panel */}
           <Reveal className="lg:col-span-7" delay={0.05}>
-            <div className="rounded-[6px] bg-white p-6 text-brand-navy sm:p-10">
+            <div className="theme-paper rounded-[6px] bg-white p-6 text-fg sm:p-10">
               <div aria-live="polite">
                 {isSubmitted ? (
                   <div className="py-10 text-center">
-                    <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-brand-navy/15">
-                      <Check className="h-6 w-6 text-brand-orange" strokeWidth={2} aria-hidden="true" />
+                    <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-line">
+                      <Check className="h-6 w-6 text-form-success" strokeWidth={2} aria-hidden="true" />
                     </span>
                     <h3
                       ref={successRef}
                       tabIndex={-1}
-                      className="mt-6 font-heading text-[26px] font-medium text-brand-navy focus:outline-none"
+                      className="mt-6 font-heading text-[26px] font-medium text-fg focus:outline-none"
                     >
                       Thank you. Your request is in.
                     </h3>
                     {responseTime && (
-                      <p className="mt-3 text-[16px] text-brand-navy/70">We will contact you within {responseTime}.</p>
+                      <p className="mt-3 text-[16px] text-fg-muted">We will contact you within {responseTime}.</p>
                     )}
                     <button
                       type="button"
                       onClick={handleReset}
-                      className="group mt-8 inline-flex min-h-[44px] items-center rounded-sm text-[15px] font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                      className="group mt-8 inline-flex min-h-[44px] items-center rounded-sm text-[15px] font-medium text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                     >
                       <span className={drawUnderline}>Send another request</span>
                     </button>
@@ -452,9 +452,9 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       />
                     </div>
 
-                    <div className="flex items-baseline justify-between gap-4 border-b border-brand-navy/10 pb-5">
-                      <h3 className="font-heading text-[22px] font-medium text-brand-navy">Request a quote or site visit</h3>
-                      <span className="shrink-0 text-[13px] text-brand-navy/70">* Required</span>
+                    <div className="flex items-baseline justify-between gap-4 border-b border-line pb-5">
+                      <h3 className="font-heading text-[22px] font-medium text-fg">Request a quote or site visit</h3>
+                      <span className="shrink-0 text-[13px] text-fg-muted">* Required</span>
                     </div>
 
                     <div className="mt-8 grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2">
@@ -576,21 +576,21 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
                       {/* Attachments: custom dropzone over a visually hidden, still-focusable file input */}
                       <div className="sm:col-span-2">
-                        <p className="mb-2 block text-[13px] font-medium text-brand-navy" id="attachment-label">
+                        <p className="mb-2 block text-[13px] font-medium text-fg" id="attachment-label">
                           Attachments
                         </p>
                         {file ? (
-                          <div className="flex items-center gap-3 rounded-[4px] border border-brand-navy/20 px-4 py-3">
-                            <Paperclip className="h-4 w-4 shrink-0 text-brand-navy/60" strokeWidth={1.5} aria-hidden="true" />
-                            <span className="min-w-0 flex-1 truncate text-[15px] text-brand-navy" title={file.name}>
+                          <div className="flex items-center gap-3 rounded-[4px] border border-line-strong px-4 py-3">
+                            <Paperclip className="h-4 w-4 shrink-0 text-fg-subtle" strokeWidth={1.5} aria-hidden="true" />
+                            <span className="min-w-0 flex-1 truncate text-[15px] text-fg" title={file.name}>
                               {file.name}
                             </span>
-                            <span className="shrink-0 text-[13px] text-brand-navy/70">{formatBytes(file.size)}</span>
+                            <span className="shrink-0 text-[13px] text-fg-muted">{formatBytes(file.size)}</span>
                             <button
                               type="button"
                               onClick={removeFile}
                               aria-label={`Remove ${file.name}`}
-                              className="-mr-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[4px] text-brand-navy/70 hover:text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                              className="-mr-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[4px] text-fg-muted hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                             >
                               <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                             </button>
@@ -607,25 +607,25 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                               setDragging(false);
                               pickFile(e.dataTransfer.files?.[0] ?? null);
                             }}
-                            className={`relative rounded-[4px] border border-dashed p-6 text-center transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-orange ${
+                            className={`relative rounded-[4px] border border-dashed p-6 text-center transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-focus ${
                               errors.file
-                                ? "border-[#C2410C]"
+                                ? "border-form-error"
                                 : dragging
-                                  ? "border-brand-navy bg-brand-navy/[0.03]"
-                                  : "border-brand-navy/25"
+                                  ? "border-fg bg-surface"
+                                  : "border-line-strong"
                             }`}
                           >
-                            <Paperclip className="mx-auto h-5 w-5 text-brand-navy/60" strokeWidth={1.5} aria-hidden="true" />
-                            <p className="mt-3 text-[15px] text-brand-navy/80">
+                            <Paperclip className="mx-auto h-5 w-5 text-fg-subtle" strokeWidth={1.5} aria-hidden="true" />
+                            <p className="mt-3 text-[15px] text-fg-muted">
                               Drop drawings or BOQ here, or{" "}
                               <label
                                 htmlFor="attachment"
-                                className="cursor-pointer font-medium text-brand-orange-ink underline underline-offset-4"
+                                className="cursor-pointer font-medium text-fg underline underline-offset-4"
                               >
                                 choose a file
                               </label>
                             </p>
-                            <p id="attachment-help" className="mt-1.5 text-[13px] text-brand-navy/70">
+                            <p id="attachment-help" className="mt-1.5 text-[13px] text-fg-muted">
                               PDF, DWG or XLSX, up to 10 MB
                             </p>
                             <input
@@ -643,7 +643,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                           </div>
                         )}
                         {errors.file && (
-                          <p id="attachment-error" className="mt-1.5 text-[13px]" style={{ color: ERROR_HEX }}>
+                          <p id="attachment-error" className="mt-1.5 text-[13px]" style={{ color: ERROR_COLOR }}>
                             {errors.file}
                           </p>
                         )}
@@ -666,21 +666,21 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                         />
                         <span
                           aria-hidden="true"
-                          className={`mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-[3px] border transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-orange ${
+                          className={`mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-[3px] border transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus ${
                             agreedToPrivacy
-                              ? "border-brand-navy bg-brand-navy"
+                              ? "border-fg bg-fg"
                               : consentError
-                                ? "border-[#C2410C] bg-white"
-                                : "border-brand-navy bg-white"
+                                ? "border-form-error bg-white"
+                                : "border-fg bg-white"
                           }`}
                         >
                           {agreedToPrivacy && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
                         </span>
-                        <span className="text-[14px] leading-relaxed text-brand-navy/80">
+                        <span className="text-[14px] leading-relaxed text-fg-muted">
                           I agree to the processing of my details as described in the{" "}
                           <a
                             href="/privacy"
-                            className="rounded-sm text-brand-navy underline underline-offset-2 hover:text-brand-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                            className="rounded-sm text-fg underline underline-offset-2 hover:underline hover:underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                           >
                             Privacy Policy
                           </a>
@@ -688,7 +688,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                         </span>
                       </label>
                       {consentError && (
-                        <p id="consent-error" className="mt-1 text-[13px]" style={{ color: ERROR_HEX }}>
+                        <p id="consent-error" className="mt-1 text-[13px]" style={{ color: ERROR_COLOR }}>
                           {consentError}
                         </p>
                       )}
@@ -696,12 +696,12 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
                     {/* Submission error: keeps the user's input and offers WhatsApp */}
                     {submitError && (
-                      <div className="mt-6 rounded-[4px] border border-[#C2410C]/30 bg-[#C2410C]/[0.04] px-4 py-3.5 text-[14px] text-brand-navy" role="alert">
+                      <div className="mt-6 rounded-[4px] border border-form-error/30 bg-form-error/[0.04] px-4 py-3.5 text-[14px] text-fg" role="alert">
                         <p>
                           Something went wrong. Please call{" "}
                           <a
                             href={`tel:${contact.phonePrimaryTel}`}
-                            className="rounded-sm font-medium underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                            className="rounded-sm font-medium underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                           >
                             {contact.phonePrimary}
                           </a>{" "}
@@ -710,7 +710,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                             href={`${WHATSAPP_URL}?text=${formatWhatsAppMessage(formData)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-sm font-medium underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                            className="rounded-sm font-medium underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                           >
                             WhatsApp
                           </a>
@@ -723,7 +723,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                       type="submit"
                       disabled={isSubmitting}
                       aria-busy={isSubmitting}
-                      className="group mt-7 flex h-14 w-full items-center justify-center gap-2.5 rounded-[4px] bg-brand-orange text-[16px] font-medium text-brand-charcoal transition-colors hover:bg-brand-orange-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange disabled:cursor-wait disabled:opacity-80"
+                      className="group mt-7 flex h-14 w-full items-center justify-center gap-2.5 rounded-[4px] bg-accent text-[16px] font-medium text-on-accent transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-wait disabled:opacity-80"
                     >
                       {isSubmitting ? (
                         <>
@@ -741,7 +741,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                         </>
                       )}
                     </button>
-                    <p className="mt-3 text-center text-[13px] text-brand-navy/70">
+                    <p className="mt-3 text-center text-[13px] text-fg-muted">
                       We never share your details.{responseTime && ` Replies within ${responseTime}.`}
                     </p>
                   </form>
@@ -753,7 +753,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
         {/* Map */}
         <Reveal className="mt-12">
-          <div className="contact-map relative h-[260px] overflow-hidden rounded-[6px] bg-white/[0.06] lg:h-[360px]">
+          <div className="contact-map relative h-[260px] overflow-hidden rounded-[6px] bg-surface lg:h-[360px]">
             <iframe
               src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`}
               loading="lazy"
@@ -761,17 +761,17 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
               title="Fraternity Engineering office location, G-8/1 Islamabad"
               className="absolute inset-0 h-full w-full border-0"
             />
-            <div className="absolute bottom-4 left-4 right-4 max-w-[320px] rounded-[6px] bg-white p-5 text-brand-navy sm:bottom-6 sm:left-6 sm:right-auto">
-              <p className={`${capsLabel} text-brand-navy/70`}>Visit us</p>
+            <div className="absolute bottom-4 left-4 right-4 theme-paper max-w-[320px] rounded-[6px] bg-white p-5 text-fg sm:bottom-6 sm:left-6 sm:right-auto">
+              <p className={`${capsLabel} text-fg-muted`}>Visit us</p>
               <p className="mt-2 text-[16px] font-medium leading-snug">{OFFICE_ADDRESS}</p>
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${MAP_QUERY}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group mt-3 inline-flex min-h-[32px] items-center gap-1.5 rounded-sm text-[15px] font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                className="group mt-3 inline-flex min-h-[32px] items-center gap-1.5 rounded-sm text-[15px] font-medium text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
               >
                 <span className={drawUnderline}>Get directions</span>
-                <ArrowRight className="h-4 w-4 text-brand-orange" strokeWidth={1.5} aria-hidden="true" />
+                <ArrowRight className="h-4 w-4 text-icon" strokeWidth={1.5} aria-hidden="true" />
               </a>
             </div>
           </div>

@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { MessageCircle, Phone } from "lucide-react";
+import { MessageCircle, Moon, Phone, Sun } from "lucide-react";
 import { SITE_CONTENT } from "../content";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+import { useTheme } from "../theme";
 
 export const NAV_LINKS = [
   { label: "Services", id: "services" },
@@ -29,12 +30,14 @@ export const sectionHref = (id: string) => {
   return onHome ? `#${id}` : `/#${id}`;
 };
 
-const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange";
+const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export const Header: React.FC = () => {
   const reduceMotion = usePrefersReducedMotion();
   const isHome = window.location.pathname === "/" || window.location.pathname === "";
   const { contact } = SITE_CONTENT;
+  const [theme, toggleTheme] = useTheme();
+  const daylight = theme === "daylight";
 
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -214,21 +217,21 @@ export const Header: React.FC = () => {
     <>
       <a
         href="#main"
-        className="skip-link sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-[4px] focus:bg-white focus:px-4 focus:py-3 focus:text-[15px] focus:font-medium focus:text-brand-navy focus:outline-2 focus:outline-offset-2 focus:outline-brand-orange"
+        className="skip-link sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-[4px] focus:bg-white focus:px-4 focus:py-3 focus:text-[15px] focus:font-medium focus:text-midnight focus:outline-2 focus:outline-offset-2 focus:outline-focus"
       >
         Skip to content
       </a>
 
       <header
         ref={headerRef}
-        className={`fixed inset-x-0 top-0 z-50 transition-[background-color,translate] duration-200 ease-out motion-reduce:transition-none ${
-          solid && !menuOpen ? "bg-brand-navy/92 backdrop-blur-[12px]" : "bg-transparent"
+        className={`theme-dark fixed inset-x-0 top-0 z-50 transition-[background-color,translate] duration-200 ease-out motion-reduce:transition-none ${
+          solid && !menuOpen ? "bg-navy/[0.94] backdrop-blur-[12px]" : "bg-transparent"
         } ${barHidden ? "-translate-y-full" : ""}`}
       >
         {/* Bottom hairline, drawn over the bar so it never adds height */}
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-x-0 bottom-0 h-px bg-white/10 transition-opacity duration-200 ${
+          className={`pointer-events-none absolute inset-x-0 bottom-0 h-px bg-line transition-opacity duration-200 ${
             solid && !menuOpen ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -245,9 +248,9 @@ export const Header: React.FC = () => {
             aria-label="Fraternity Engineering & Co., back to top"
           >
             <img src="/assets/logo-mark-160.webp" alt="" width={44} height={40} decoding="async" className="h-10 w-auto" />
-            <span className="leading-tight text-white">
+            <span className="leading-tight text-fg">
               <span className="block whitespace-nowrap text-[15px] font-medium sm:text-[17px]">Fraternity Engineering</span>
-              <span className="hidden text-[13px] text-white/60 xl:block">&amp; Co.</span>
+              <span className="hidden text-[13px] text-fg-subtle xl:block">&amp; Co.</span>
             </span>
           </a>
 
@@ -265,7 +268,7 @@ export const Header: React.FC = () => {
                     href={sectionHref(link.id)}
                     aria-current={isActive ? "true" : undefined}
                     className={`inline-flex min-h-[44px] items-center rounded-sm text-[15px] transition-colors duration-200 ${focusRing} ${
-                      isActive ? "text-white" : "text-white/78 hover:text-white"
+                      isActive ? "text-white" : "text-fg-muted hover:text-white"
                     }`}
                   >
                     {link.label}
@@ -274,7 +277,7 @@ export const Header: React.FC = () => {
               })}
               <span
                 aria-hidden="true"
-                className={`pointer-events-none absolute top-[calc(50%+19px)] left-0 h-[2px] bg-brand-orange transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
+                className={`pointer-events-none absolute top-[calc(50%+19px)] left-0 h-[2px] bg-accent transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
                   indicator ? "opacity-100" : "opacity-0"
                 }`}
                 style={{ width: indicator?.width ?? 0, transform: `translateX(${indicator?.left ?? 0}px)` }}
@@ -286,14 +289,27 @@ export const Header: React.FC = () => {
           <div className="hidden shrink-0 items-center gap-6 lg:flex">
             <a
               href={`tel:${contact.phonePrimaryTel}`}
-              className={`hidden min-h-[44px] items-center gap-2 rounded-sm text-[15px] text-white transition-colors hover:text-white/80 xl:inline-flex ${focusRing}`}
+              className={`hidden min-h-[44px] items-center gap-2 rounded-sm text-[15px] text-white transition-colors hover:text-fg-muted xl:inline-flex ${focusRing}`}
             >
-              <Phone className="h-4 w-4 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+              <Phone className="h-4 w-4 text-icon" strokeWidth={1.5} aria-hidden="true" />
               {contact.phonePrimary}
             </a>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-pressed={daylight}
+              aria-label={daylight ? "Switch to Dark Mode" : "Switch to Daylight Mode"}
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-[4px] text-white transition-colors hover:text-fg-muted ${focusRing}`}
+            >
+              {daylight ? (
+                <Moon className="h-5 w-5" strokeWidth={1.25} aria-hidden="true" />
+              ) : (
+                <Sun className="h-5 w-5" strokeWidth={1.25} aria-hidden="true" />
+              )}
+            </button>
             <a
               href={sectionHref("contact")}
-              className={`inline-flex h-11 items-center rounded-[4px] bg-brand-orange px-5 text-[15px] font-medium text-brand-charcoal transition-colors hover:bg-brand-orange-hover ${focusRing}`}
+              className={`inline-flex h-11 items-center rounded-[4px] bg-accent px-5 text-[15px] font-medium text-on-accent transition-colors hover:bg-accent-hover ${focusRing}`}
             >
               Request a quote
             </a>
@@ -334,7 +350,7 @@ export const Header: React.FC = () => {
             aria-modal="true"
             aria-label="Menu"
             data-lenis-prevent
-            className={`menu-overlay ${menuOpen ? "" : "is-closing"} fixed inset-0 z-40 flex flex-col overflow-y-auto bg-brand-navy px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 sm:px-6 lg:hidden`}
+            className={`theme-dark menu-overlay ${menuOpen ? "" : "is-closing"} fixed inset-0 z-40 flex flex-col overflow-y-auto bg-navy px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 sm:px-6 lg:hidden`}
           >
             <nav aria-label="Primary" className="flex-1">
               <ul>
@@ -342,18 +358,18 @@ export const Header: React.FC = () => {
                   <li
                     key={link.id}
                     style={{ animationDelay: `${i * 60}ms` }}
-                    className="menu-item border-b border-white/10"
+                    className="menu-item border-b border-line"
                   >
                     <a
                       href={sectionHref(link.id)}
                       onClick={(e) => goToSection(e, link.id)}
                       aria-current={active === link.id ? "true" : undefined}
                       className={`flex min-h-[44px] items-center py-3 text-[28px] font-medium leading-tight ${focusRing} ${
-                        active === link.id ? "text-white" : "text-white/85"
+                        active === link.id ? "text-white" : "text-fg-muted"
                       }`}
                     >
                       {link.label}
-                      {active === link.id && <span className="ml-3 h-[2px] w-5 bg-brand-orange" aria-hidden="true" />}
+                      {active === link.id && <span className="ml-3 h-[2px] w-5 bg-accent" aria-hidden="true" />}
                     </a>
                   </li>
                 ))}
@@ -365,7 +381,7 @@ export const Header: React.FC = () => {
                 href={`tel:${contact.phonePrimaryTel}`}
                 className={`flex min-h-[44px] items-center gap-3 rounded-sm text-[17px] text-white ${focusRing}`}
               >
-                <Phone className="h-5 w-5 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+                <Phone className="h-5 w-5 text-icon" strokeWidth={1.5} aria-hidden="true" />
                 Call {contact.phonePrimary}
               </a>
               <a
@@ -374,13 +390,26 @@ export const Header: React.FC = () => {
                 rel="noopener noreferrer"
                 className={`flex min-h-[44px] items-center gap-3 rounded-sm text-[17px] text-white ${focusRing}`}
               >
-                <MessageCircle className="h-5 w-5 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+                <MessageCircle className="h-5 w-5 text-icon" strokeWidth={1.5} aria-hidden="true" />
                 WhatsApp us
               </a>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-pressed={daylight}
+                className={`flex min-h-[44px] w-full items-center gap-3 rounded-sm text-left text-[17px] text-white ${focusRing}`}
+              >
+                {daylight ? (
+                  <Moon className="h-5 w-5 text-icon" strokeWidth={1.5} aria-hidden="true" />
+                ) : (
+                  <Sun className="h-5 w-5 text-icon" strokeWidth={1.5} aria-hidden="true" />
+                )}
+                Daylight Mode: {daylight ? "On" : "Off"}
+              </button>
               <a
                 href={sectionHref("contact")}
                 onClick={(e) => goToSection(e, "contact")}
-                className={`!mt-6 flex h-[52px] w-full items-center justify-center rounded-[4px] bg-brand-orange text-[16px] font-medium text-brand-charcoal transition-colors hover:bg-brand-orange-hover ${focusRing}`}
+                className={`!mt-6 flex h-[52px] w-full items-center justify-center rounded-[4px] bg-accent text-[16px] font-medium text-on-accent transition-colors hover:bg-accent-hover ${focusRing}`}
               >
                 Request a quote
               </a>

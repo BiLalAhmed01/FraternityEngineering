@@ -19,19 +19,19 @@ export const MobileFloatingCta: React.FC = () => {
   }, []);
 
   const item =
-    "flex flex-1 items-center justify-center gap-2 text-[14px] font-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-orange";
+    "flex flex-1 items-center justify-center gap-2 text-[14px] font-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus";
 
   return (
     <nav
       aria-label="Quick contact"
       aria-hidden={contactInView || undefined}
-      className={`quick-bar fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-brand-navy pb-[env(safe-area-inset-bottom)] transition-opacity duration-200 md:hidden ${
+      className={`theme-dark quick-bar fixed inset-x-0 bottom-0 z-30 border-t border-line bg-navy pb-[env(safe-area-inset-bottom)] transition-opacity duration-200 md:hidden ${
         contactInView ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
-      <div className="flex h-14 divide-x divide-white/10">
+      <div className="flex h-14 divide-x divide-line">
         <a href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`} tabIndex={contactInView ? -1 : undefined} className={`${item} text-white`}>
-          <Phone className="h-4 w-4 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+          <Phone className="h-4 w-4 text-icon" strokeWidth={1.5} aria-hidden="true" />
           Call
         </a>
         <a
@@ -41,10 +41,10 @@ export const MobileFloatingCta: React.FC = () => {
           tabIndex={contactInView ? -1 : undefined}
           className={`${item} text-white`}
         >
-          <MessageCircle className="h-4 w-4 text-white/70" strokeWidth={1.5} aria-hidden="true" />
+          <MessageCircle className="h-4 w-4 text-icon" strokeWidth={1.5} aria-hidden="true" />
           WhatsApp
         </a>
-        <a href={sectionHref("contact")} tabIndex={contactInView ? -1 : undefined} className={`${item} text-brand-orange`}>
+        <a href={sectionHref("contact")} tabIndex={contactInView ? -1 : undefined} className={`${item} m-2 rounded-[4px] bg-accent text-on-accent transition-colors hover:bg-accent-hover`}>
           <FileText className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           Quote
         </a>

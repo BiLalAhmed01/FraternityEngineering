@@ -24,7 +24,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 const showIllustrationLabel = (p: Project) => SHOW_ILLUSTRATION_LABEL && p.isIllustration;
 
 const IllustrationLabel: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <p className={`text-[11px] uppercase tracking-[0.12em] text-brand-steel ${className}`}>Project illustration</p>
+  <p className={`text-[11px] uppercase tracking-[0.12em] text-fg-subtle ${className}`}>Project illustration</p>
 );
 
 interface WhyFTEProps {
@@ -114,16 +114,16 @@ export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
   };
 
   return (
-    <section id="work" className="relative bg-brand-cream text-brand-brown py-16 md:py-24" aria-label="Our work">
+    <section id="work" className="cad-grid relative bg-bg text-fg py-16 md:py-24" aria-label="Our work">
       <div className="relative max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         {/* Section Header */}
         <div className="max-w-2xl mb-10 md:mb-12">
-          <p className="kicker-label text-brand-navy mb-3">Our work</p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-brand-navy tracking-tight leading-tight [text-wrap:balance]">
+          <p className="kicker-label text-fg mb-3">Our work</p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-fg tracking-tight leading-tight [text-wrap:balance]">
             Selected projects across Pakistan.
           </h2>
-          <div className="w-16 h-1 bg-brand-orange mt-4 mb-4" />
-          <p className="text-base sm:text-lg text-brand-brown/85 font-normal leading-relaxed">
+          <div className="w-16 h-1 bg-line-strong mt-4 mb-4" />
+          <p className="text-base sm:text-lg text-fg-muted font-normal leading-relaxed">
             Recent work in construction, electrical, fire safety and supply for government, corporate and industrial clients.
           </p>
         </div>
@@ -155,18 +155,18 @@ export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
 
         {/* Below the grid */}
         <div className="mt-14 md:mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 text-center">
-          <p className="text-base sm:text-lg font-heading font-semibold text-brand-navy">
+          <p className="text-base sm:text-lg font-heading font-semibold text-fg">
             Have a similar project in mind?
           </p>
           <a
             href="#contact"
-            className="inline-flex items-center justify-center min-h-[44px] px-6 py-3 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm rounded transition-colors"
+            className="inline-flex items-center justify-center min-h-[44px] px-6 py-3 bg-accent hover:bg-accent-hover text-on-accent font-bold text-sm rounded-[4px] transition-colors"
           >
             Request a quote
           </a>
           <a
             href={PHONE_HREF}
-            className="group inline-flex items-center gap-2 min-h-[44px] text-sm font-semibold text-brand-navy hover:text-brand-orange transition-colors"
+            className="group inline-flex items-center gap-2 min-h-[44px] text-sm font-semibold text-fg hover:underline hover:underline-offset-4 transition-colors"
           >
             <Phone className="w-4 h-4" aria-hidden="true" />
             <span>Call {PHONE_DISPLAY}</span>
@@ -224,7 +224,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ categories, active, onChange, c
   }, [measure]);
 
   return (
-    <div className="flex items-end justify-between gap-6 border-b border-brand-navy/15">
+    <div className="flex items-end justify-between gap-6 border-b border-line">
       <div
         ref={scrollerRef}
         className="relative -mb-px flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -240,7 +240,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ categories, active, onChange, c
               onClick={() => onChange(cat)}
               aria-pressed={active === cat}
               className={`whitespace-nowrap min-h-[44px] pb-3 pt-2 text-[15px] font-heading font-semibold transition-colors ${
-                active === cat ? "text-brand-navy" : "text-brand-navy/70 hover:text-brand-navy"
+                active === cat ? "text-fg" : "text-fg-muted hover:text-fg"
               }`}
             >
               {cat}
@@ -248,12 +248,12 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ categories, active, onChange, c
           ))}
           <span
             aria-hidden="true"
-            className="absolute bottom-0 left-0 h-[2px] bg-brand-orange transition-[transform,width] duration-300 ease-out"
+            className="absolute bottom-0 left-0 h-[2px] bg-accent transition-[transform,width] duration-300 ease-out"
             style={{ width: indicator.width, transform: `translateX(${indicator.left}px)` }}
           />
         </div>
       </div>
-      <p className="shrink-0 pb-3 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65" aria-live="polite">
+      <p className="shrink-0 pb-3 text-[12px] uppercase tracking-[0.12em] text-fg-subtle" aria-live="polite">
         {count} {count === 1 ? "project" : "projects"}
       </p>
     </div>
@@ -279,9 +279,9 @@ const ProjectTile = React.forwardRef<HTMLAnchorElement, ProjectTileProps>(({ pro
         e.preventDefault();
         onOpen(e.currentTarget);
       }}
-      className="group flex w-full flex-col rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-orange"
+      className="group flex w-full flex-col rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
     >
-      <div className="relative aspect-[16/9] overflow-hidden rounded-[6px] bg-brand-navy/5">
+      <div className="relative aspect-[16/9] overflow-hidden rounded-[6px] bg-surface">
         <img
           src={project.image}
           srcSet={projectSrcSet(project.slug)}
@@ -299,17 +299,17 @@ const ProjectTile = React.forwardRef<HTMLAnchorElement, ProjectTileProps>(({ pro
 
       <div className="flex flex-1 flex-col pt-4">
         {/* Empty meta keeps its line height so titles stay aligned across a row */}
-        <p className="mb-2 min-h-[18px] text-[12px] leading-[18px] uppercase tracking-[0.12em] text-brand-navy/65" aria-hidden={!meta || undefined}>
+        <p className="mb-2 min-h-[18px] text-[12px] leading-[18px] uppercase tracking-[0.12em] text-fg-subtle" aria-hidden={!meta || undefined}>
           {meta}
         </p>
-        <h3 className="font-heading font-medium text-[20px] leading-snug text-brand-navy">{project.title}</h3>
-        <p className="mt-2 text-[15px] leading-relaxed text-brand-brown/80">{project.description}</p>
-        <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-navy">
-          <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
+        <h3 className="font-heading font-medium text-[20px] leading-snug text-fg">{project.title}</h3>
+        <p className="mt-2 text-[15px] leading-relaxed text-fg-muted">{project.description}</p>
+        <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-fg">
+          <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-fg after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
             View project
           </span>
           <ArrowRight
-            className="w-4 h-4 text-brand-orange transition-transform duration-300 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1"
+            className="w-4 h-4 text-label transition-transform duration-300 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1"
             aria-hidden="true"
           />
         </span>
@@ -427,7 +427,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
     <div
       className={`modal-root ${closing ? "is-closing" : ""} fixed inset-0 z-[100] flex items-stretch justify-center sm:items-center sm:p-6`}
     >
-          <div className="absolute inset-0 bg-brand-navy/80" onClick={onClose} aria-hidden="true" />
+          <div className="absolute inset-0 bg-midnight/80" onClick={onClose} aria-hidden="true" />
 
           <div
             ref={dialogRef}
@@ -435,11 +435,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             aria-modal="true"
             aria-labelledby="work-modal-title"
             data-lenis-prevent
-            className="modal-panel relative w-full max-w-[1100px] overflow-y-auto overscroll-contain bg-brand-cream sm:max-h-[calc(100dvh-3rem)] sm:rounded-lg"
+            className="theme-dark modal-panel relative w-full max-w-[1100px] overflow-y-auto overscroll-contain bg-navy sm:max-h-[calc(100dvh-3rem)] sm:rounded-lg"
           >
             {/* Toolbar */}
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-brand-navy/10 bg-brand-cream px-3 py-2 sm:pl-6 sm:pr-4">
-              <p className="pl-1 sm:pl-0 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65" aria-live="polite">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-navy px-3 py-2 sm:pl-6 sm:pr-4">
+              <p className="pl-1 sm:pl-0 text-[12px] uppercase tracking-[0.12em] text-fg-subtle" aria-live="polite">
                 {pad(position)} / {pad(total)}
               </p>
               <div className="flex items-center gap-1">
@@ -448,7 +448,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   onClick={() => onStep(-1)}
                   disabled={total < 2}
                   aria-label="Previous project"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded text-brand-navy hover:text-brand-orange disabled:opacity-40 transition-colors"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded text-fg hover:text-icon disabled:opacity-40 transition-colors"
                 >
                   <ArrowLeft className="h-5 w-5" aria-hidden="true" />
                 </button>
@@ -457,7 +457,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   onClick={() => onStep(1)}
                   disabled={total < 2}
                   aria-label="Next project"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded text-brand-navy hover:text-brand-orange disabled:opacity-40 transition-colors"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded text-fg hover:text-icon disabled:opacity-40 transition-colors"
                 >
                   <ArrowRight className="h-5 w-5" aria-hidden="true" />
                 </button>
@@ -466,7 +466,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   type="button"
                   onClick={onClose}
                   aria-label="Close project details"
-                  className="ml-1 inline-flex h-11 w-11 items-center justify-center rounded text-brand-navy hover:text-brand-orange transition-colors"
+                  className="ml-1 inline-flex h-11 w-11 items-center justify-center rounded text-fg hover:underline hover:underline-offset-4 transition-colors"
                 >
                   <X className="h-5 w-5" aria-hidden="true" />
                 </button>
@@ -475,7 +475,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
             <div key={view.slug} className="fade-in-180">
                 <div className="sm:px-6 sm:pt-6">
-                  <div className="aspect-[16/9] overflow-hidden bg-brand-navy/5 sm:rounded-[6px]">
+                  <div className="aspect-[16/9] overflow-hidden bg-surface sm:rounded-[6px]">
                     <img
                       src={view.image}
                       srcSet={projectSrcSet(view.slug)}
@@ -492,29 +492,29 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
                 <div className="grid gap-8 px-4 py-6 sm:px-6 sm:py-8 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] md:gap-12">
                   <div>
-                    {meta && <p className="mb-2 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">{meta}</p>}
+                    {meta && <p className="mb-2 text-[12px] uppercase tracking-[0.12em] text-fg-subtle">{meta}</p>}
                     <h3
                       id="work-modal-title"
-                      className="font-heading font-semibold text-2xl sm:text-[28px] leading-tight text-brand-navy [text-wrap:balance]"
+                      className="font-heading font-semibold text-2xl sm:text-[28px] leading-tight text-fg [text-wrap:balance]"
                     >
                       {view.title}
                     </h3>
-                    <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Brief</p>
-                    <p className="mt-2 text-base leading-relaxed text-brand-brown/85">{view.description}</p>
+                    <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-fg-subtle">Brief</p>
+                    <p className="mt-2 text-base leading-relaxed text-fg-muted">{view.description}</p>
                     {view.outcome.trim() !== "" && (
                       <>
-                        <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Outcome</p>
-                        <p className="mt-2 text-base leading-relaxed text-brand-brown/85">{view.outcome}</p>
+                        <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-fg-subtle">Outcome</p>
+                        <p className="mt-2 text-base leading-relaxed text-fg-muted">{view.outcome}</p>
                       </>
                     )}
                   </div>
 
                   <div>
-                    <p className="mb-3 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Our scope</p>
+                    <p className="mb-3 text-[12px] uppercase tracking-[0.12em] text-fg-subtle">Our scope</p>
                     <ul className="space-y-2.5">
                       {view.facts.map((fact) => (
-                        <li key={fact} className="flex items-start gap-2.5 text-[15px] text-brand-navy">
-                          <Check className="mt-[3px] h-4 w-4 shrink-0 text-brand-orange" strokeWidth={2.5} aria-hidden="true" />
+                        <li key={fact} className="flex items-start gap-2.5 text-[15px] text-fg">
+                          <Check className="mt-[3px] h-4 w-4 shrink-0 text-icon" strokeWidth={2.5} aria-hidden="true" />
                           <span>{fact}</span>
                         </li>
                       ))}
@@ -522,17 +522,17 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-brand-navy/10 px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6">
                   <button
                     type="button"
                     onClick={() => onRequest(view)}
-                    className="inline-flex min-h-[44px] items-center justify-center rounded bg-brand-orange px-6 py-3 text-sm font-bold text-brand-charcoal transition-colors hover:bg-brand-orange-hover"
+                    className="inline-flex min-h-[44px] items-center justify-center rounded bg-accent px-6 py-3 text-sm font-bold text-on-accent transition-colors hover:bg-accent-hover"
                   >
                     Request a similar project
                   </button>
                   <a
                     href={PHONE_HREF}
-                    className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-brand-navy transition-colors hover:text-brand-orange"
+                    className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-fg transition-colors hover:underline hover:underline-offset-4"
                   >
                     <Phone className="h-4 w-4" aria-hidden="true" />
                     <span>Call {PHONE_DISPLAY}</span>

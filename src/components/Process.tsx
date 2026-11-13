@@ -4,7 +4,7 @@ import { Phone } from "lucide-react";
 import { SITE_CONTENT } from "../content";
 import { Reveal } from "./Reveal";
 
-const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/80";
+const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-label";
 
 /** True from 768px up; false on the server. */
 const useMinWidthMd = () => {
@@ -76,7 +76,7 @@ export const Process: React.FC = () => {
   return (
     <section
       id="process"
-      className="relative bg-brand-paper text-brand-navy py-[clamp(72px,9vw,120px)]"
+      className="cad-grid relative bg-bg text-fg py-[clamp(72px,9vw,120px)]"
       aria-labelledby="process-title"
     >
       <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
@@ -87,23 +87,23 @@ export const Process: React.FC = () => {
               <p className={label}>How we work</p>
               <h2
                 id="process-title"
-                className="mt-4 font-heading font-medium text-[clamp(2rem,1.4rem+2.4vw,3rem)] leading-[1.1] tracking-tight text-brand-navy [text-wrap:balance]"
+                className="mt-4 font-heading font-medium text-[clamp(2rem,1.4rem+2.4vw,3rem)] leading-[1.1] tracking-tight text-fg [text-wrap:balance]"
               >
                 From first visit to signed handover.
               </h2>
-              <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.7] text-brand-navy/75">
+              <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.7] text-fg-muted">
                 Four stages, each ending with a defined deliverable, so you always know what happens next.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
                 <a
                   href="#contact"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded bg-brand-orange px-6 py-3 text-sm font-bold text-brand-charcoal transition-colors hover:bg-brand-orange-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded bg-accent px-6 py-3 text-sm font-bold text-on-accent transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 >
                   Request a quote
                 </a>
                 <a
                   href={`tel:${SITE_CONTENT.contact.phonePrimaryTel}`}
-                  className="inline-flex min-h-[44px] items-center gap-2 rounded-sm text-sm font-semibold text-brand-navy transition-colors hover:text-brand-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                  className="inline-flex min-h-[44px] items-center gap-2 rounded-sm text-sm font-semibold text-fg transition-colors hover:underline hover:underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 >
                   <Phone className="h-4 w-4" aria-hidden="true" />
                   <span>Call {SITE_CONTENT.contact.phonePrimary}</span>
@@ -116,8 +116,8 @@ export const Process: React.FC = () => {
           <div className="lg:col-span-8">
             <ol ref={listRef} className={`relative ${interactive ? "pl-10" : ""}`}>
               {interactive && (
-                <div aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-[2px] bg-brand-navy/12">
-                  <div ref={fillRef} className="absolute inset-0 origin-top scale-y-0 bg-brand-orange" />
+                <div aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-[2px] bg-line">
+                  <div ref={fillRef} className="absolute inset-0 origin-top scale-y-0 bg-accent" />
                 </div>
               )}
 
@@ -131,14 +131,14 @@ export const Process: React.FC = () => {
                     }}
                     data-index={idx}
                     className={`relative py-12 transition-opacity duration-200 ease-out ${
-                      idx > 0 ? "border-t border-brand-navy/12" : ""
+                      idx > 0 ? "border-t border-line" : ""
                     } ${isActive ? "opacity-100" : "opacity-75"}`}
                     aria-current={interactive && active === idx ? "step" : undefined}
                   >
                     {interactive && (
                       <span
                         aria-hidden="true"
-                        className={`absolute -left-[43px] top-[64px] lg:top-[76px] h-2 w-2 rounded-full bg-brand-orange transition-opacity duration-200 ${
+                        className={`absolute -left-[43px] top-[64px] lg:top-[76px] h-2 w-2 rounded-full bg-accent transition-opacity duration-200 ${
                           active === idx ? "opacity-100" : "opacity-0"
                         }`}
                       />
@@ -146,27 +146,27 @@ export const Process: React.FC = () => {
                     <Reveal className="grid grid-cols-1 gap-4 lg:grid-cols-[96px_minmax(0,1fr)] lg:gap-8">
                       <span
                         aria-hidden="true"
-                        className="font-heading font-light text-[40px] lg:text-[64px] leading-none tracking-tight text-brand-navy/[0.18] tabular-nums"
+                        className="font-heading font-light text-[40px] lg:text-[64px] leading-none tracking-tight text-fg-subtle tabular-nums"
                       >
                         {step.step}
                       </span>
                       <div>
-                        <h3 className="font-heading font-medium text-[28px] leading-tight text-brand-navy">
+                        <h3 className="font-heading font-medium text-[28px] leading-tight text-fg">
                           <span className="sr-only">Step {Number(step.step)}: </span>
                           {step.title}
                         </h3>
-                        <p className="mt-3 max-w-[52ch] text-[17px] leading-[1.65] text-brand-navy/85">
+                        <p className="mt-3 max-w-[52ch] text-[17px] leading-[1.65] text-fg-muted">
                           {step.description}
                         </p>
-                        <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-brand-navy/12 pt-5 lg:grid-cols-2 lg:gap-8">
+                        <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-line pt-5 lg:grid-cols-2 lg:gap-8">
                           <div>
                             <dt className={label}>You receive</dt>
-                            <dd className="mt-1.5 text-[15px] text-brand-navy">{step.deliverable}</dd>
+                            <dd className="mt-1.5 text-[15px] text-fg">{step.deliverable}</dd>
                           </div>
                           {step.timing.trim() !== "" && (
                             <div>
                               <dt className={label}>Typical time</dt>
-                              <dd className="mt-1.5 text-[15px] text-brand-navy">{step.timing}</dd>
+                              <dd className="mt-1.5 text-[15px] text-fg">{step.timing}</dd>
                             </div>
                           )}
                         </dl>
@@ -177,7 +177,7 @@ export const Process: React.FC = () => {
               })}
             </ol>
 
-            <p className="border-t border-brand-navy/12 pt-6 text-[14px] leading-relaxed text-brand-navy/70">
+            <p className="border-t border-line pt-6 text-[14px] leading-relaxed text-fg-muted">
               Every stage is documented with sign-off sheets, site inspection logs and verified material receipts.
             </p>
           </div>

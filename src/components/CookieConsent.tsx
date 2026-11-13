@@ -32,13 +32,13 @@ export const CookieConsent: React.FC = () => {
       aria-label="Cookie consent"
       aria-live="polite"
     >
-      <div className="max-w-3xl mx-auto pointer-events-auto bg-brand-navy/95 backdrop-blur-md border border-white/15 rounded-xl shadow-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+      <div className="max-w-3xl mx-auto theme-dark pointer-events-auto bg-navy backdrop-blur-md border border-line-strong rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="flex items-start gap-3 flex-1">
-          <Cookie className="w-5 h-5 text-brand-orange shrink-0 mt-0.5" aria-hidden="true" />
-          <p className="text-xs sm:text-sm text-brand-cream/90 leading-relaxed">
+          <Cookie className="w-5 h-5 text-icon shrink-0 mt-0.5" aria-hidden="true" />
+          <p className="text-xs sm:text-sm text-fg-muted leading-relaxed">
             We use essential cookies for site functionality. No tracking or advertising cookies are
             used. See our{" "}
-            <a href="/privacy" className="text-brand-orange hover:underline font-medium">
+            <a href="/privacy" className="text-fg underline underline-offset-2 font-medium">
               Privacy Policy
             </a>
             .
@@ -48,14 +48,14 @@ export const CookieConsent: React.FC = () => {
           <button
             type="button"
             onClick={accept}
-            className="min-h-[44px] px-5 py-2.5 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal text-xs font-bold uppercase tracking-wider rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
+            className="min-h-[44px] px-5 py-2.5 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             Accept
           </button>
           <button
             type="button"
             onClick={accept}
-            className="p-2 text-brand-stone hover:text-white transition-colors"
+            className="p-2 text-icon hover:text-white transition-colors"
             aria-label="Dismiss cookie notice"
           >
             <X className="w-4 h-4" />

@@ -239,7 +239,7 @@ export const Hero: React.FC = () => {
   return (
     <section
       id="hero"
-      className="relative bg-brand-navy text-white border-b border-white/12 pt-[var(--nav-h)] [--nav-h:64px] lg:[--nav-h:80px]"
+      className="theme-dark cad-grid relative bg-midnight text-fg border-b border-line pt-[var(--nav-h)] [--nav-h:64px] lg:[--nav-h:80px]"
       aria-labelledby="hero-title"
     >
       <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)] flex flex-col lg:min-h-[clamp(640px,calc(100svh-var(--nav-h)),900px)]">
@@ -247,8 +247,8 @@ export const Hero: React.FC = () => {
           <div className="grid w-full grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-20">
             {/* Text column */}
             <div className="lg:col-span-6 min-w-0">
-              <p style={riseDelay(0)} className="hero-rise flex items-start gap-3 text-[14px] leading-[1.5] text-white/60">
-                <span className="mt-[10px] h-px w-6 shrink-0 bg-brand-orange" aria-hidden="true" />
+              <p style={riseDelay(0)} className="hero-rise flex items-start gap-3 text-[14px] leading-[1.5] text-fg-subtle">
+                <span className="mt-[10px] h-px w-6 shrink-0 bg-line-strong" aria-hidden="true" />
                 Engineering contractor · Islamabad, Pakistan
               </p>
 
@@ -261,10 +261,10 @@ export const Hero: React.FC = () => {
                 {/* Non-breaking spaces keep each phrase on one line */}
                 Build&nbsp;it. Wire&nbsp;it. Protect&nbsp;it.
                 <br />
-                <span className="text-brand-orange">One accountable team.</span>
+                <span className="text-accent">One accountable team.</span>
               </h1>
 
-              <p style={riseDelay(2)} className="hero-rise mt-5 max-w-[50ch] text-[18px] leading-[1.65] text-white/75 [text-wrap:pretty]">
+              <p style={riseDelay(2)} className="hero-rise mt-5 max-w-[50ch] text-[18px] leading-[1.65] text-fg-muted [text-wrap:pretty]">
                 Fraternity Engineering is an Islamabad contractor for construction, civil, electrical, fire safety and
                 supply, delivered under one contract from planning to handover.
               </p>
@@ -272,16 +272,16 @@ export const Hero: React.FC = () => {
               <div style={riseDelay(3)} className="hero-rise mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">
                 <a
                   href="#contact"
-                  className="inline-flex h-[52px] items-center justify-center rounded px-7 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal text-[16px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                  className="inline-flex h-[52px] items-center justify-center rounded px-7 bg-accent hover:bg-accent-hover text-on-accent text-[16px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 >
                   Request a quote
                 </a>
                 <a
                   href={`tel:${contact.phonePrimaryTel}`}
-                  className="group inline-flex min-h-[44px] items-center gap-2 rounded-sm text-[16px] font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                  className="group inline-flex min-h-[44px] items-center gap-2 rounded-sm text-[16px] font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 >
-                  <Phone className="h-4 w-4 text-white/70" strokeWidth={1.5} aria-hidden="true" />
-                  <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
+                  <Phone className="h-4 w-4 text-icon" strokeWidth={1.5} aria-hidden="true" />
+                  <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-fg after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
                     Call {contact.phonePrimary}
                   </span>
                 </a>
@@ -290,7 +290,7 @@ export const Hero: React.FC = () => {
               {/* Disciplines index: selects the image; a second click opens the service */}
               <nav style={riseDelay(4)} aria-label="Disciplines" className="hero-rise mt-10 lg:mt-14">
                 <ol
-                  className="border-t border-white/12"
+                  className="border-t border-line"
                   onKeyDown={onArrowKeys}
                   onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
                   onPointerLeave={() => setHovering(false)}
@@ -299,7 +299,8 @@ export const Hero: React.FC = () => {
                   {DISCIPLINES.map((d, i) => {
                     const isActive = activeRow === i;
                     return (
-                      <li key={d.slug} className="relative border-b border-white/12">
+                      <li key={d.slug} className="relative border-b border-line">
+                        {isActive && <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 -left-4 z-[1] w-[2px] bg-accent" />}
                         <a
                           href={serviceUrl(d.slug)}
                           aria-current={isActive ? "true" : undefined}
@@ -312,18 +313,18 @@ export const Hero: React.FC = () => {
                               selectRow(i);
                             }
                           }}
-                          className="group flex items-baseline gap-4 py-3 lg:py-4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-orange"
+                          className={`group -mx-4 flex items-baseline gap-4 px-4 py-3 transition-colors duration-200 lg:py-4 ${isActive ? "bg-navy" : ""} focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus`}
                         >
                           <span
                             className={`flex-1 text-[18px] transition-colors duration-200 ${
-                              isActive ? "text-white" : "text-white/70 group-hover:text-white"
+                              isActive ? "text-white" : "text-fg-muted group-hover:text-white"
                             }`}
                           >
                             {d.name}
                           </span>
                           <span
                             className={`hidden sm:block text-[14px] transition-colors duration-200 ${
-                              isActive ? "text-white/80" : "text-white/60 group-hover:text-white/75"
+                              isActive ? "text-fg-muted" : "text-fg-subtle group-hover:text-fg-muted"
                             }`}
                           >
                             {d.scope}
@@ -331,8 +332,8 @@ export const Hero: React.FC = () => {
                           <ArrowRight
                             className={`h-4 w-4 self-center transition-[opacity,transform,color] duration-200 ${
                               isActive
-                                ? "opacity-100 text-brand-orange"
-                                : "opacity-0 -translate-x-1 text-white/70 group-hover:opacity-100 group-hover:translate-x-0"
+                                ? "opacity-100 text-accent"
+                                : "opacity-0 -translate-x-1 text-icon group-hover:opacity-100 group-hover:translate-x-0"
                             }`}
                             strokeWidth={1.5}
                             aria-hidden="true"
@@ -342,7 +343,7 @@ export const Hero: React.FC = () => {
                           <span
                             ref={progressRef}
                             aria-hidden="true"
-                            className="pointer-events-none absolute -bottom-px left-0 h-[2px] w-full origin-left scale-x-0 bg-brand-orange"
+                            className="pointer-events-none absolute -bottom-px left-0 h-[2px] w-full origin-left scale-x-0 bg-accent"
                           />
                         )}
                       </li>
@@ -366,7 +367,7 @@ export const Hero: React.FC = () => {
                   onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
                   onPointerLeave={() => setHovering(false)}
                   {...focusHandlers}
-                  className="relative aspect-[4/3] lg:aspect-[4/5] overflow-hidden rounded-[6px] border border-white/10 bg-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                  className="relative aspect-[4/3] lg:aspect-[4/5] overflow-hidden rounded-[6px] border border-line-strong bg-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 >
                   <div aria-live={running ? "off" : "polite"}>
                     {SLIDES.map((s, i) => {
@@ -402,13 +403,13 @@ export const Hero: React.FC = () => {
                   {/* Caption over a soft navy gradient */}
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-brand-navy/70 to-transparent"
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-midnight/70 to-transparent"
                   />
                   <p
                     aria-hidden="true"
                     className="pointer-events-none absolute bottom-5 left-5 min-[1100px]:left-[172px] pr-20 text-[16px] text-white"
                   >
-                    <span className="mb-2.5 block h-px w-6 bg-white/40" />
+                    <span className="mb-2.5 block h-px w-6 bg-line-strong" />
                     {SLIDES[slide].caption}
                   </p>
 
@@ -417,7 +418,7 @@ export const Hero: React.FC = () => {
                       type="button"
                       onClick={() => setPlaying((p) => !p)}
                       aria-label={playing ? "Pause slideshow" : "Play slideshow"}
-                      className="absolute bottom-4 right-4 inline-flex h-9 w-9 items-center justify-center rounded-[4px] border border-white/20 bg-brand-navy/40 text-white transition-colors hover:border-white/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                      className="absolute bottom-4 right-4 inline-flex h-9 w-9 items-center justify-center rounded-[4px] border border-line-strong bg-navy/40 text-white transition-colors hover:border-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                     >
                       {playing ? (
                         <Pause className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
@@ -430,10 +431,10 @@ export const Hero: React.FC = () => {
 
                 {/* HSE inset (wide desktop only); fixed, not part of the slideshow */}
                 <figure className="absolute -left-8 -bottom-6 hidden w-[180px] min-[1100px]:block">
-                  <div className="aspect-[4/3] overflow-hidden rounded-t-[4px] border border-b-0 border-white/20">
+                  <div className="aspect-[4/3] overflow-hidden rounded-t-[4px] border border-b-0 border-line-strong">
                     <HeroPicture id="hse" alt={HSE_ALT} widths={[480]} sizes="180px" className="h-full w-full object-cover hero-grade" />
                   </div>
-                  <figcaption className="rounded-b-[4px] border border-t-0 border-white/20 bg-brand-navy px-3 py-1.5 text-[12px] text-white">
+                  <figcaption className="rounded-b-[4px] border border-t-0 border-line-strong bg-navy px-3 py-1.5 text-[12px] text-white">
                     HSE on every site
                   </figcaption>
                 </figure>
@@ -441,27 +442,29 @@ export const Hero: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Trust row */}
-        {trust.length > 0 && (
+      {/* Trust row: full-width navy band */}
+      {trust.length > 0 && (
+        <div className="border-t border-line bg-navy">
           <dl
-            className="grid grid-cols-2 gap-y-5 border-t border-white/12 py-6 sm:[grid-template-columns:repeat(var(--cols),minmax(0,1fr))]"
+            className="mx-auto grid max-w-7xl grid-cols-2 gap-y-5 px-[clamp(20px,5vw,64px)] py-7 sm:divide-x sm:divide-line sm:[grid-template-columns:repeat(var(--cols),minmax(0,1fr))]"
             style={{ "--cols": trust.length } as React.CSSProperties}
           >
             {trust.map((t) => {
               const numeric = /^\d+$/.test(t.value);
               return (
-                <div key={t.label} className="flex flex-col-reverse">
-                  <dt className="mt-1 text-[13px] text-white/55">{t.label}</dt>
-                  <dd className="font-heading text-[26px] font-medium leading-none text-white">
+                <div key={t.label} className="flex flex-col-reverse sm:pl-6 sm:first:pl-0">
+                  <dt className="mt-1 text-[13px] text-fg-muted">{t.label}</dt>
+                  <dd className="font-heading text-[28px] font-medium leading-none text-white">
                     {t.count && numeric ? <CountUp value={Number(t.value)} suffix={t.suffix} /> : `${t.value}${t.suffix}`}
                   </dd>
                 </div>
               );
             })}
           </dl>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 };

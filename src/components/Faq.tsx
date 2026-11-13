@@ -9,7 +9,7 @@ export const FaqAccordion: React.FC<{ items: FaqItem[]; idPrefix?: string }> = (
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <div className="divide-y divide-brand-stone/60 border-y border-brand-stone/60">
+    <div className="divide-y divide-line border-y border-line">
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
@@ -21,7 +21,7 @@ export const FaqAccordion: React.FC<{ items: FaqItem[]; idPrefix?: string }> = (
                 aria-expanded={isOpen}
                 aria-controls={`${idPrefix}-a-${i}`}
                 onClick={() => setOpen(isOpen ? null : i)}
-                className="w-full min-h-[44px] flex items-center justify-between gap-4 py-4 text-left text-brand-navy hover:text-brand-orange transition-colors"
+                className="w-full min-h-[44px] flex items-center justify-between gap-4 py-4 text-left text-fg hover:underline hover:underline-offset-4 transition-colors"
               >
                 <span>{item.question}</span>
                 <ChevronDown
@@ -35,7 +35,7 @@ export const FaqAccordion: React.FC<{ items: FaqItem[]; idPrefix?: string }> = (
               role="region"
               aria-labelledby={`${idPrefix}-q-${i}`}
               hidden={!isOpen}
-              className="pb-4 text-sm sm:text-base leading-relaxed text-brand-brown/90"
+              className="pb-4 text-sm sm:text-base leading-relaxed text-fg-muted"
             >
               {item.answer}
             </div>
@@ -49,9 +49,9 @@ export const FaqAccordion: React.FC<{ items: FaqItem[]; idPrefix?: string }> = (
 /* ---------- Homepage FAQ ---------- */
 
 const HASH_PREFIX = "#faq-";
-const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/70";
+const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-label";
 const underline =
-  "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100";
+  "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-fg after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100";
 
 const faqJsonLd = JSON.stringify({
   "@context": "https://schema.org",
@@ -73,7 +73,7 @@ const PlusIcon: React.FC<{ open: boolean }> = ({ open }) => (
     strokeWidth="1.5"
     strokeLinecap="round"
     aria-hidden="true"
-    className={`shrink-0 text-brand-navy transition-transform duration-200 ease-out motion-reduce:transition-none ${
+    className={`shrink-0 text-fg transition-transform duration-200 ease-out motion-reduce:transition-none ${
       open ? "rotate-45" : ""
     }`}
   >
@@ -91,9 +91,9 @@ const ContactLink: React.FC<{ href: string; icon: React.ReactNode; children: Rea
     <a
       href={href}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="group inline-flex min-h-[40px] items-center gap-2.5 rounded-sm text-[15px] font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+      className="group inline-flex min-h-[40px] items-center gap-2.5 rounded-sm text-[15px] font-medium text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
     >
-      <span className="text-brand-navy/60 transition-colors group-hover:text-brand-orange" aria-hidden="true">
+      <span className="text-fg-subtle transition-colors group-hover:text-fg" aria-hidden="true">
         {icon}
       </span>
       <span className={underline}>{children}</span>
@@ -148,7 +148,7 @@ export const Faq: React.FC = () => {
   return (
     <section
       id="faq"
-      className="bg-white text-brand-navy border-t border-brand-navy/10 py-[clamp(72px,9vw,120px)]"
+      className="cad-grid bg-bg text-fg border-t border-line py-[clamp(72px,9vw,120px)]"
       aria-labelledby="faq-title"
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqJsonLd }} />
@@ -160,18 +160,18 @@ export const Faq: React.FC = () => {
             <p className={label}>FAQ</p>
             <h2
               id="faq-title"
-              className="mt-4 font-heading font-medium text-[clamp(2rem,1.4rem+2.4vw,3rem)] leading-[1.1] tracking-tight text-brand-navy [text-wrap:balance]"
+              className="mt-4 font-heading font-medium text-[clamp(2rem,1.4rem+2.4vw,3rem)] leading-[1.1] tracking-tight text-fg [text-wrap:balance]"
             >
               Questions we hear before every project.
             </h2>
-            <p className="mt-6 max-w-[38ch] text-[17px] leading-[1.7] text-brand-navy/70">
+            <p className="mt-6 max-w-[38ch] text-[17px] leading-[1.7] text-fg-muted">
               Straight answers on scope, pricing and how we work.
             </p>
           </div>
 
           {/* Accordion */}
           <div className="lg:col-span-8 lg:col-start-5 lg:row-span-2 lg:row-start-1">
-            <ul className="border-y border-brand-navy/12 divide-y divide-brand-navy/12">
+            <ul className="border-y border-line divide-y divide-line">
               {FAQ_ITEMS.map((item, i) => {
                 const isOpen = openSlug === item.slug;
                 const qId = `faq-${item.slug}-q`;
@@ -189,16 +189,16 @@ export const Faq: React.FC = () => {
                         aria-controls={aId}
                         onClick={() => toggle(item.slug)}
                         onKeyDown={(e) => onKeyDown(e, i)}
-                        className="group flex w-full items-baseline py-7 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
+                        className="group flex w-full items-baseline py-7 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                       >
                         <span
                           className={`w-12 shrink-0 text-[13px] font-medium tabular-nums transition-colors duration-200 ${
-                            isOpen ? "text-brand-orange" : "text-brand-navy/65 group-hover:text-brand-orange"
+                            isOpen ? "text-fg" : "text-fg-subtle group-hover:text-fg"
                           }`}
                         >
                           {String(i + 1).padStart(2, "0")}
                         </span>
-                        <span className="flex-1 pr-6 font-heading font-medium text-[20px] leading-snug text-brand-navy">
+                        <span className="flex-1 pr-6 font-heading font-medium text-[20px] leading-snug text-fg">
                           {item.question}
                         </span>
                         <span className="self-center">
@@ -216,7 +216,7 @@ export const Faq: React.FC = () => {
                       }`}
                     >
                       <div className="overflow-hidden">
-                        <p className="max-w-[62ch] pb-8 pl-12 pr-8 text-[17px] leading-[1.7] text-brand-navy/80">
+                        <p className="max-w-[62ch] pb-8 pl-12 pr-8 text-[17px] leading-[1.7] text-fg-muted">
                           {item.answer}
                         </p>
                       </div>
@@ -229,9 +229,9 @@ export const Faq: React.FC = () => {
 
           {/* Contact block (below the accordion on tablet/mobile) */}
           <div className="lg:col-span-4 lg:col-start-1 lg:row-start-2 lg:mt-6">
-            <div className="rounded-[6px] border border-brand-navy/12 p-6">
-              <p className="text-[16px] font-medium text-brand-navy">Still have a question?</p>
-              <p className="mt-1 text-[14px] text-brand-navy/65">Speak directly with our engineering team.</p>
+            <div className="rounded-[6px] border border-line p-6">
+              <p className="text-[16px] font-medium text-fg">Still have a question?</p>
+              <p className="mt-1 text-[14px] text-fg-subtle">Speak directly with our engineering team.</p>
               <ul className="mt-4 space-y-1">
                 <ContactLink href={`tel:${contact.phonePrimaryTel}`} icon={<Phone className="h-4 w-4" strokeWidth={1.5} />}>
                   Call {contact.phonePrimary}

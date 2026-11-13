@@ -8,7 +8,7 @@ import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import type { ContactRef } from "./components/Contact";
 import { MobileFloatingCta } from "./components/MobileFloatingCta";
-import { BackToTop } from "./components/BackToTop";
+import { WhatsAppBubble } from "./components/WhatsAppBubble";
 import { CookieConsent } from "./components/CookieConsent";
 import { FilmGrain } from "./components/FilmGrain";
 import { SmoothScroll } from "./components/SmoothScroll";
@@ -59,7 +59,7 @@ function Routes() {
       {/* 2. Fine Film-Grain Overlay (3% opacity) */}
       <FilmGrain />
 
-      <div className="min-h-screen bg-brand-cream text-brand-brown font-body flex flex-col selection:bg-brand-orange selection:text-brand-charcoal overflow-x-clip">
+      <div className="min-h-screen bg-bg text-fg font-body flex flex-col selection:bg-surface-2 selection:text-fg overflow-x-clip">
         {/* Fixed navbar: transparent over the hero, solid navy once scrolled */}
         <Header />
 
@@ -106,8 +106,8 @@ function Routes() {
         {/* Quick actions bar on phones */}
         <MobileFloatingCta />
 
-        {/* Smooth-Scrolling Back to Top Button */}
-        <BackToTop />
+        {/* WhatsApp chat bubble */}
+        <WhatsAppBubble />
 
         {/* Cookie Consent Banner */}
         <CookieConsent />

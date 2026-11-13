@@ -1,17 +1,29 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand-navy: #0B1F3A;
-  --color-brand-navy-deep: #08172C; /* footer: brand navy about 25% darker */
-  --color-brand-charcoal: #1F2A37;
-  --color-brand-orange: #FF6B00;
-  --color-brand-orange-hover: #E55F00;
-  --color-brand-orange-ink: #B83D0B; /* orange text on light backgrounds (AA) */
-  --color-brand-cream: #F4EDE0;
-  --color-brand-paper: #F5F3EF;
-  --color-brand-stone: #D9C6B2;
-  --color-brand-steel: #5B626C; /* darkened for WCAG AA text contrast on cream/white */
-  --color-brand-brown: #4B3F36;
+@theme inline {
+  /* Constants */
+  --color-midnight: var(--midnight);
+  --color-navy: var(--navy);
+  --color-white: var(--white);
+  --color-offwhite: var(--offwhite);
+  --color-steel: var(--steel);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  /* Themed */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--text);
+  --color-fg-muted: var(--text-muted);
+  --color-fg-subtle: var(--text-subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-label: var(--label);
+  --color-icon: var(--icon);
+  --color-focus: var(--focus);
+  --color-form-error: var(--form-error);
+  --color-form-success: var(--form-success);
 
   /* One self-hosted family (Barlow 400/500/600). The metric-matched fallback avoids layout shift on swap. */
   --font-heading: "Barlow", "Barlow Fallback", sans-serif;
@@ -19,6 +31,94 @@
   --font-mono: "Barlow", "Barlow Fallback", sans-serif; /* no monospace anywhere */
   --font-weight-light: 400; /* only 400/500/600 are loaded */
   --font-weight-bold: 600;
+}
+
+/* ---------- 60-30-10 colour system ----------
+   60% canvas (midnight / off-white), 30% navy + white surfaces, 10% safety orange (buttons, hero hook, active indicators). */
+:root {
+  --midnight: #091324;
+  --navy: #152847;
+  --white: #FFFFFF;
+  --offwhite: #F6F8FB;
+  --accent: #FF6B00;
+  --accent-hover: #E65F00;
+  --on-accent: #091324;
+  --steel: #9FB1CC;
+  --form-error: #B42318;
+  --form-success: #0B6B3A;
+
+  color-scheme: dark;
+  --bg: var(--midnight);
+  --surface: var(--navy);
+  --surface-2: #1B3358;
+  --text: #F6F8FB;
+  --text-muted: rgba(246, 248, 251, 0.74);
+  --text-subtle: rgba(246, 248, 251, 0.58);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.4);
+  --label: var(--steel);
+  --icon: var(--steel);
+  --focus: #FFFFFF;
+  --grid-line: #9FB1CC;
+  --grid-opacity: 0.035;
+}
+
+:root[data-theme="daylight"] {
+  color-scheme: light;
+  --bg: var(--offwhite);
+  --surface: #FFFFFF;
+  --text: #091324;
+  --text-muted: rgba(9, 19, 36, 0.76);
+  --text-subtle: rgba(9, 19, 36, 0.62);
+  --line: rgba(9, 19, 36, 0.12);
+  --line-strong: rgba(9, 19, 36, 0.5);
+  --label: #3F5578;
+  --icon: #3F5578;
+  --focus: #152847;
+  --grid-line: #152847;
+  --grid-opacity: 0.045;
+}
+
+/* Areas that stay midnight/navy in both themes re-assert the dark tokens. */
+.theme-dark {
+  color-scheme: dark;
+  --bg: var(--midnight);
+  --surface: var(--navy);
+  --surface-2: #1B3358;
+  --text: #F6F8FB;
+  --text-muted: rgba(246, 248, 251, 0.74);
+  --text-subtle: rgba(246, 248, 251, 0.58);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.4);
+  --label: var(--steel);
+  --icon: var(--steel);
+  --focus: #FFFFFF;
+  --grid-line: #9FB1CC;
+  --grid-opacity: 0.035;
+  color: var(--text);
+}
+
+/* White panels (quote form, map card, Clients band): fixed midnight text, navy focus. */
+.theme-paper {
+  color-scheme: light;
+  --text: #091324;
+  --text-muted: rgba(9, 19, 36, 0.76);
+  --text-subtle: rgba(9, 19, 36, 0.62);
+  --line: rgba(9, 19, 36, 0.12);
+  --line-strong: rgba(9, 19, 36, 0.5);
+  --label: #3F5578;
+  --icon: #3F5578;
+  --focus: #152847;
+  --bg: var(--white);
+  --surface: var(--offwhite);
+  color: var(--text);
+}
+
+/* 200ms theme cross-fade, added by the toggle for one beat (never under reduced motion). */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, fill 200ms ease, stroke 200ms ease !important;
 }
 
 @font-face {
@@ -63,8 +163,8 @@
     scroll-behavior: smooth;
     scroll-padding-top: 5rem; /* fixed navbar height */
     font-family: var(--font-body);
-    color: var(--color-brand-brown);
-    background-color: var(--color-brand-cream);
+    color: var(--text);
+    background-color: var(--bg);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
@@ -80,21 +180,21 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--color-brand-navy);
+    background: var(--bg);
     border-radius: 5px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--color-brand-orange);
+    background: var(--surface-2);
     border-radius: 5px;
-    border: 2px solid var(--color-brand-navy);
+    border: 2px solid var(--bg);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-brand-orange-hover);
+    background: var(--steel);
   }
 
-  /* No arrow buttons on the custom scrollbar (removes the small orange triangle in the corner) */
+  /* No arrow buttons on the custom scrollbar (removes the small triangle in the corner) */
   ::-webkit-scrollbar-button {
     display: none;
   }
@@ -104,7 +204,7 @@
   @supports (-moz-appearance: none) {
     * {
       scrollbar-width: thin;
-      scrollbar-color: var(--color-brand-orange) var(--color-brand-navy);
+      scrollbar-color: var(--surface-2) var(--bg);
     }
   }
 
@@ -128,23 +228,51 @@
   }
 
   ::selection {
-    background-color: #FF6B00;
-    color: #1F2A37;
+    background-color: var(--surface-2);
+    color: var(--text);
   }
 
   :focus-visible {
-    outline: 2px solid #FF6B00;
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
 }
 
-/* Blueprint grid pattern (service and 404 pages) */
-.bg-blueprint-grid {
+/* CAD grid: 1px lines every 48px, major line every 240px at 2x opacity. Only on sections whose background is
+   --bg or --midnight. Static; --grid-opacity: 0 removes it. */
+.cad-grid {
+  position: relative;
+  isolation: isolate;
+}
+
+.cad-grid::before,
+.cad-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background-image:
-    radial-gradient(circle, rgba(255, 107, 0, 0.22) 1px, transparent 1px),
-    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px, 40px 40px, 40px 40px;
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, var(--midnight) 12%, var(--midnight) 88%, transparent),
+    linear-gradient(to bottom, var(--midnight) 55%, transparent);
+  mask-image:
+    linear-gradient(to right, transparent, var(--midnight) 12%, var(--midnight) 88%, transparent),
+    linear-gradient(to bottom, var(--midnight) 55%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.cad-grid::before {
+  background-size: 48px 48px;
+  opacity: var(--grid-opacity);
+}
+
+.cad-grid::after {
+  background-size: 240px 240px;
+  opacity: calc(var(--grid-opacity) * 2);
 }
 
 /* Kicker label uppercase with 8% letter spacing */
@@ -247,7 +375,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgb(11 31 58 / 0.72);
+  color: var(--text-muted);
 }
 
 /* The viewport is a size container so the track can line up with the page container (max-w-7xl + gutters). */
@@ -313,7 +441,7 @@
   }
 }
 
-/* Orange underline that draws in on hover/focus */
+/* Underline that draws in on hover/focus */
 .svc-underline {
   position: relative;
 }
@@ -325,7 +453,7 @@
   right: 0;
   bottom: -3px;
   height: 1px;
-  background: var(--color-brand-orange);
+  background: var(--text);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 300ms ease-out;
@@ -366,8 +494,8 @@
 }
 
 .clients-marquee {
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, var(--midnight) 12%, var(--midnight) 88%, transparent);
+  mask-image: linear-gradient(to right, transparent, var(--midnight) 12%, var(--midnight) 88%, transparent);
 }
 
 .clients-marquee-track {
@@ -479,7 +607,7 @@ footer {
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  header.fixed { background-color: var(--color-brand-navy) !important; }
+  header.fixed { background-color: var(--navy) !important; }
 }
 
 /* ---------- Safe areas (notched phones in landscape, home indicator) ---------- */
@@ -504,13 +632,13 @@ footer {
 /* ---------- Print ---------- */
 @media print {
   @page { margin: 16mm; }
-  html, body { background: #fff !important; color: #000 !important; }
+  html, body { background: var(--white) !important; color: var(--midnight) !important; }
   header.fixed, .quick-bar, .back-to-top, #fte-splash, [aria-label="Cookie consent"], #mobile-menu,
   [aria-roledescription="carousel"], .contact-map, form, .skip-link { display: none !important; }
   footer { content-visibility: visible; }
   .reveal, .hero-rise, .hero-frame-in { opacity: 1 !important; transform: none !important; animation: none !important; }
   section, footer { break-inside: avoid-page; padding-top: 12px !important; padding-bottom: 12px !important; }
-  footer { background: #fff !important; color: #000 !important; border-top: 1px solid #000; }
-  footer * { color: #000 !important; }
+  footer { background: var(--white) !important; color: var(--midnight) !important; border-top: 1px solid var(--midnight); }
+  footer * { color: var(--midnight) !important; }
   a[href^="tel:"]::after, a[href^="mailto:"]::after { content: ""; }
 }

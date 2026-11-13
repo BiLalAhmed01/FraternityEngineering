@@ -124,7 +124,8 @@ try {
     <link rel="canonical" href="${canonical}" />
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
     <link rel="preload" href="/assets/fonts/barlow-400-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <meta name="theme-color" content="#0B1F3A" />
+    <meta name="theme-color" content="#091324" />
+    <script>(function(){try{if(localStorage.getItem("fte_theme")==="daylight")document.documentElement.setAttribute("data-theme","daylight")}catch(e){}})()</script>
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${desc}" />
     <meta property="og:url" content="${canonical}" />
