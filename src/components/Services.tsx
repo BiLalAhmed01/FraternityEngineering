@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
-import { useReducedMotion } from "motion/react";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { SITE_CONTENT } from "../content";
 import { serviceUrl } from "../servicesData";
 
@@ -50,10 +50,10 @@ const SETTLE_MS = 140;
 export const Services: React.FC = () => {
   const services = SITE_CONTENT.services;
   const total = services.length;
-  const reduceMotion = !!useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
 
   const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLUListElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
   const indexRef = useRef(0);
   const settleTimer = useRef<number | undefined>(undefined);
@@ -70,7 +70,7 @@ export const Services: React.FC = () => {
   /** Distance between card starts (card width + gap). */
   const step = useCallback(() => {
     const el = trackRef.current;
-    const card = el?.querySelector<HTMLElement>("li");
+    const card = el?.querySelector<HTMLElement>(".svc-card");
     if (!el || !card) return 0;
     return card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0");
   }, []);
@@ -191,14 +191,14 @@ export const Services: React.FC = () => {
   };
 
   // Mouse drag-to-scroll. Touch and pen use native scrolling.
-  const onPointerDown = (e: React.PointerEvent<HTMLUListElement>) => {
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     holdAutoplay();
     if (e.pointerType !== "mouse" || e.button !== 0) return;
     const el = e.currentTarget;
     drag.current = { active: true, startX: e.clientX, startScroll: el.scrollLeft, moved: false };
   };
 
-  const onPointerMove = (e: React.PointerEvent<HTMLUListElement>) => {
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d.active) return;
     const dx = e.clientX - d.startX;
@@ -211,7 +211,7 @@ export const Services: React.FC = () => {
     if (d.moved) el.scrollLeft = d.startScroll - dx;
   };
 
-  const endDrag = (e: React.PointerEvent<HTMLUListElement>) => {
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     releaseAutoplay();
     const d = drag.current;
     if (!d.active) return;
@@ -242,11 +242,11 @@ export const Services: React.FC = () => {
     <section
       id="services"
       ref={sectionRef}
-      className="svc relative bg-[#F5F3EF] text-brand-navy py-[72px] lg:py-[120px] overflow-hidden"
+      className="svc relative bg-[#F5F3EF] text-brand-navy py-[clamp(72px,9vw,120px)] overflow-hidden"
       aria-labelledby="services-heading"
     >
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="svc-label">What we do</p>
@@ -262,7 +262,7 @@ export const Services: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-6 shrink-0">
-            <p className="text-sm tabular-nums tracking-[0.12em] text-brand-navy/60" aria-hidden="true">
+            <p className="text-sm tabular-nums tracking-[0.12em] text-brand-navy/70" aria-hidden="true">
               <span className="text-brand-navy">{pad(index + 1)}</span> / {pad(total)}
             </p>
             <div className="flex items-center gap-3">
@@ -318,7 +318,7 @@ export const Services: React.FC = () => {
           if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusWithin(false);
         }}
       >
-        <ul
+        <div
           id="services-track"
           ref={trackRef}
           onPointerDown={onPointerDown}
@@ -337,9 +337,8 @@ export const Services: React.FC = () => {
               const img = CARD_IMAGE[service.id];
               // Only the middle copy is reachable by keyboard and assistive tech; the others are visual loop padding.
               const isClone = copyIndex !== 1;
-              const eager = i < 2;
               return (
-                <li
+                <div
                   key={`${copyIndex}-${service.id}`}
                   className="svc-card"
                   aria-hidden={isClone || undefined}
@@ -356,10 +355,12 @@ export const Services: React.FC = () => {
                     <div className="relative aspect-[4/5] overflow-hidden rounded-[6px] bg-brand-navy/10">
                       <img
                         src={img?.src ?? service.image}
+                        srcSet={img ? `${img.src.replace(".webp", "-480.webp")} 480w, ${img.src} ${img.width}w` : undefined}
+                        sizes="(min-width: 1024px) 30vw, (min-width: 768px) 44vw, 82vw"
                         alt={isClone ? "" : (copy?.alt ?? service.name)}
                         width={img?.width}
                         height={img?.height}
-                        loading={eager ? "eager" : "lazy"}
+                        loading="lazy"
                         decoding="async"
                         draggable={false}
                         className="svc-photo absolute inset-0 h-full w-full object-cover"
@@ -396,11 +397,11 @@ export const Services: React.FC = () => {
                       </span>
                     </div>
                   </a>
-                </li>
+                </div>
               );
             })
           )}
-        </ul>
+        </div>
 
         {/* Edge fades: the track never ends, so both stay on */}
         <div
@@ -413,7 +414,7 @@ export const Services: React.FC = () => {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         {/* Position in the loop: one segment per service */}
         <div className="relative mt-10 h-[2px] bg-brand-navy/15" aria-hidden="true">
           <div

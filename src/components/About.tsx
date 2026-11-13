@@ -4,7 +4,8 @@ import { SITE_CONTENT } from "../content";
 import { Reveal } from "./Reveal";
 import { CountUp } from "./CountUp";
 
-const FALLBACK_IMAGE = "/assets/hero.webp";
+const FALLBACK_IMAGE = "/assets/about-fallback-1200.webp";
+const FALLBACK_SRCSET = [480, 768, 1200].map((w) => `/assets/about-fallback-${w}.webp ${w}w`).join(", ");
 
 const eyebrow = "text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-orange";
 
@@ -29,16 +30,18 @@ export const About: React.FC = () => {
   return (
     <section
       id="about"
-      className="relative bg-brand-navy text-white py-[72px] lg:py-[120px]"
+      className="relative bg-brand-navy text-white py-[clamp(72px,9vw,120px)]"
       aria-labelledby="about-title"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <div className="grid grid-cols-1 lg:grid-cols-12 items-start gap-14 lg:gap-20">
           {/* Image */}
           <Reveal className="lg:col-span-5 lg:sticky lg:top-28">
             <figure className="relative mr-4 mb-6 lg:mr-6">
               <img
                 src={imgSrc}
+                srcSet={imgSrc === FALLBACK_IMAGE ? FALLBACK_SRCSET : undefined}
+                sizes="(min-width: 1024px) 460px, 100vw"
                 onError={() => imgSrc !== FALLBACK_IMAGE && setImgSrc(FALLBACK_IMAGE)}
                 alt={
                   imgSrc === FALLBACK_IMAGE
@@ -113,7 +116,7 @@ export const About: React.FC = () => {
               <ol className="mt-5 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/12 border-y border-white/12">
                 {howWeWork.map((item, i) => (
                   <li key={item.title} className="py-6 md:px-6 md:first:pl-0 md:last:pr-0">
-                    <span className="text-[12px] font-medium tracking-[0.12em] text-white/45 tabular-nums">
+                    <span className="text-[12px] font-medium tracking-[0.12em] text-white/60 tabular-nums">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <p className="mt-3 font-heading font-medium text-[17px] text-white">{item.title}</p>

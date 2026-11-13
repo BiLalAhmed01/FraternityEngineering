@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { MessageCircle, Phone } from "lucide-react";
 import { SITE_CONTENT } from "../content";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
 export const NAV_LINKS = [
   { label: "Services", id: "services" },
@@ -32,15 +32,18 @@ export const sectionHref = (id: string) => {
 const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange";
 
 export const Header: React.FC = () => {
-  const reduceMotion = !!useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const isHome = window.location.pathname === "/" || window.location.pathname === "";
   const { contact } = SITE_CONTENT;
 
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Keeps the overlay mounted for its 250ms fade-out after closing.
+  const [menuRendered, setMenuRendered] = useState(false);
+  // Same on server and client so hydration matches; the hash is applied after mount.
   const [active, setActive] = useState(() =>
-    isHome ? sectionFromHash(window.location.hash) : window.location.pathname.startsWith("/services") ? "services" : ""
+    !isHome && window.location.pathname.startsWith("/services") ? "services" : ""
   );
 
   const headerRef = useRef<HTMLElement>(null);
@@ -88,8 +91,14 @@ export const Header: React.FC = () => {
   }, [isHome]);
 
   // Keep the URL hash in step with the current section without clobbering deep links (#work-…, #faq-…).
+  const syncedOnce = useRef(false);
   useEffect(() => {
     if (!isHome) return;
+    // The first run happens before the incoming hash is read; never strip it.
+    if (!syncedOnce.current) {
+      syncedOnce.current = true;
+      return;
+    }
     const { pathname, search, hash } = window.location;
     // Leave deep links alone (#work-slug, #faq-slug, #contact?discipline=…); only plain section hashes follow the scroll.
     const isPlain = hash === "" || SECTION_IDS.includes(hash.slice(1)) || hash === "#hero";
@@ -103,6 +112,7 @@ export const Header: React.FC = () => {
       const section = sectionFromHash(window.location.hash);
       if (section) setActive(section);
     };
+    onHash();
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, [isHome]);
@@ -124,6 +134,15 @@ export const Header: React.FC = () => {
 
   // Mobile menu: scroll lock, Esc, focus trap, focus return.
   const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  useEffect(() => {
+    if (menuOpen) {
+      setMenuRendered(true);
+      return;
+    }
+    const t = window.setTimeout(() => setMenuRendered(false), reduceMotion ? 0 : 250);
+    return () => window.clearTimeout(t);
+  }, [menuOpen, reduceMotion]);
 
   /** Menu links: close first, then scroll once the page is unlocked (the jump is lost while scroll is locked). */
   const goToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -195,7 +214,7 @@ export const Header: React.FC = () => {
     <>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-[4px] focus:bg-white focus:px-4 focus:py-3 focus:text-[15px] focus:font-medium focus:text-brand-navy focus:outline-2 focus:outline-offset-2 focus:outline-brand-orange"
+        className="skip-link sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-[4px] focus:bg-white focus:px-4 focus:py-3 focus:text-[15px] focus:font-medium focus:text-brand-navy focus:outline-2 focus:outline-offset-2 focus:outline-brand-orange"
       >
         Skip to content
       </a>
@@ -214,7 +233,7 @@ export const Header: React.FC = () => {
           }`}
         />
         <div
-          className={`mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8 transition-[height] duration-200 motion-reduce:transition-none h-16 ${
+          className={`mx-auto flex max-w-7xl items-center justify-between gap-6 px-[clamp(20px,5vw,64px)] transition-[height] duration-200 motion-reduce:transition-none h-16 ${
             scrolled ? "lg:h-16" : "lg:h-20"
           }`}
         >
@@ -225,7 +244,7 @@ export const Header: React.FC = () => {
             className={`flex shrink-0 items-center gap-3 rounded-sm ${focusRing}`}
             aria-label="Fraternity Engineering & Co., back to top"
           >
-            <img src="/assets/logo-mark.webp" alt="" width={44} height={40} className="h-10 w-auto" />
+            <img src="/assets/logo-mark-160.webp" alt="" width={44} height={40} decoding="async" className="h-10 w-auto" />
             <span className="leading-tight text-white">
               <span className="block whitespace-nowrap text-[15px] font-medium sm:text-[17px]">Fraternity Engineering</span>
               <span className="hidden text-[13px] text-white/60 xl:block">&amp; Co.</span>
@@ -307,30 +326,23 @@ export const Header: React.FC = () => {
       </header>
 
       {/* Mobile menu overlay */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
+      {menuRendered && (
+          <div
             ref={overlayRef}
             id="mobile-menu"
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
             data-lenis-prevent
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.25 }}
-            className="fixed inset-0 z-40 flex flex-col overflow-y-auto bg-brand-navy px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 sm:px-6 lg:hidden"
+            className={`menu-overlay ${menuOpen ? "" : "is-closing"} fixed inset-0 z-40 flex flex-col overflow-y-auto bg-brand-navy px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 sm:px-6 lg:hidden`}
           >
             <nav aria-label="Primary" className="flex-1">
               <ul>
                 {NAV_LINKS.map((link, i) => (
-                  <motion.li
+                  <li
                     key={link.id}
-                    initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: reduceMotion ? 0 : 0.06 * i, ease: "easeOut" }}
-                    className="border-b border-white/10"
+                    style={{ animationDelay: `${i * 60}ms` }}
+                    className="menu-item border-b border-white/10"
                   >
                     <a
                       href={sectionHref(link.id)}
@@ -343,7 +355,7 @@ export const Header: React.FC = () => {
                       {link.label}
                       {active === link.id && <span className="ml-3 h-[2px] w-5 bg-brand-orange" aria-hidden="true" />}
                     </a>
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
             </nav>
@@ -373,9 +385,8 @@ export const Header: React.FC = () => {
                 Request a quote
               </a>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+      )}
     </>
   );
 };

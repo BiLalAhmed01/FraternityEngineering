@@ -6,23 +6,71 @@
   --color-brand-charcoal: #1F2A37;
   --color-brand-orange: #FF6B00;
   --color-brand-orange-hover: #E55F00;
+  --color-brand-orange-ink: #B83D0B; /* orange text on light backgrounds (AA) */
   --color-brand-cream: #F4EDE0;
   --color-brand-paper: #F5F3EF;
   --color-brand-stone: #D9C6B2;
   --color-brand-steel: #5B626C; /* darkened for WCAG AA text contrast on cream/white */
   --color-brand-brown: #4B3F36;
 
-  --font-heading: "Barlow", sans-serif;
-  --font-body: "Lato", sans-serif;
+  /* One self-hosted family (Barlow 400/500/600). The metric-matched fallback avoids layout shift on swap. */
+  --font-heading: "Barlow", "Barlow Fallback", sans-serif;
+  --font-body: "Barlow", "Barlow Fallback", sans-serif;
+  --font-mono: "Barlow", "Barlow Fallback", sans-serif; /* no monospace anywhere */
+  --font-weight-light: 400; /* only 400/500/600 are loaded */
+  --font-weight-bold: 600;
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/barlow-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/barlow-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/fonts/barlow-600-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Arial scaled to Barlow's average glyph width and vertical metrics */
+@font-face {
+  font-family: "Barlow Fallback";
+  src: local("Arial"), local("ArialMT"), local("Helvetica"), local("Liberation Sans");
+  size-adjust: 96.26%;
+  ascent-override: 103.89%;
+  descent-override: 20.78%;
+  line-gap-override: 0%;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 5rem; /* sticky header height */
+    scroll-padding-top: 5rem; /* fixed navbar height */
     font-family: var(--font-body);
     color: var(--color-brand-brown);
     background-color: var(--color-brand-cream);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-width: 320px;
   }
 
   /* Custom Scrollbar - Webkit browsers (Chrome, Safari, Edge) */
@@ -62,6 +110,21 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+    text-wrap: balance; /* progressive: ignored where unsupported */
+    overflow-wrap: break-word;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  img, video, iframe, svg {
+    max-width: 100%;
+  }
+
+  /* No 300ms tap delay */
+  a, button, [role="button"], label, summary, input, select, textarea {
+    touch-action: manipulation;
   }
 
   ::selection {
@@ -75,21 +138,13 @@
   }
 }
 
-/* Blueprint grid pattern with crosshairs */
+/* Blueprint grid pattern (service and 404 pages) */
 .bg-blueprint-grid {
-  background-image: 
+  background-image:
     radial-gradient(circle, rgba(255, 107, 0, 0.22) 1px, transparent 1px),
     linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 40px 40px, 40px 40px, 40px 40px;
-}
-
-.bg-blueprint-grid-light {
-  background-image: 
-    radial-gradient(circle, rgba(11, 31, 58, 0.18) 1px, transparent 1px),
-    linear-gradient(to right, rgba(11, 31, 58, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(11, 31, 58, 0.05) 1px, transparent 1px);
-  background-size: 32px 32px, 32px 32px, 32px 32px;
 }
 
 /* Kicker label uppercase with 8% letter spacing */
@@ -97,64 +152,13 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.8125rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
-/* Infinite marquee animation */
+/* Infinite marquee (client logos on phones) */
 @keyframes marquee {
   0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 35s linear infinite;
-  animation-play-state: running;
-}
-
-.animate-marquee:hover,
-.group\/marquee:hover .animate-marquee,
-.group\/marquee:focus-within .animate-marquee,
-.group\/marquee:focus .animate-marquee {
-  animation-play-state: paused;
-}
-
-/* Visible keyboard focus everywhere */
-:focus-visible {
-  outline: 2px solid var(--color-brand-orange);
-  outline-offset: 2px;
-}
-
-/* Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
-    animation: none;
-  }
-}
-
-/* Gear slow rotate */
-@keyframes spinSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spinSlow 30s linear infinite;
-}
-
-@keyframes spinReverseSlow {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
-
-.animate-spin-reverse-slow {
-  animation: spinReverseSlow 24s linear infinite;
-}
-
-/* Slanted beam styling mimicking the FTE monogram */
-.fte-slant {
-  transform: skewX(-14deg);
 }
 
 /* Splash screen video styling */
@@ -165,22 +169,86 @@
   object-position: center center;
 }
 
-/* Loading indicator animation */
-@keyframes loadingPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+/* ---------- Motion (CSS only; transform and opacity) ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.animate-pulse {
-  animation: loadingPulse 1.5s ease-in-out infinite;
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Hero entrance starts at 1% opacity, not 0: Chrome skips fully transparent elements when it measures
+   Largest Contentful Paint, which would make the hero image count only after the animation. */
+@keyframes heroRiseIn {
+  from { opacity: 0.01; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0.01; }
+  to { opacity: 1; }
+}
+
+@keyframes panelIn {
+  from { opacity: 0.6; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Hero: text rises in 100ms steps, the image frame fades in. Plays straight from the prerendered HTML. */
+.hero-rise {
+  animation: heroRiseIn 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-frame-in {
+  animation: heroFadeIn 700ms ease-out both;
+}
+
+/* Scroll reveal: hidden start state only once the app has started (html.js), so no-JS visitors see everything. */
+.reveal {
+  transition: opacity 400ms ease-out, transform 400ms ease-out;
+}
+
+.js .reveal:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.fade-in-300 { animation: fadeIn 300ms ease-out both; }
+.fade-in-180 { animation: fadeIn 180ms ease-out both; }
+
+/* Mobile menu overlay and its staggered links */
+.menu-overlay { animation: fadeIn 250ms ease-out both; }
+.menu-overlay.is-closing { animation: fadeOut 250ms ease-in both; pointer-events: none; }
+.menu-item { animation: riseIn 300ms ease-out both; }
+
+/* Project modal */
+.modal-root { animation: fadeIn 250ms ease-out both; }
+.modal-root.is-closing { animation: fadeOut 250ms ease-in both; pointer-events: none; }
+.modal-panel { animation: panelIn 250ms ease-out both; }
+
+/* Splash */
+.splash.is-closing { animation: fadeOut 300ms ease-in both; pointer-events: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .js .reveal:not(.is-visible) {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -190,7 +258,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgb(11 31 58 / 0.6);
+  color: rgb(11 31 58 / 0.72);
 }
 
 /* The viewport is a size container so the track can line up with the page container (max-w-7xl + gutters). */
@@ -199,17 +267,9 @@
 }
 
 .svc-viewport > * {
-  --g: 1rem;
+  --g: clamp(20px, 5vw, 64px); /* same gutter as the page container */
   --inset: max(var(--g), calc((100cqw - 80rem) / 2 + var(--g)));
   --inner: calc(min(100cqw, 80rem) - 2 * var(--g));
-}
-
-@media (min-width: 640px) {
-  .svc-viewport > * { --g: 1.5rem; }
-}
-
-@media (min-width: 1024px) {
-  .svc-viewport > * { --g: 2rem; }
 }
 
 .svc-track {
@@ -258,7 +318,7 @@
   transition: transform 700ms ease-out;
 }
 
-@media (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
   .group:hover .svc-photo {
     transform: scale(1.04);
   }
@@ -282,9 +342,14 @@
   transition: transform 300ms ease-out;
 }
 
-.group:hover .svc-underline::after,
 .group:focus-visible .svc-underline::after {
   transform: scaleX(1);
+}
+
+@media (hover: hover) {
+  .group:hover .svc-underline::after {
+    transform: scaleX(1);
+  }
 }
 
 /* ---------- Clients ---------- */
@@ -294,10 +359,16 @@
   transition: filter 250ms ease-out, opacity 250ms ease-out;
 }
 
-.client-logo:hover img,
 .client-logo:focus-within img {
   filter: grayscale(0);
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .client-logo:hover img {
+    filter: grayscale(0);
+    opacity: 1;
+  }
 }
 
 /* Mobile: marquee. Static grid replaces it on tablet/desktop and under reduced motion. */
@@ -316,9 +387,15 @@
   animation: marquee 35s linear infinite;
 }
 
-.clients-marquee:hover .clients-marquee-track,
+/* Paused on hover, touch and while off screen */
 .clients-marquee-track.is-paused {
   animation-play-state: paused;
+}
+
+@media (hover: hover) {
+  .clients-marquee:hover .clients-marquee-track {
+    animation-play-state: paused;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -376,12 +453,75 @@
   transition: filter 250ms ease-out;
 }
 
-.contact-map:hover iframe,
 .contact-map:focus-within iframe {
   filter: none;
+}
+
+@media (hover: hover) {
+  .contact-map:hover iframe {
+    filter: none;
+  }
 }
 
 /* Quick-action bar steps aside while the mobile menu is open */
 body[data-menu="open"] .quick-bar {
   display: none;
+}
+
+/* ---------- Rendering: skip layout and paint until near the viewport ----------
+   Footer only. On the content sections, estimated heights made the first navbar jump to #contact land
+   1,400-2,700px off (the sections above it are measured only after the jump), so they render normally. */
+footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
+/* ---------- Fallbacks for older browsers ---------- */
+@supports not (height: 100svh) {
+  @media (min-width: 1024px) {
+    #hero > div { min-height: clamp(640px, calc(100vh - 80px), 900px); }
+  }
+}
+
+@supports not (height: 100dvh) {
+  @media (min-width: 640px) {
+    .modal-panel { max-height: calc(100vh - 3rem); }
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  header.fixed { background-color: var(--color-brand-navy) !important; }
+}
+
+/* ---------- Safe areas (notched phones in landscape, home indicator) ---------- */
+@supports (padding: max(0px)) {
+  header.fixed > div {
+    padding-left: max(clamp(20px, 5vw, 64px), env(safe-area-inset-left));
+    padding-right: max(clamp(20px, 5vw, 64px), env(safe-area-inset-right));
+  }
+  .quick-bar {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  .back-to-top {
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 768px) {
+    .back-to-top { right: max(1.5rem, env(safe-area-inset-right)); bottom: max(1.5rem, env(safe-area-inset-bottom)); }
+  }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  @page { margin: 16mm; }
+  html, body { background: #fff !important; color: #000 !important; }
+  header.fixed, .quick-bar, .back-to-top, #fte-preloader, [aria-label="Cookie consent"], #mobile-menu,
+  [aria-roledescription="carousel"], .contact-map, form, .skip-link { display: none !important; }
+  footer { content-visibility: visible; }
+  .reveal, .hero-rise, .hero-frame-in { opacity: 1 !important; transform: none !important; animation: none !important; }
+  section, footer { break-inside: avoid-page; padding-top: 12px !important; padding-bottom: 12px !important; }
+  footer { background: #fff !important; color: #000 !important; border-top: 1px solid #000; }
+  footer * { color: #000 !important; }
+  a[href^="tel:"]::after, a[href^="mailto:"]::after { content: ""; }
 }

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion, useScroll } from "motion/react";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { Phone } from "lucide-react";
 import { SITE_CONTENT } from "../content";
 import { Reveal } from "./Reveal";
 
-const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/60";
+const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/80";
 
 /** True from 768px up; false on the server. */
 const useMinWidthMd = () => {
@@ -21,7 +21,7 @@ const useMinWidthMd = () => {
 
 export const Process: React.FC = () => {
   const steps = SITE_CONTENT.processSteps;
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const isMdUp = useMinWidthMd();
   // Scroll-linked focus only on tablet/desktop with motion allowed.
   const interactive = isMdUp && !reduceMotion;
@@ -30,7 +30,33 @@ export const Process: React.FC = () => {
   const listRef = useRef<HTMLOListElement>(null);
   const stepRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start center", "end center"] });
+  const fillRef = useRef<HTMLDivElement>(null);
+
+  // Progress fill: 0 when the list's top reaches the viewport centre, 1 when its bottom does.
+  useEffect(() => {
+    if (!interactive) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const list = listRef.current;
+      const fill = fillRef.current;
+      if (!list || !fill) return;
+      const rect = list.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, (window.innerHeight / 2 - rect.top) / rect.height));
+      fill.style.transform = `scaleY(${progress})`;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [interactive]);
 
   // The step crossing the viewport's centre line is the active one.
   useEffect(() => {
@@ -50,10 +76,10 @@ export const Process: React.FC = () => {
   return (
     <section
       id="process"
-      className="relative bg-brand-paper text-brand-navy py-[72px] lg:py-[120px]"
+      className="relative bg-brand-paper text-brand-navy py-[clamp(72px,9vw,120px)]"
       aria-labelledby="process-title"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-24">
           {/* Intro (sticky on desktop) */}
           <div className="lg:col-span-4 lg:sticky lg:top-[120px] lg:self-start">
@@ -65,7 +91,7 @@ export const Process: React.FC = () => {
               >
                 From first visit to signed handover.
               </h2>
-              <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.7] text-brand-navy/70">
+              <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.7] text-brand-navy/75">
                 Four stages, each ending with a defined deliverable, so you always know what happens next.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -91,10 +117,7 @@ export const Process: React.FC = () => {
             <ol ref={listRef} className={`relative ${interactive ? "pl-10" : ""}`}>
               {interactive && (
                 <div aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-[2px] bg-brand-navy/12">
-                  <motion.div
-                    className="absolute inset-0 origin-top bg-brand-orange"
-                    style={{ scaleY: scrollYProgress }}
-                  />
+                  <div ref={fillRef} className="absolute inset-0 origin-top scale-y-0 bg-brand-orange" />
                 </div>
               )}
 
@@ -109,7 +132,7 @@ export const Process: React.FC = () => {
                     data-index={idx}
                     className={`relative py-12 transition-opacity duration-200 ease-out ${
                       idx > 0 ? "border-t border-brand-navy/12" : ""
-                    } ${isActive ? "opacity-100" : "opacity-45"}`}
+                    } ${isActive ? "opacity-100" : "opacity-75"}`}
                     aria-current={interactive && active === idx ? "step" : undefined}
                   >
                     {interactive && (
@@ -132,7 +155,7 @@ export const Process: React.FC = () => {
                           <span className="sr-only">Step {Number(step.step)}: </span>
                           {step.title}
                         </h3>
-                        <p className="mt-3 max-w-[52ch] text-[17px] leading-[1.65] text-brand-navy/70">
+                        <p className="mt-3 max-w-[52ch] text-[17px] leading-[1.65] text-brand-navy/85">
                           {step.description}
                         </p>
                         <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-brand-navy/12 pt-5 lg:grid-cols-2 lg:gap-8">
@@ -154,7 +177,7 @@ export const Process: React.FC = () => {
               })}
             </ol>
 
-            <p className="border-t border-brand-navy/12 pt-6 text-[14px] leading-relaxed text-brand-navy/60">
+            <p className="border-t border-brand-navy/12 pt-6 text-[14px] leading-relaxed text-brand-navy/70">
               Every stage is documented with sign-off sheets, site inspection logs and verified material receipts.
             </p>
           </div>

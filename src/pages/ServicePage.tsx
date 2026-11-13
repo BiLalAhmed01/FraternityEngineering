@@ -17,6 +17,10 @@ const CATEGORY_IMAGES: Record<string, string> = {
   Supply: "/assets/service-supply.webp",
 };
 
+/** 480/768 variants sit beside each 1024px service photo (service-x.webp -> service-x-480.webp). */
+const photoSrcSet = (src: string) =>
+  `${src.replace(".webp", "-480.webp")} 480w, ${src.replace(".webp", "-768.webp")} 768w, ${src} 1024w`;
+
 const quoteCta =
   "inline-flex items-center justify-center gap-2 min-h-[44px] px-8 py-4 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal font-bold text-sm rounded-lg transition-colors";
 
@@ -37,7 +41,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           {/* Hero */}
           <section className="relative bg-brand-navy text-white pt-32 pb-16 md:pt-40 md:pb-24" aria-label={service.name}>
             <div className="absolute inset-0 bg-blueprint-grid opacity-30 pointer-events-none" />
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div className="relative max-w-7xl mx-auto px-[clamp(20px,5vw,64px)] grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
               <div>
                 <nav aria-label="Breadcrumb" className="text-xs font-mono text-brand-stone mb-4">
                   <a href="/" className="hover:text-white underline-offset-2 hover:underline">Home</a>
@@ -55,6 +59,12 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
               </div>
               <img
                 src={service.image}
+                srcSet={photoSrcSet(service.image)}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                width={1024}
+                height={768}
+                fetchPriority="high"
+                decoding="async"
                 alt={service.name}
                 className="w-full aspect-[4/3] object-cover rounded-2xl border border-white/15 shadow-2xl"
               />
@@ -63,7 +73,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
 
           {/* Overview + typical scopes */}
           <section className="py-16 md:py-24" aria-label="Typical scopes">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)] grid grid-cols-1 lg:grid-cols-2 gap-12">
               <div>
                 <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Overview</h2>
                 <div className="w-16 h-1 bg-brand-orange mt-4 mb-5" />
@@ -87,7 +97,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           {/* Standards followed (hidden until populated in servicesData.ts) */}
           {service.standards.length > 0 && (
             <section className="pb-16 md:pb-24" aria-label="Standards followed">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
                 <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Standards followed</h2>
                 <div className="w-16 h-1 bg-brand-orange mt-4 mb-5" />
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -104,13 +114,13 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
 
           {/* Mini process */}
           <section className="bg-brand-charcoal text-white py-16 md:py-24" aria-label="How we work">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
               <h2 className="text-3xl font-heading font-bold tracking-tight">How we work</h2>
               <div className="w-16 h-1 bg-brand-orange mt-4 mb-8" />
               <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {SITE_CONTENT.processSteps.map((step) => (
                   <li key={step.step} className="rounded-xl border border-white/10 bg-white/[0.04] p-6 hover:border-brand-orange/60 transition-colors">
-                    <span className="font-mono text-xs font-bold text-brand-orange">STEP {step.step}</span>
+                    <span className="text-xs font-bold text-[#FF9A57]">STEP {step.step}</span>
                     <h3 className="font-heading font-bold text-xl mt-2 mb-2">{step.title}</h3>
                     <p className="text-sm text-brand-stone leading-relaxed">{step.summary}</p>
                   </li>
@@ -122,7 +132,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
           {/* Related projects */}
           {service.relatedProjects.length > 0 && (
             <section className="py-16 md:py-24" aria-label="Related projects">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
                 <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Related projects</h2>
                 <div className="w-16 h-1 bg-brand-orange mt-4 mb-8" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -133,8 +143,13 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
                     >
                       <img
                         src={CATEGORY_IMAGES[work.category]}
+                        srcSet={photoSrcSet(CATEGORY_IMAGES[work.category])}
+                        sizes="(min-width: 768px) 50vw, 100vw"
+                        width={1024}
+                        height={576}
                         alt={`${work.category} work`}
                         loading="lazy"
+                        decoding="async"
                         className="w-full aspect-[16/9] object-cover"
                       />
                       <div className="p-5">
@@ -155,7 +170,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
 
           {/* FAQ */}
           <section className="pb-16 md:pb-24" aria-label="Frequently asked questions">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto px-[clamp(20px,5vw,64px)]">
               <h2 className="text-3xl font-heading font-bold text-brand-navy tracking-tight">Questions</h2>
               <div className="w-16 h-1 bg-brand-orange mt-4 mb-8" />
               <FaqAccordion items={service.faq} idPrefix="svc-faq" />
@@ -164,7 +179,7 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
 
           {/* Quote CTA */}
           <section className="bg-brand-navy text-white py-16 md:py-24 text-center" aria-label="Request a quote">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto px-[clamp(20px,5vw,64px)]">
               <h2 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight">
                 Tell us about your project.
               </h2>

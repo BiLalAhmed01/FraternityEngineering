@@ -60,12 +60,12 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="border-t border-white/10 bg-brand-navy-deep text-white pt-16 pb-[calc(2rem+56px+env(safe-area-inset-bottom))] md:pb-10 lg:pt-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-[clamp(20px,5vw,64px)]">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12 lg:grid-cols-12">
           {/* Brand */}
           <div className="md:col-span-3 lg:col-span-4">
             <a href="/" className={`inline-flex items-center gap-3 rounded-sm ${focusRing}`}>
-              <img src="/assets/logo-mark.webp" alt="" width={44} height={40} className="h-10 w-auto" />
+              <img src="/assets/logo-mark-160.webp" alt="" width={44} height={40} decoding="async" className="h-10 w-auto" />
               <span className="text-[18px] font-medium text-white">Fraternity Engineering &amp; Co.</span>
             </a>
             <p className="mt-5 max-w-[34ch] text-[15px] leading-[1.7] text-white/65">

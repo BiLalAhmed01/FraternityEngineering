@@ -7,7 +7,7 @@ export const Testimonials: React.FC = () => {
 
   return (
     <section id="testimonials" className="bg-brand-cream text-brand-brown py-16 md:py-24" aria-label="Client testimonials">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <p className="kicker-label text-brand-navy mb-3">Testimonials</p>
         <h2 className="text-3xl sm:text-4xl font-heading font-bold text-brand-navy tracking-tight">
           What clients say.

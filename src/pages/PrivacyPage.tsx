@@ -9,7 +9,7 @@ export const PrivacyPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-cream text-brand-brown font-body">
       {/* Simple header */}
-      <header className="bg-brand-navy text-white py-4 px-4 sm:px-6 lg:px-8">
+      <header className="bg-brand-navy text-white py-4 px-[clamp(20px,5vw,64px)]">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <a href="/" aria-label="Back to homepage">
             <BrandLogo isBlueBg={true} />
@@ -24,7 +24,7 @@ export const PrivacyPage: React.FC = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 md:py-16">
+      <main className="max-w-4xl mx-auto px-[clamp(20px,5vw,64px)] py-12 md:py-16">
         <h1 className="text-3xl md:text-4xl font-heading font-bold text-brand-navy mb-2">
           Privacy Policy
         </h1>
@@ -84,7 +84,7 @@ export const PrivacyPage: React.FC = () => {
             <p>
               You may request access to, correction of, or deletion of your personal information by
               contacting us at{" "}
-              <a href={`mailto:${SITE_CONTENT.contact.email}`} className="text-brand-orange hover:underline">
+              <a href={`mailto:${SITE_CONTENT.contact.email}`} className="text-brand-orange-ink underline underline-offset-2">
                 {SITE_CONTENT.contact.email}
               </a>
               . We will respond within a reasonable timeframe.
@@ -96,7 +96,7 @@ export const PrivacyPage: React.FC = () => {
             <p>
               Questions about this policy? Reach us at {SITE_CONTENT.contact.address},{" "}
               {SITE_CONTENT.contact.city}, or email{" "}
-              <a href={`mailto:${SITE_CONTENT.contact.email}`} className="text-brand-orange hover:underline">
+              <a href={`mailto:${SITE_CONTENT.contact.email}`} className="text-brand-orange-ink underline underline-offset-2">
                 {SITE_CONTENT.contact.email}
               </a>
               .

@@ -1,22 +1,45 @@
-import React from "react";
-import { motion, useReducedMotion } from "motion/react";
+import React, { useEffect, useRef, useState } from "react";
 
-/** Single 400ms fade-up when the block enters the viewport. Static when reduced motion is requested. */
+/**
+ * Single 400ms fade-up when the block enters the viewport (CSS transition, see .reveal in index.css).
+ * Content is visible without JavaScript; the hidden start state only applies once the app has started,
+ * and never under prefers-reduced-motion.
+ */
 export const Reveal: React.FC<{ children: React.ReactNode; className?: string; delay?: number }> = ({
   children,
-  className,
+  className = "",
   delay = 0,
 }) => {
-  const reduceMotion = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!("IntersectionObserver" in window)) {
+      setShown(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -60px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <motion.div
-      className={className}
-      initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.4, ease: "easeOut", delay }}
+    <div
+      ref={ref}
+      className={`reveal ${shown ? "is-visible" : ""} ${className}`}
+      style={delay ? { transitionDelay: `${delay}s` } : undefined}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };

@@ -131,6 +131,11 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const successRef = useRef<HTMLHeadingElement>(null);
+  // When the form was shown; the server rejects submissions made in under 3 seconds.
+  const startedAt = useRef(0);
+  useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -234,24 +239,43 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
     setIsSubmitting(true);
 
     try {
+      // Validated and sanitised again on the server (api/contact.ts), which forwards it by email.
       const body = new FormData();
-      body.append("_subject", `New Quote Request - ${formData.service} - ${formData.fullName}`);
-      body.append("_template", "table");
       body.append("name", formData.fullName);
-      body.append("company", formData.companyName || "Not provided");
+      body.append("company", formData.companyName);
       body.append("phone", formData.phone);
-      body.append("email", formData.email || "Not provided");
+      body.append("email", formData.email);
       body.append("service", formData.service);
-      body.append("budget", formData.budget || "Not provided");
-      body.append("timeline", formData.timeline || "Not provided");
+      body.append("budget", formData.budget);
+      body.append("timeline", formData.timeline);
       body.append("message", formData.message);
+      body.append("website", honeypot);
+      body.append("startedAt", String(startedAt.current));
       if (file) body.append("attachment", file);
 
-      const response = await fetch("https://formsubmit.co/ajax/fraternityengineering@gmail.com", {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        body,
-      });
+      let response = await fetch("/api/contact", { method: "POST", headers: { Accept: "application/json" }, body });
+
+      // Static hosting without the API (e.g. a local preview): send straight to the mail relay as before.
+      if (response.status === 404 || response.status === 405) {
+        const direct = new FormData();
+        direct.append("_subject", `New Quote Request - ${formData.service} - ${formData.fullName}`);
+        direct.append("_template", "table");
+        if (formData.email) direct.append("_replyto", formData.email);
+        direct.append("name", formData.fullName);
+        direct.append("company", formData.companyName || "Not provided");
+        direct.append("phone", formData.phone);
+        direct.append("email", formData.email || "Not provided");
+        direct.append("service", formData.service);
+        direct.append("budget", formData.budget || "Not provided");
+        direct.append("timeline", formData.timeline || "Not provided");
+        direct.append("message", formData.message);
+        if (file) direct.append("attachment", file);
+        response = await fetch("https://formsubmit.co/ajax/fraternityengineering@gmail.com", {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          body: direct,
+        });
+      }
 
       if (!response.ok) throw new Error("Submission failed");
       setIsSubmitted(true);
@@ -341,10 +365,10 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
   return (
     <section
       id="contact"
-      className="relative bg-brand-navy text-white border-t border-white/10 py-[72px] lg:py-[120px]"
+      className="relative bg-brand-navy text-white border-t border-white/10 py-[clamp(72px,9vw,120px)]"
       aria-labelledby="contact-title"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <div className="grid grid-cols-1 items-start gap-14 lg:grid-cols-12 lg:gap-24">
           {/* Left: introduction and direct contacts */}
           <Reveal className="lg:col-span-5">
@@ -429,7 +453,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
                     <div className="flex items-baseline justify-between gap-4 border-b border-brand-navy/10 pb-5">
                       <h3 className="font-heading text-[22px] font-medium text-brand-navy">Request a quote or site visit</h3>
-                      <span className="shrink-0 text-[13px] text-brand-navy/55">* Required</span>
+                      <span className="shrink-0 text-[13px] text-brand-navy/70">* Required</span>
                     </div>
 
                     <div className="mt-8 grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2">
@@ -560,7 +584,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                             <span className="min-w-0 flex-1 truncate text-[15px] text-brand-navy" title={file.name}>
                               {file.name}
                             </span>
-                            <span className="shrink-0 text-[13px] text-brand-navy/55">{formatBytes(file.size)}</span>
+                            <span className="shrink-0 text-[13px] text-brand-navy/70">{formatBytes(file.size)}</span>
                             <button
                               type="button"
                               onClick={removeFile}
@@ -595,12 +619,12 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                               Drop drawings or BOQ here, or{" "}
                               <label
                                 htmlFor="attachment"
-                                className="cursor-pointer font-medium text-brand-orange underline underline-offset-4"
+                                className="cursor-pointer font-medium text-brand-orange-ink underline underline-offset-4"
                               >
                                 choose a file
                               </label>
                             </p>
-                            <p id="attachment-help" className="mt-1.5 text-[13px] text-brand-navy/55">
+                            <p id="attachment-help" className="mt-1.5 text-[13px] text-brand-navy/70">
                               PDF, DWG or XLSX, up to 10 MB
                             </p>
                             <input
@@ -716,7 +740,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
                         </>
                       )}
                     </button>
-                    <p className="mt-3 text-center text-[13px] text-brand-navy/55">
+                    <p className="mt-3 text-center text-[13px] text-brand-navy/70">
                       We never share your details.{responseTime && ` Replies within ${responseTime}.`}
                     </p>
                   </form>
@@ -737,7 +761,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
               className="absolute inset-0 h-full w-full border-0"
             />
             <div className="absolute bottom-4 left-4 right-4 max-w-[320px] rounded-[6px] bg-white p-5 text-brand-navy sm:bottom-6 sm:left-6 sm:right-auto">
-              <p className={`${capsLabel} text-brand-navy/55`}>Visit us</p>
+              <p className={`${capsLabel} text-brand-navy/70`}>Visit us</p>
               <p className="mt-2 text-[16px] font-medium leading-snug">{OFFICE_ADDRESS}</p>
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${MAP_QUERY}`}

@@ -24,7 +24,7 @@ export const BackToTop: React.FC = () => {
       aria-label="Back to top"
       tabIndex={isVisible ? undefined : -1}
       aria-hidden={!isVisible || undefined}
-      className={`fixed bottom-20 right-4 z-30 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-brand-navy text-white transition-[opacity,border-color] duration-200 hover:border-brand-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange motion-reduce:transition-none md:bottom-6 md:right-6 ${
+      className={`back-to-top fixed bottom-20 right-4 z-30 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-brand-navy text-white transition-[opacity,border-color] duration-200 hover:border-brand-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange motion-reduce:transition-none md:bottom-6 md:right-6 ${
         isVisible ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >

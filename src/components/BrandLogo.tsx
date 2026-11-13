@@ -12,7 +12,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   isBlueBg = true,
 }) => {
   // Use the new logo mark for both header and footer
-  const logoSrc = "/assets/logo-mark.webp";
+  const logoSrc = "/assets/logo-mark-160.webp";
 
   return (
     <a

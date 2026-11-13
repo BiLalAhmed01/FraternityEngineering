@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { ArrowLeft, ArrowRight, Check, Phone, X } from "lucide-react";
 import {
   CATEGORY_TO_DISCIPLINE,
   PROJECTS,
   PROJECT_IMAGE_SIZE,
+  PROJECT_MODAL_SIZES,
+  PROJECT_TILE_SIZES,
+  projectSrcSet,
   Project,
   SHOW_ILLUSTRATION_LABEL,
   projectMeta,
@@ -30,7 +33,7 @@ interface WhyFTEProps {
 }
 
 export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const [activeCategory, setActiveCategory] = useState<string>(ALL);
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const tileRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
@@ -112,7 +115,7 @@ export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
 
   return (
     <section id="work" className="relative bg-brand-cream text-brand-brown py-16 md:py-24" aria-label="Our work">
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         {/* Section Header */}
         <div className="max-w-2xl mb-10 md:mb-12">
           <p className="kicker-label text-brand-navy mb-3">Our work</p>
@@ -133,18 +136,14 @@ export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
         />
 
         {/* Uniform project grid */}
-        <motion.ul
+        <ul
           key={activeCategory}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeOut" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10"
+          className="fade-in-300 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10"
         >
-          {filtered.map((project, index) => (
+          {filtered.map((project) => (
             <li key={project.slug} className="flex">
               <ProjectTile
                 project={project}
-                index={index}
                 ref={(el) => {
                   tileRefs.current[project.slug] = el;
                 }}
@@ -152,7 +151,7 @@ export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
               />
             </li>
           ))}
-        </motion.ul>
+        </ul>
 
         {/* Below the grid */}
         <div className="mt-14 md:mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 text-center">
@@ -182,7 +181,7 @@ export const WhyFTE: React.FC<WhyFTEProps> = ({ onRequestProject }) => {
         onClose={() => closeProject()}
         onStep={step}
         onRequest={requestSimilar}
-        reduceMotion={!!reduceMotion}
+        reduceMotion={reduceMotion}
       />
     </section>
   );
@@ -241,7 +240,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ categories, active, onChange, c
               onClick={() => onChange(cat)}
               aria-pressed={active === cat}
               className={`whitespace-nowrap min-h-[44px] pb-3 pt-2 text-[15px] font-heading font-semibold transition-colors ${
-                active === cat ? "text-brand-navy" : "text-brand-navy/60 hover:text-brand-navy"
+                active === cat ? "text-brand-navy" : "text-brand-navy/70 hover:text-brand-navy"
               }`}
             >
               {cat}
@@ -265,11 +264,10 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ categories, active, onChange, c
 
 interface ProjectTileProps {
   project: Project;
-  index: number;
   onOpen: (el: HTMLAnchorElement) => void;
 }
 
-const ProjectTile = React.forwardRef<HTMLAnchorElement, ProjectTileProps>(({ project, index, onOpen }, ref) => {
+const ProjectTile = React.forwardRef<HTMLAnchorElement, ProjectTileProps>(({ project, onOpen }, ref) => {
   const meta = projectMeta(project);
   return (
     <a
@@ -286,12 +284,13 @@ const ProjectTile = React.forwardRef<HTMLAnchorElement, ProjectTileProps>(({ pro
       <div className="relative aspect-[16/9] overflow-hidden rounded-[6px] bg-brand-navy/5">
         <img
           src={project.image}
+          srcSet={projectSrcSet(project.slug)}
+          sizes={PROJECT_TILE_SIZES}
           alt={project.alt}
           width={PROJECT_IMAGE_SIZE.width}
           height={PROJECT_IMAGE_SIZE.height}
-          loading={index < 3 ? "eager" : "lazy"}
+          loading="lazy"
           decoding="async"
-          fetchPriority={index === 0 ? "high" : undefined}
           className="h-full w-full object-cover transition-transform duration-[600ms] ease-out motion-safe:group-hover:scale-[1.03]"
         />
       </div>
@@ -350,6 +349,19 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // Keep the last project on screen for the 250ms fade-out after closing.
+  const [lastProject, setLastProject] = useState<Project | null>(null);
+  useEffect(() => {
+    if (project) {
+      setLastProject(project);
+      return;
+    }
+    const t = window.setTimeout(() => setLastProject(null), reduceMotion ? 0 : 250);
+    return () => window.clearTimeout(t);
+  }, [project, reduceMotion]);
+  const view = project ?? lastProject;
+  const closing = !project && !!lastProject;
+
   // Scroll lock (native + Lenis) while open, without layout shift from the disappearing scrollbar.
   useEffect(() => {
     if (!isOpen) return;
@@ -407,35 +419,23 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
     dialogRef.current?.scrollTo({ top: 0 });
   }, [project?.slug]);
 
-  if (!mounted) return null;
+  if (!mounted || !view) return null;
 
-  const meta = project ? projectMeta(project) : "";
-  const fade = { duration: reduceMotion ? 0 : 0.25, ease: "easeOut" as const };
+  const meta = projectMeta(view);
 
   return createPortal(
-    <AnimatePresence>
-      {project && (
-        <motion.div
-          key="work-modal"
-          className="fixed inset-0 z-[100] flex items-stretch justify-center sm:items-center sm:p-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={fade}
-        >
+    <div
+      className={`modal-root ${closing ? "is-closing" : ""} fixed inset-0 z-[100] flex items-stretch justify-center sm:items-center sm:p-6`}
+    >
           <div className="absolute inset-0 bg-brand-navy/80" onClick={onClose} aria-hidden="true" />
 
-          <motion.div
+          <div
             ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="work-modal-title"
             data-lenis-prevent
-            initial={reduceMotion ? false : { y: 24, opacity: 0.6 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={reduceMotion ? undefined : { y: 16, opacity: 0 }}
-            transition={fade}
-            className="relative w-full max-w-[1100px] overflow-y-auto overscroll-contain bg-brand-cream sm:max-h-[calc(100dvh-3rem)] sm:rounded-lg"
+            className="modal-panel relative w-full max-w-[1100px] overflow-y-auto overscroll-contain bg-brand-cream sm:max-h-[calc(100dvh-3rem)] sm:rounded-lg"
           >
             {/* Toolbar */}
             <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-brand-navy/10 bg-brand-cream px-3 py-2 sm:pl-6 sm:pr-4">
@@ -473,26 +473,21 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
               </div>
             </div>
 
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={project.slug}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: reduceMotion ? 0 : 0.18 }}
-              >
+            <div key={view.slug} className="fade-in-180">
                 <div className="sm:px-6 sm:pt-6">
                   <div className="aspect-[16/9] overflow-hidden bg-brand-navy/5 sm:rounded-[6px]">
                     <img
-                      src={project.image}
-                      alt={project.alt}
+                      src={view.image}
+                      srcSet={projectSrcSet(view.slug)}
+                      sizes={PROJECT_MODAL_SIZES}
+                      alt={view.alt}
                       width={PROJECT_IMAGE_SIZE.width}
                       height={PROJECT_IMAGE_SIZE.height}
                       decoding="async"
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  {showIllustrationLabel(project) && <IllustrationLabel className="mt-2 px-4 sm:px-0" />}
+                  {showIllustrationLabel(view) && <IllustrationLabel className="mt-2 px-4 sm:px-0" />}
                 </div>
 
                 <div className="grid gap-8 px-4 py-6 sm:px-6 sm:py-8 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] md:gap-12">
@@ -502,14 +497,14 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                       id="work-modal-title"
                       className="font-heading font-semibold text-2xl sm:text-[28px] leading-tight text-brand-navy [text-wrap:balance]"
                     >
-                      {project.title}
+                      {view.title}
                     </h3>
                     <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Brief</p>
-                    <p className="mt-2 text-base leading-relaxed text-brand-brown/85">{project.description}</p>
-                    {project.outcome.trim() !== "" && (
+                    <p className="mt-2 text-base leading-relaxed text-brand-brown/85">{view.description}</p>
+                    {view.outcome.trim() !== "" && (
                       <>
                         <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Outcome</p>
-                        <p className="mt-2 text-base leading-relaxed text-brand-brown/85">{project.outcome}</p>
+                        <p className="mt-2 text-base leading-relaxed text-brand-brown/85">{view.outcome}</p>
                       </>
                     )}
                   </div>
@@ -517,7 +512,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   <div>
                     <p className="mb-3 text-[12px] uppercase tracking-[0.12em] text-brand-navy/65">Our scope</p>
                     <ul className="space-y-2.5">
-                      {project.facts.map((fact) => (
+                      {view.facts.map((fact) => (
                         <li key={fact} className="flex items-start gap-2.5 text-[15px] text-brand-navy">
                           <Check className="mt-[3px] h-4 w-4 shrink-0 text-brand-orange" strokeWidth={2.5} aria-hidden="true" />
                           <span>{fact}</span>
@@ -530,7 +525,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-brand-navy/10 px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6">
                   <button
                     type="button"
-                    onClick={() => onRequest(project)}
+                    onClick={() => onRequest(view)}
                     className="inline-flex min-h-[44px] items-center justify-center rounded bg-brand-orange px-6 py-3 text-sm font-bold text-brand-charcoal transition-colors hover:bg-brand-orange-hover"
                   >
                     Request a similar project
@@ -543,12 +538,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                     <span>Call {PHONE_DISPLAY}</span>
                   </a>
                 </div>
-              </motion.div>
-            </AnimatePresence>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>,
+            </div>
+          </div>
+    </div>,
     document.body
   );
 };

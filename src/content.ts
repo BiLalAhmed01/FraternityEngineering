@@ -130,8 +130,8 @@ export const SITE_CONTENT = {
       "Projects slip in the gaps between trades. We close those gaps with one contract, one schedule and one engineer who answers for the work on site. If something is wrong, you know exactly who to call.",
       "We work with facilities managers, procurement teams and project owners who want one contractor to call.",
     ],
-    // Image falls back to /assets/hero.webp if this file is missing.
-    image: "/assets/about-team.webp",
+    // Team photo, e.g. "/assets/about-team.webp". Blank uses the building photo instead (no request for a missing file).
+    image: "",
     established: "", // e.g. "2015". The "Established" caption card is hidden when empty.
     // Stats reuse hero.yearsInOperation and hero.projectsDelivered; blank values are hidden.
     founder: { name: "", role: "", quote: "" }, // Founder note is hidden when name is empty.
@@ -281,14 +281,14 @@ export const SITE_CONTENT = {
   ] as ServiceItem[],
 
   clientLogos: [
-    { name: "NESCOM", fullName: "National Engineering & Scientific Commission", logo: "/assets/client-nescom.webp" },
-    { name: "NDC", fullName: "National Development Complex", logo: "/assets/client-ndc.webp" },
-    { name: "MTC", fullName: "Maritime Technologies Complex", logo: "/assets/client-mtc.webp" },
+    { name: "NESCOM", fullName: "National Engineering & Scientific Commission", logo: "/assets/clients/nescom.webp" },
+    { name: "NDC", fullName: "National Development Complex", logo: "/assets/clients/ndc.webp" },
+    { name: "MTC", fullName: "Maritime Technologies Complex", logo: "/assets/clients/mtc.webp" },
     // TODO: verify this logo matches the client
-    { name: "AWC", fullName: "Air Weapons Complex", logo: "/assets/client-awc.webp" },
-    { name: "CDA", fullName: "Capital Development Authority", logo: "/assets/client-cda.webp" },
-    { name: "Nayatel", fullName: "Nayatel", logo: "/assets/client-nayatel.webp" },
-    { name: "PTCL", fullName: "Pakistan Telecommunication Company Limited", logo: "/assets/client-ptcl.webp" },
+    { name: "AWC", fullName: "Air Weapons Complex", logo: "/assets/clients/awc.webp" },
+    { name: "CDA", fullName: "Capital Development Authority", logo: "/assets/clients/cda.webp" },
+    { name: "Nayatel", fullName: "Nayatel", logo: "/assets/clients/nayatel.webp" },
+    { name: "PTCL", fullName: "Pakistan Telecommunication Company Limited", logo: "/assets/clients/ptcl.webp" },
   ] as ClientLogo[],
 
   processSteps: [

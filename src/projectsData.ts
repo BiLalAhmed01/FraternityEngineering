@@ -25,6 +25,14 @@ export interface Project {
 
 export const PROJECT_IMAGE_SIZE = { width: 1672, height: 941 } as const;
 
+/** Responsive WebP set for a project poster (files are named <slug>-<width>.webp). */
+export const projectSrcSet = (slug: string) =>
+  [480, 768, 1200, 1600].map((w) => `/assets/projects/${slug}-${w}.webp ${w}w`).join(", ");
+/** Tiles: 1 column on phones, 2 on tablets, 3 in a 1280px container on desktop. */
+export const PROJECT_TILE_SIZES = "(min-width: 1024px) 384px, (min-width: 768px) 50vw, 100vw";
+/** Modal: full width on phones, up to 1100px (minus padding) on desktop. */
+export const PROJECT_MODAL_SIZES = "(min-width: 1148px) 1052px, 100vw";
+
 /** Maps a project category to the matching option in the contact form's discipline dropdown. */
 export const CATEGORY_TO_DISCIPLINE: Record<ProjectCategory, string> = {
   "Fire & Safety": "Fire and safety",
@@ -43,7 +51,7 @@ export const PROJECTS: Project[] = [
     year: "",
     description: "Addressable detection, alarm configuration, testing and commissioning in a live hospital.",
     outcome: "",
-    image: "/assets/projects/imc-hospital-fire-alarm.png",
+    image: "/assets/projects/imc-hospital-fire-alarm-1200.webp",
     alt: "FTE team installing a fire alarm detector at IMC Hospital, Islamabad",
     facts: ["Alarm installation", "System configuration", "Testing & commissioning", "HSE compliant"],
     isIllustration: true,
@@ -57,7 +65,7 @@ export const PROJECTS: Project[] = [
     description:
       "Supply and installation of pole-mounted flood lighting, including foundations, erection and commissioning.",
     outcome: "",
-    image: "/assets/projects/f6-park-flood-lights.png",
+    image: "/assets/projects/f6-park-flood-lights-1200.webp",
     alt: "FTE crew erecting a flood light pole with a crane truck at F-6 Park, Islamabad",
     facts: ["Supply & installation", "Civil & electrical works", "Testing & commissioning"],
     isIllustration: true,
@@ -70,7 +78,7 @@ export const PROJECTS: Project[] = [
     year: "",
     description: "Steel frame erection and roof sheeting for pre-engineered buildings.",
     outcome: "",
-    image: "/assets/projects/i-guard-pre-engineered-structures.png",
+    image: "/assets/projects/i-guard-pre-engineered-structures-1200.webp",
     alt: "FTE workers fixing roof sheeting on a crane-lifted steel frame of a pre-engineered building",
     facts: ["Robust & durable", "Fast installation", "Engineered for safety"],
     isIllustration: true,
@@ -83,7 +91,7 @@ export const PROJECTS: Project[] = [
     year: "",
     description: "Crane-assisted placement of modular prefabricated units on prepared foundations.",
     outcome: "",
-    image: "/assets/projects/pre-fab-structures.png",
+    image: "/assets/projects/pre-fab-structures-1200.webp",
     alt: "FTE team guiding a crane-lifted prefabricated cabin onto concrete foundation blocks",
     facts: ["Modular & prefabricated", "Fast installation", "Durable & reliable"],
     isIllustration: true,
@@ -96,7 +104,7 @@ export const PROJECTS: Project[] = [
     year: "",
     description: "Installation of street light poles and fixtures along a major urban corridor.",
     outcome: "",
-    image: "/assets/projects/street-light-poles-7th-avenue.png",
+    image: "/assets/projects/street-light-poles-7th-avenue-1200.webp",
     alt: "FTE technicians installing a street light pole and fixture on 7th Avenue, Islamabad",
     facts: ["Urban infrastructure", "Safe & reliable lighting", "Sustainable city development"],
     isIllustration: true,
@@ -110,7 +118,7 @@ export const PROJECTS: Project[] = [
     description:
       "Structural repair, surface restoration, masonry and finishing works on a heritage building.",
     outcome: "",
-    image: "/assets/projects/old-naval-headquarters-repair.png",
+    image: "/assets/projects/old-naval-headquarters-repair-1200.webp",
     alt: "FTE engineer reviewing drawings as workers on scaffolding restore the Old Naval Headquarters facade",
     facts: ["Structural repair", "Surface restoration", "Masonry & finishing", "General maintenance"],
     isIllustration: true,

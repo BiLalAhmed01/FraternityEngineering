@@ -3,31 +3,46 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef } from "react";
+import React, { Suspense, lazy, useRef } from "react";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
-import { Services } from "./components/Services";
-import { WhyFTE } from "./components/WhyFTE";
-import { ClientsMarquee } from "./components/ClientsMarquee";
-import { About } from "./components/About";
-import { Testimonials } from "./components/Testimonials";
-import { Faq } from "./components/Faq";
-import { Process } from "./components/Process";
-import { Contact, ContactRef } from "./components/Contact";
-import { Footer } from "./components/Footer";
+import type { ContactRef } from "./components/Contact";
 import { MobileFloatingCta } from "./components/MobileFloatingCta";
 import { BackToTop } from "./components/BackToTop";
 import { CookieConsent } from "./components/CookieConsent";
 import { FilmGrain } from "./components/FilmGrain";
 import { Preloader } from "./components/Preloader";
 import { SmoothScroll } from "./components/SmoothScroll";
-import { PrivacyPage } from "./pages/PrivacyPage";
-import { TermsPage } from "./pages/TermsPage";
-import { ServicePage } from "./pages/ServicePage";
-import { NotFoundPage } from "./pages/NotFoundPage";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { getServicePage } from "./servicesData";
 
+// Below-the-fold sections and secondary routes load as separate chunks. The prerender waits for them,
+// so their content is still in the HTML; hydration picks them up as each chunk arrives.
+const Services = lazy(() => import("./components/Services").then((m) => ({ default: m.Services })));
+const WhyFTE = lazy(() => import("./components/WhyFTE").then((m) => ({ default: m.WhyFTE })));
+const ClientsMarquee = lazy(() => import("./components/ClientsMarquee").then((m) => ({ default: m.ClientsMarquee })));
+const About = lazy(() => import("./components/About").then((m) => ({ default: m.About })));
+const Testimonials = lazy(() => import("./components/Testimonials").then((m) => ({ default: m.Testimonials })));
+const Process = lazy(() => import("./components/Process").then((m) => ({ default: m.Process })));
+const Faq = lazy(() => import("./components/Faq").then((m) => ({ default: m.Faq })));
+const Contact = lazy(() => import("./components/Contact").then((m) => ({ default: m.Contact })));
+const Footer = lazy(() => import("./components/Footer").then((m) => ({ default: m.Footer })));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage").then((m) => ({ default: m.PrivacyPage })));
+const TermsPage = lazy(() => import("./pages/TermsPage").then((m) => ({ default: m.TermsPage })));
+const ServicePage = lazy(() => import("./pages/ServicePage").then((m) => ({ default: m.ServicePage })));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })));
+
 export default function App() {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={null}>
+        <Routes />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function Routes() {
   const contactRef = useRef<ContactRef>(null);
   const path = window.location.pathname.replace(/\.html$/, "");
 
@@ -41,7 +56,7 @@ export default function App() {
 
   return (
     <SmoothScroll>
-      {/* 1. Subtle Preloader under 1.2s */}
+      {/* Splash video (first visit, desktop, when allowed) */}
       <Preloader />
 
       {/* 2. Fine Film-Grain Overlay (3% opacity) */}
@@ -55,7 +70,8 @@ export default function App() {
           {/* Hero: disciplines index with image slideshow, trust row */}
           <Hero />
 
-          {/* Services (5 Interactive 3D Icons, Clean Accordion) */}
+          <Suspense fallback={null}>
+          {/* Services (looping carousel) */}
           <Services />
 
           {/* Our Work (Project Showcase) */}
@@ -74,18 +90,21 @@ export default function App() {
           {/* Testimonials (hidden when empty) */}
           <Testimonials />
 
-          {/* Process (4-Step Timeline with Scroll-Linked Progress Line) */}
+          {/* Process (four stages) */}
           <Process />
 
           {/* FAQ */}
           <Faq />
 
-          {/* Contact (Floating Labels, Inline Validation, Draw Checkmark) */}
+          {/* Contact (quote form, details, map) */}
           <Contact ref={contactRef} />
+          </Suspense>
         </main>
 
         {/* Footer */}
-        <Footer />
+        <Suspense fallback={null}>
+          <Footer />
+        </Suspense>
 
         {/* Quick actions bar on phones */}
         <MobileFloatingCta />

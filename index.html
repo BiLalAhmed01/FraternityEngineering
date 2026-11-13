@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-PK" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B1F3A" />
     <title>Fraternity Engineering | Construction & Fire Safety, Islamabad</title>
     <meta name="description" content="Islamabad contractor for construction, civil, electrical, fire safety and supply. One contract, one accountable team. Request a quote or site visit." />
     <meta name="robots" content="index, follow" />
@@ -13,7 +14,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png" />
     <link rel="icon" type="image/webp" sizes="32x32" href="/assets/favicon.webp" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png" />
-    <link rel="mask-icon" href="/assets/favicon.webp" color="#FF6B00" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     <!-- Open Graph / Social -->
     <meta property="og:title" content="Fraternity Engineering | Build it. Wire it. Protect it." />
@@ -29,19 +30,35 @@
     <meta name="twitter:description" content="Islamabad contractor for construction, civil, electrical, fire safety and supply. One contract, one accountable team. Request a quote or site visit." />
     <meta name="twitter:image" content="https://fraternity-engineering-co.vercel.app/assets/og-image.png" />
 
-    <!-- Structured Data: Organization / LocalBusiness -->
+    <!-- Structured data: business and website -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "GeneralContractor",
-      "name": "Fraternity Engineering & Co. (SMC-Pvt) Ltd.",
+      "@id": "https://fraternity-engineering-co.vercel.app/#business",
+      "name": "Fraternity Engineering",
+      "legalName": "Fraternity Engineering & Co. (SMC-Pvt) Ltd.",
       "alternateName": "FTE",
       "url": "https://fraternity-engineering-co.vercel.app/",
       "logo": "https://fraternity-engineering-co.vercel.app/assets/logo.webp",
       "image": "https://fraternity-engineering-co.vercel.app/assets/og-image.png",
       "description": "Islamabad contractor for construction, civil, electrical, fire safety and supply. One contract, one accountable team. Request a quote or site visit.",
       "email": "fraternityengineering@gmail.com",
-      "telephone": "+92-331-5095004",
+      "telephone": "+923315095004",
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "+923315095004",
+          "contactType": "customer service",
+          "description": "Mobile and WhatsApp"
+        },
+        {
+          "@type": "ContactPoint",
+          "telephone": "+92512331654",
+          "contactType": "customer service",
+          "description": "Landline"
+        }
+      ],
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Shop #01, Block 54, I&T Center, G-8/1",
@@ -49,38 +66,65 @@
         "postalCode": "44000",
         "addressCountry": "PK"
       },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 33.6938,
+        "longitude": 73.0378
+      },
       "openingHoursSpecification": [
         {
           "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Saturday"],
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+          ],
           "opens": "09:00",
-          "closes": "18:00"
-        },
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": "Friday",
-          "opens": "09:00",
-          "closes": "13:00"
-        },
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": "Friday",
-          "opens": "14:30",
-          "closes": "18:00"
+          "closes": "18:00",
+          "description": "Friday break 1:00 PM - 2:30 PM"
         }
       ],
-      "areaServed": "PK"
+      "areaServed": [
+        {
+          "@type": "City",
+          "name": "Islamabad"
+        },
+        {
+          "@type": "City",
+          "name": "Rawalpindi"
+        },
+        {
+          "@type": "Country",
+          "name": "Pakistan"
+        }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://fraternity-engineering-co.vercel.app/#website",
+      "name": "Fraternity Engineering",
+      "url": "https://fraternity-engineering-co.vercel.app/",
+      "inLanguage": "en-PK",
+      "publisher": {
+        "@id": "https://fraternity-engineering-co.vercel.app/#business"
+      }
     }
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,500;0,600;0,700;1,600&family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/assets/hero/planning.webp" as="image" type="image/webp" fetchpriority="high" />
-    <!-- DNS prefetch for external resources -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <!-- Self-hosted fonts (400 and 500 are used above the fold) -->
+    <link rel="preload" href="/assets/fonts/barlow-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/barlow-500-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- First hero slide is the LCP image -->
+    <link rel="preload" as="image" type="image/webp" fetchpriority="high"
+      href="/assets/hero/planning-1200.webp"
+      imagesrcset="/assets/hero/planning-480.webp 480w, /assets/hero/planning-768.webp 768w, /assets/hero/planning-1200.webp 1200w"
+      imagesizes="(min-width: 1024px) 568px, calc(100vw - 40px)" />
     <!-- No-JS fallback: hide splash overlay so prerendered content is visible -->
     <noscript><style>#fte-preloader{display:none!important}</style></noscript>
   </head>

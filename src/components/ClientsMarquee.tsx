@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { SITE_CONTENT, ClientLogo } from "../content";
 import { Reveal } from "./Reveal";
@@ -20,16 +20,27 @@ const LogoBox: React.FC<{ client: ClientLogo; decorative?: boolean }> = ({ clien
 export const ClientsMarquee: React.FC = () => {
   const logos = SITE_CONTENT.clientLogos;
   const [touchPaused, setTouchPaused] = useState(false);
+  const [offscreen, setOffscreen] = useState(true);
+  const marqueeRef = useRef<HTMLDivElement>(null);
+
+  // Stop the marquee while it is off screen.
+  useEffect(() => {
+    const el = marqueeRef.current;
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([entry]) => setOffscreen(!entry.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <section
       id="clients"
-      className="relative bg-white text-brand-navy py-12 md:py-[72px] border-y border-brand-navy/10"
+      className="relative bg-white text-brand-navy py-[clamp(48px,6vw,72px)] border-y border-brand-navy/10"
       aria-labelledby="clients-title"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <Reveal className="text-center">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/60">Trusted by</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/70">Trusted by</p>
           <h2
             id="clients-title"
             className="mt-3 font-heading font-medium text-[28px] md:text-[36px] leading-tight tracking-tight text-brand-navy [text-wrap:balance]"
@@ -50,6 +61,7 @@ export const ClientsMarquee: React.FC = () => {
 
           {/* Mobile: slow marquee, paused on hover/touch */}
           <div
+            ref={marqueeRef}
             className="clients-marquee overflow-hidden"
             role="group"
             aria-label="Client logos"
@@ -57,7 +69,7 @@ export const ClientsMarquee: React.FC = () => {
             onTouchEnd={() => setTouchPaused(false)}
             onTouchCancel={() => setTouchPaused(false)}
           >
-            <ul className={`clients-marquee-track ${touchPaused ? "is-paused" : ""}`}>
+            <ul className={`clients-marquee-track ${touchPaused || offscreen ? "is-paused" : ""}`}>
               {[...logos, ...logos].map((client, idx) => (
                 <li
                   key={`${client.name}-${idx}`}

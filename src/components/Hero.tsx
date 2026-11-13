@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Pause, Phone, Play } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
 import { SITE_CONTENT } from "../content";
 import { serviceUrl } from "../servicesData";
 import { CountUp } from "./CountUp";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
 /* ---------- Data ---------- */
 
@@ -78,7 +78,11 @@ const SLIDES: Slide[] = [
 
 const HSE_ALT = "FTE site team in a safety toolbox talk in front of an HSE board";
 
-const imageSrc = (id: string) => `/assets/hero/${id}.webp`;
+/** Responsive set for a hero image: 480/768/1200 (HSE inset only needs 480). */
+const heroSrcSet = (id: string, widths: number[]) => widths.map((w) => `/assets/hero/${id}-${w}.webp ${w}w`).join(", ");
+const SLIDE_WIDTHS = [480, 768, 1200];
+// Frame: up to 568px wide on desktop (4:5, so the square image renders ~710px), full width minus gutters on smaller screens.
+const SLIDE_SIZES = "(min-width: 1024px) 568px, calc(100vw - 40px)";
 
 const HOLD_MS = 5000;
 const PRELOAD_AT_MS = HOLD_MS - 1000;
@@ -86,17 +90,21 @@ const SELECT_PAUSE_MS = 8000;
 
 const filled = (v: string) => v.trim() !== "";
 
-const HeroPicture: React.FC<{ id: string; alt: string; className?: string; style?: React.CSSProperties; eager?: boolean }> = ({
-  id,
-  alt,
-  className,
-  style,
-  eager,
-}) => (
+const HeroPicture: React.FC<{
+  id: string;
+  alt: string;
+  className?: string;
+  style?: React.CSSProperties;
+  eager?: boolean;
+  widths?: number[];
+  sizes?: string;
+}> = ({ id, alt, className, style, eager, widths = SLIDE_WIDTHS, sizes = SLIDE_SIZES }) => (
   <picture>
-    <source srcSet={imageSrc(id)} type="image/webp" />
+    <source srcSet={heroSrcSet(id, widths)} sizes={sizes} type="image/webp" />
     <img
-      src={imageSrc(id)}
+      src={`/assets/hero/${id}-${widths[widths.length - 1]}.webp`}
+      srcSet={heroSrcSet(id, widths)}
+      sizes={sizes}
       alt={alt}
       width={1200}
       height={1200}
@@ -112,7 +120,7 @@ const HeroPicture: React.FC<{ id: string; alt: string; className?: string; style
 /* ---------- Hero ---------- */
 
 export const Hero: React.FC = () => {
-  const reduceMotion = !!useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const { hero, contact } = SITE_CONTENT;
 
   const [slide, setSlide] = useState(0);
@@ -215,15 +223,9 @@ export const Hero: React.FC = () => {
     },
   };
 
-  // Staggered fade-up for the text column: 500ms each, 100ms apart.
-  const fadeUp = (i: number) =>
-    reduceMotion
-      ? {}
-      : {
-          initial: { opacity: 0, y: 14 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
-        };
+  // Staggered fade-up for the text column (500ms each, 100ms apart). Pure CSS, so it plays from the
+  // prerendered HTML without waiting for JavaScript; off under reduced motion (see .hero-rise).
+  const riseDelay = (i: number): React.CSSProperties => ({ animationDelay: `${i * 100}ms` });
 
   const trust = (
     [
@@ -240,34 +242,34 @@ export const Hero: React.FC = () => {
       className="relative bg-brand-navy text-white border-b border-white/12 pt-[var(--nav-h)] [--nav-h:64px] lg:[--nav-h:80px]"
       aria-labelledby="hero-title"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:min-h-[clamp(640px,calc(100svh-var(--nav-h)),900px)]">
+      <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)] flex flex-col lg:min-h-[clamp(640px,calc(100svh-var(--nav-h)),900px)]">
         <div className="flex-1 flex items-center py-8 lg:py-8">
           <div className="grid w-full grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-20">
             {/* Text column */}
             <div className="lg:col-span-6 min-w-0">
-              <motion.p {...fadeUp(0)} className="flex items-start gap-3 text-[14px] leading-[1.5] text-white/60">
+              <p style={riseDelay(0)} className="hero-rise flex items-start gap-3 text-[14px] leading-[1.5] text-white/60">
                 <span className="mt-[10px] h-px w-6 shrink-0 bg-brand-orange" aria-hidden="true" />
                 Engineering contractor · Islamabad, Pakistan
-              </motion.p>
+              </p>
 
               {/* Alternative headline: "Construction, electrical and fire safety." / "One accountable team." */}
-              <motion.h1
-                {...fadeUp(1)}
+              <h1
+                style={riseDelay(1)}
                 id="hero-title"
-                className="mt-5 font-heading font-medium text-[clamp(2.25rem,min(4.6vw,6.2svh),4.25rem)] leading-[1.06] tracking-[-0.02em] [text-wrap:balance]"
+                className="hero-rise mt-5 font-heading font-medium text-[clamp(2.25rem,min(4.6vw,6.2svh),4.25rem)] leading-[1.06] tracking-[-0.02em] [text-wrap:balance]"
               >
                 {/* Non-breaking spaces keep each phrase on one line */}
                 Build&nbsp;it. Wire&nbsp;it. Protect&nbsp;it.
                 <br />
                 <span className="text-brand-orange">One accountable team.</span>
-              </motion.h1>
+              </h1>
 
-              <motion.p {...fadeUp(2)} className="mt-5 max-w-[50ch] text-[18px] leading-[1.65] text-white/75 [text-wrap:pretty]">
+              <p style={riseDelay(2)} className="hero-rise mt-5 max-w-[50ch] text-[18px] leading-[1.65] text-white/75 [text-wrap:pretty]">
                 Fraternity Engineering is an Islamabad contractor for construction, civil, electrical, fire safety and
                 supply, delivered under one contract from planning to handover.
-              </motion.p>
+              </p>
 
-              <motion.div {...fadeUp(3)} className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">
+              <div style={riseDelay(3)} className="hero-rise mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">
                 <a
                   href="#contact"
                   className="inline-flex h-[52px] items-center justify-center rounded px-7 bg-brand-orange hover:bg-brand-orange-hover text-brand-charcoal text-[16px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
@@ -283,10 +285,10 @@ export const Hero: React.FC = () => {
                     Call {contact.phonePrimary}
                   </span>
                 </a>
-              </motion.div>
+              </div>
 
               {/* Disciplines index: selects the image; a second click opens the service */}
-              <motion.nav {...fadeUp(4)} aria-label="Disciplines" className="mt-10 lg:mt-14">
+              <nav style={riseDelay(4)} aria-label="Disciplines" className="hero-rise mt-10 lg:mt-14">
                 <ol
                   className="border-t border-white/12"
                   onKeyDown={onArrowKeys}
@@ -321,7 +323,7 @@ export const Hero: React.FC = () => {
                           </span>
                           <span
                             className={`hidden sm:block text-[14px] transition-colors duration-200 ${
-                              isActive ? "text-white/60" : "text-white/35 group-hover:text-white/55"
+                              isActive ? "text-white/80" : "text-white/60 group-hover:text-white/75"
                             }`}
                           >
                             {d.scope}
@@ -347,15 +349,12 @@ export const Hero: React.FC = () => {
                     );
                   })}
                 </ol>
-              </motion.nav>
+              </nav>
             </div>
 
             {/* Image frame */}
-            <motion.div
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="order-first lg:order-none lg:col-span-6 min-w-0"
+            <div
+              className="hero-frame-in order-first lg:order-none lg:col-span-6 min-w-0"
             >
               <div className="relative lg:ml-auto lg:w-full lg:max-w-[calc((100svh-160px)*0.8)]">
                 <div
@@ -432,14 +431,14 @@ export const Hero: React.FC = () => {
                 {/* HSE inset (wide desktop only); fixed, not part of the slideshow */}
                 <figure className="absolute -left-8 -bottom-6 hidden w-[180px] min-[1100px]:block">
                   <div className="aspect-[4/3] overflow-hidden rounded-t-[4px] border border-b-0 border-white/20">
-                    <HeroPicture id="hse" alt={HSE_ALT} className="h-full w-full object-cover hero-grade" />
+                    <HeroPicture id="hse" alt={HSE_ALT} widths={[480]} sizes="180px" className="h-full w-full object-cover hero-grade" />
                   </div>
                   <figcaption className="rounded-b-[4px] border border-t-0 border-white/20 bg-brand-navy px-3 py-1.5 text-[12px] text-white">
                     HSE on every site
                   </figcaption>
                 </figure>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
 

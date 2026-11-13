@@ -1,7 +1,19 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import { readFileSync } from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
+
+/** The site-wide security headers from vercel.json, so `vite preview` behaves like production (CSP included). */
+const vercelHeaders = (): Record<string, string> => {
+  const config = JSON.parse(readFileSync(path.resolve(import.meta.dirname, 'vercel.json'), 'utf8'));
+  const global = config.headers?.find((h: { source: string }) => h.source === '/(.*)');
+  const headers = Object.fromEntries((global?.headers ?? []).map((h: { key: string; value: string }) => [h.key, h.value]));
+  // The local preview is plain http: don't let browsers upgrade its own requests to https.
+  const csp = headers['Content-Security-Policy'];
+  if (csp) headers['Content-Security-Policy'] = csp.replace(/;\s*upgrade-insecure-requests/, '');
+  return headers;
+};
 
 export default defineConfig(() => {
   return {
@@ -18,30 +30,24 @@ export default defineConfig(() => {
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
+    preview: {
+      headers: vercelHeaders(),
+    },
     build: {
-      // Optimize chunk size
+      // Last 2 versions of evergreen browsers plus iOS Safari 15 (see "browserslist" in package.json).
+      target: ['es2020', 'chrome109', 'edge109', 'firefox115', 'safari15', 'ios15'],
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          // Manual chunk splitting for better caching
+          // React in its own long-lived chunk; everything else is split by route and section (lazy imports).
           manualChunks: (id) => {
-            if (id.includes('node_modules')) {
-              if (id.includes('react') || id.includes('react-dom')) {
-                return 'react-vendor';
-              }
-              if (id.includes('motion')) {
-                return 'motion-vendor';
-              }
-              if (id.includes('lucide-react')) {
-                return 'ui-vendor';
-              }
+            if (id.includes('node_modules') && /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) {
+              return 'react-vendor';
             }
           },
         },
       },
-      // Minify CSS and JS
       minify: 'esbuild',
-      // Generate source maps for debugging (optional)
       sourcemap: false,
     },
   };

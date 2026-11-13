@@ -1,0 +1,14 @@
+{
+  "name": "Fraternity Engineering & Co.",
+  "short_name": "FTE",
+  "description": "Islamabad contractor for construction, civil, electrical, fire safety and supply.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "theme_color": "#0B1F3A",
+  "background_color": "#0B1F3A",
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

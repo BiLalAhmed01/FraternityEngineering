@@ -49,7 +49,7 @@ export const FaqAccordion: React.FC<{ items: FaqItem[]; idPrefix?: string }> = (
 /* ---------- Homepage FAQ ---------- */
 
 const HASH_PREFIX = "#faq-";
-const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/60";
+const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-navy/70";
 const underline =
   "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-brand-orange after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100";
 
@@ -148,12 +148,12 @@ export const Faq: React.FC = () => {
   return (
     <section
       id="faq"
-      className="bg-white text-brand-navy border-t border-brand-navy/10 py-[72px] lg:py-[120px]"
+      className="bg-white text-brand-navy border-t border-brand-navy/10 py-[clamp(72px,9vw,120px)]"
       aria-labelledby="faq-title"
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqJsonLd }} />
 
-      <Reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Reveal className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-24 lg:gap-y-0">
           {/* Intro */}
           <div className="lg:col-span-4 lg:col-start-1 lg:row-start-1">
@@ -193,7 +193,7 @@ export const Faq: React.FC = () => {
                       >
                         <span
                           className={`w-12 shrink-0 text-[13px] font-medium tabular-nums transition-colors duration-200 ${
-                            isOpen ? "text-brand-orange" : "text-brand-navy/40 group-hover:text-brand-orange"
+                            isOpen ? "text-brand-orange" : "text-brand-navy/65 group-hover:text-brand-orange"
                           }`}
                         >
                           {String(i + 1).padStart(2, "0")}
