@@ -161,14 +161,6 @@
   100% { transform: translateX(-50%); }
 }
 
-/* Splash screen video styling */
-#fte-preloader video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-}
-
 /* ---------- Motion (CSS only; transform and opacity) ---------- */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -233,9 +225,6 @@
 .modal-root { animation: fadeIn 250ms ease-out both; }
 .modal-root.is-closing { animation: fadeOut 250ms ease-in both; pointer-events: none; }
 .modal-panel { animation: panelIn 250ms ease-out both; }
-
-/* Splash */
-.splash.is-closing { animation: fadeOut 300ms ease-in both; pointer-events: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
@@ -516,7 +505,7 @@ footer {
 @media print {
   @page { margin: 16mm; }
   html, body { background: #fff !important; color: #000 !important; }
-  header.fixed, .quick-bar, .back-to-top, #fte-preloader, [aria-label="Cookie consent"], #mobile-menu,
+  header.fixed, .quick-bar, .back-to-top, #fte-splash, [aria-label="Cookie consent"], #mobile-menu,
   [aria-roledescription="carousel"], .contact-map, form, .skip-link { display: none !important; }
   footer { content-visibility: visible; }
   .reveal, .hero-rise, .hero-frame-in { opacity: 1 !important; transform: none !important; animation: none !important; }

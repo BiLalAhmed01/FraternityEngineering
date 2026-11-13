@@ -11,7 +11,6 @@ import { MobileFloatingCta } from "./components/MobileFloatingCta";
 import { BackToTop } from "./components/BackToTop";
 import { CookieConsent } from "./components/CookieConsent";
 import { FilmGrain } from "./components/FilmGrain";
-import { Preloader } from "./components/Preloader";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { getServicePage } from "./servicesData";
@@ -56,8 +55,6 @@ function Routes() {
 
   return (
     <SmoothScroll>
-      {/* Splash video (first visit, desktop, when allowed) */}
-      <Preloader />
 
       {/* 2. Fine Film-Grain Overlay (3% opacity) */}
       <FilmGrain />

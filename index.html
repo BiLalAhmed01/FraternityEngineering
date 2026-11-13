@@ -4,6 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0B1F3A" />
+    <!-- Splash: this inline script adds html.splash-active on the first homepage visit of a session. Its sha256 is in the
+         Content-Security-Policy in vercel.json; if you edit the script, update the hash there. -->
+    <script>(function(){var d=document.documentElement;try{if(location.pathname!=="/"||sessionStorage.getItem("fte_splash_seen"))return;d.classList.add("splash-active");var m=matchMedia("(max-width:767px),(orientation:portrait)").matches,a=["/assets/logo.webp","/assets/splash/splash-poster"+(m?"-mobile":"")+".webp"],i,l;for(i=0;i<2;i++){l=document.createElement("link");l.rel="preload";l.as="image";l.href=a[i];document.head.appendChild(l)}setTimeout(function(){d.hasAttribute("data-fs")||d.classList.remove("splash-active")},5e3)}catch(e){}})()</script>
+    <style>
+html.splash-active,html.splash-active body{overflow:hidden}
+#fte-splash{display:none}
+html.splash-active #fte-splash{display:block;position:fixed;inset:0;z-index:2147483000;height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;background:#0B1F3A;color:#fff;font-family:"Barlow","Barlow Fallback",Arial,sans-serif;will-change:transform}
+#fte-splash .fs-bg,#fte-splash .fs-shade,#fte-splash video{position:absolute;inset:0;width:100%;height:100%}
+#fte-splash .fs-bg{background:#0B1F3A url(/assets/splash/splash-poster.webp) center/cover no-repeat}
+@media (max-width:767px),(orientation:portrait){#fte-splash .fs-bg{background-image:url(/assets/splash/splash-poster-mobile.webp)}}
+#fte-splash video{object-fit:cover;opacity:0;transition:opacity 500ms ease-out}
+#fte-splash video.is-on{opacity:1}
+#fte-splash .fs-shade{background:rgba(11,31,58,.55)}
+#fte-splash .fs-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);transition:opacity 250ms ease-out}
+#fte-splash .fs-logo{display:block;width:min(clamp(120px,22vw,200px),77vh);height:auto;animation:fs-logo 400ms cubic-bezier(.22,1,.36,1) both}
+#fte-splash .fs-line{margin-top:24px;width:160px;max-width:60vw;height:2px;background:rgba(255,255,255,.15);overflow:hidden}
+#fte-splash .fs-fill{display:block;width:100%;height:100%;background:#FF6B00;transform:scaleX(0);transform-origin:left;transition:transform 300ms ease}
+#fte-splash .fs-skip{position:absolute;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));min-width:44px;min-height:44px;padding:0 12px;border:0;border-radius:4px;background:none;color:rgba(255,255,255,.7);font:inherit;font-size:14px;cursor:pointer;animation:fs-fade 300ms ease-out 600ms both}
+#fte-splash .fs-skip:hover{color:#fff}
+#fte-splash .fs-skip:focus-visible{outline:2px solid #FF6B00;outline-offset:2px}
+#fte-splash .fs-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#fte-splash.is-leaving{transform:translateY(-100%);transition:transform 700ms cubic-bezier(.77,0,.175,1);pointer-events:none}
+#fte-splash.is-leaving .fs-center{opacity:0}
+#fte-splash.is-leaving .fs-skip{animation:none;opacity:0;transition:opacity 150ms}
+@keyframes fs-logo{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes fs-fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){#fte-splash .fs-logo{animation:fs-fade 300ms ease-out both!important}#fte-splash .fs-skip{animation:fs-fade 300ms ease-out 600ms both!important}#fte-splash .fs-fill{transition:transform 300ms ease!important}#fte-splash.is-leaving{transform:none;opacity:0;transition:opacity 300ms ease!important}}
+/* Hero entrance waits until the splash starts leaving (the controller adds splash-reveal 300ms in). */
+html.splash-active:not(.splash-reveal) .hero-rise,html.splash-active:not(.splash-reveal) .hero-frame-in{animation-play-state:paused}
+    </style>
     <title>Fraternity Engineering | Construction & Fire Safety, Islamabad</title>
     <meta name="description" content="Islamabad contractor for construction, civil, electrical, fire safety and supply. One contract, one accountable team. Request a quote or site visit." />
     <meta name="robots" content="index, follow" />
@@ -125,11 +155,21 @@
       href="/assets/hero/planning-1200.webp"
       imagesrcset="/assets/hero/planning-480.webp 480w, /assets/hero/planning-768.webp 768w, /assets/hero/planning-1200.webp 1200w"
       imagesizes="(min-width: 1024px) 568px, calc(100vw - 40px)" />
-    <!-- No-JS fallback: hide splash overlay so prerendered content is visible -->
-    <noscript><style>#fte-preloader{display:none!important}</style></noscript>
+    <noscript><style>#fte-splash{display:none!important}html.splash-active,html.splash-active body{overflow:auto!important}</style></noscript>
   </head>
   <body>
+    <div id="fte-splash" role="dialog" aria-modal="true" aria-label="Fraternity Engineering">
+      <button type="button" class="fs-skip">Skip</button>
+      <div class="fs-bg"></div>
+      <div class="fs-shade"></div>
+      <div class="fs-center">
+        <img class="fs-logo" src="/assets/logo.webp" width="400" height="145" alt="" decoding="async" fetchpriority="high" />
+        <div class="fs-line"><i class="fs-fill"></i></div>
+      </div>
+      <p class="fs-live" aria-live="polite"></p>
+    </div>
     <div id="root"></div>
+    <script defer src="/splash.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
