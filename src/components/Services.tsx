@@ -23,7 +23,7 @@ const CARD_COPY: Record<string, { description: string; alt: string }> = {
     alt: "Red fire sprinkler pipework, hose reel cabinet, alarm call point and extinguisher on a wall",
   },
   supply: {
-    description: "Electrical, fire safety, hardware and construction materials, including construction chemicals, sourced to specification and delivered to site.",
+    description: "Construction chemicals, hardware, electrical and fire safety materials, sourced to specification and delivered to site.",
     alt: "Warehouse shelving stocked with cables, pipes, safety helmets, tools and fire extinguishers",
   },
 };

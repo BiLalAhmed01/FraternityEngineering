@@ -266,7 +266,7 @@ export const SITE_CONTENT = {
     {
       id: "supply",
       name: "Chemicals and Materials",
-      shortTag: "Materials and equipment",
+      shortTag: "Chemicals and materials supply",
       summary: "Procurement and supply services for engineering, construction, industrial and operational requirements.",
       subservices: [
         "General engineering supplies",

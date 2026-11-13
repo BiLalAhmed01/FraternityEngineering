@@ -81,7 +81,7 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
   supply: {
     workCategories: ["Supply", "Electrical"],
     overview:
-      "Electrical, fire safety, hardware and construction materials, including construction chemicals, sourced to specification and delivered to site.",
+      "Construction chemicals, hardware, electrical and fire safety materials, sourced to specification and delivered to site.",
     standards: [],
     faq: [
       {
