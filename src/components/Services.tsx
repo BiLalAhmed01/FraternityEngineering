@@ -46,6 +46,7 @@ const COPIES = 3;
 const AUTOPLAY_MS = 4000;
 const RESUME_AFTER_TOUCH_MS = 6000;
 const SETTLE_MS = 140;
+const SLIDE_MS = 550;
 
 export const Services: React.FC = () => {
   const services = SITE_CONTENT.services;
@@ -58,6 +59,7 @@ export const Services: React.FC = () => {
   const indexRef = useRef(0);
   const settleTimer = useRef<number | undefined>(undefined);
   const touchTimer = useRef<number | undefined>(undefined);
+  const animFrame = useRef(0);
 
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -140,7 +142,27 @@ export const Services: React.FC = () => {
       const s = step();
       if (!el || s <= 0) return;
       recenter();
-      el.scrollBy({ left: dir * s, behavior: reduceMotion ? "auto" : "smooth" });
+      if (reduceMotion) {
+        el.scrollBy({ left: dir * s, behavior: "auto" });
+        return;
+      }
+      // Native smooth scrolling has a fixed, slow duration, so ease the scroll ourselves.
+      // Snapping is switched off while animating so it does not fight each frame.
+      cancelAnimationFrame(animFrame.current);
+      const from = el.scrollLeft;
+      const target = Math.round(from / s) * s + dir * s;
+      const start = performance.now();
+      el.dataset.dragging = "true";
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / SLIDE_MS);
+        el.scrollLeft = from + (target - from) * (1 - Math.pow(1 - t, 3));
+        if (t < 1) {
+          animFrame.current = requestAnimationFrame(tick);
+        } else {
+          delete el.dataset.dragging;
+        }
+      };
+      animFrame.current = requestAnimationFrame(tick);
     },
     [step, recenter, reduceMotion]
   );
@@ -168,7 +190,13 @@ export const Services: React.FC = () => {
     return () => window.clearInterval(id);
   }, [autoplay, scrollByCards]);
 
-  useEffect(() => () => window.clearTimeout(touchTimer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(touchTimer.current);
+      cancelAnimationFrame(animFrame.current);
+    },
+    []
+  );
 
   /** Touch or drag holds autoplay; it resumes a few seconds after release. */
   const holdAutoplay = () => {
@@ -193,6 +221,8 @@ export const Services: React.FC = () => {
   // Mouse drag-to-scroll. Touch and pen use native scrolling.
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     holdAutoplay();
+    cancelAnimationFrame(animFrame.current);
+    delete e.currentTarget.dataset.dragging;
     if (e.pointerType !== "mouse" || e.button !== 0) return;
     const el = e.currentTarget;
     drag.current = { active: true, startX: e.clientX, startScroll: el.scrollLeft, moved: false };
