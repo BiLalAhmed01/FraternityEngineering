@@ -45,8 +45,8 @@ for (const [name, file] of Object.entries(HERO)) {
     log(await encode(`${HERO_SRC}/${file}`, `${OUT}/hero/${name}-${w}.webp`, { width: w, height: w, maxKB: w === 1200 ? 155 : undefined, start: 78 }));
   }
 }
-// HSE inset is 180px wide; 480 covers 2x and 3x screens.
-log(await encode(`${HERO_SRC}/HSE.png`, `${OUT}/hero/hse-480.webp`, { width: 480, height: 480, start: 78 }));
+// HSE inset is 180px wide; 360 covers 2x screens (see optimize-images.mjs for the tuned quality settings).
+log(await encode(`${HERO_SRC}/HSE.png`, `${OUT}/hero/hse-360.webp`, { width: 360, height: 360, start: 66 }));
 
 // Project posters: 16:9, tiles up to ~400px wide, modal up to 1100px wide.
 const PROJ_SRC = "FTE-Branding Assets/Projects";

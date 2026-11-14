@@ -78,7 +78,7 @@ const SLIDES: Slide[] = [
 
 const HSE_ALT = "FTE site team in a safety toolbox talk in front of an HSE board";
 
-/** Responsive set for a hero image: 480/768/1200 (HSE inset only needs 480). */
+/** Responsive set for a hero image: 480/768/1200 (HSE inset only needs 360). */
 const heroSrcSet = (id: string, widths: number[]) => widths.map((w) => `/assets/hero/${id}-${w}.webp ${w}w`).join(", ");
 const SLIDE_WIDTHS = [480, 768, 1200];
 // Frame: up to 568px wide on desktop (4:5, so the square image renders ~710px), full width minus gutters on smaller screens.
@@ -350,24 +350,24 @@ export const Hero: React.FC = () => {
                               selectRow(i);
                             }
                           }}
-                          className={`group -mx-4 flex items-baseline gap-4 px-4 py-3 transition-colors duration-200 lg:py-4 ${isActive ? "bg-navy" : ""} focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus`}
+                          className={`group -mx-4 flex items-baseline gap-4 px-4 py-3 lg:py-4 ${isActive ? "bg-navy" : ""} focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus`}
                         >
                           <span
-                            className={`flex-1 text-[18px] transition-colors duration-200 ${
+                            className={`flex-1 text-[18px] ${
                               isActive ? "text-white" : "text-fg-muted group-hover:text-white"
                             }`}
                           >
                             {d.name}
                           </span>
                           <span
-                            className={`hidden sm:block text-[14px] transition-colors duration-200 ${
+                            className={`hidden sm:block text-[14px] ${
                               isActive ? "text-fg-muted" : "text-fg-subtle group-hover:text-fg-muted"
                             }`}
                           >
                             {d.scope}
                           </span>
                           <ArrowRight
-                            className={`h-4 w-4 self-center transition-[opacity,transform,color] duration-200 ${
+                            className={`h-4 w-4 self-center transition-[opacity,transform] duration-200 ${
                               isActive
                                 ? "opacity-100 text-accent"
                                 : "opacity-0 -translate-x-1 text-icon group-hover:opacity-100 group-hover:translate-x-0"
@@ -469,7 +469,7 @@ export const Hero: React.FC = () => {
                 {/* HSE inset (wide desktop only); fixed, not part of the slideshow */}
                 <figure className="absolute -left-8 -bottom-6 hidden w-[180px] min-[1100px]:block">
                   <div className="aspect-[4/3] overflow-hidden rounded-t-[4px] border border-b-0 border-line-strong">
-                    <HeroPicture id="hse" alt={HSE_ALT} widths={[480]} sizes="180px" className="h-full w-full object-cover hero-grade" />
+                    <HeroPicture id="hse" alt={HSE_ALT} widths={[360]} sizes="180px" className="h-full w-full object-cover hero-grade" />
                   </div>
                   <figcaption className="rounded-b-[4px] border border-t-0 border-line-strong bg-navy px-3 py-1.5 text-[12px] text-white">
                     HSE on every site

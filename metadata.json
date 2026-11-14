@@ -1,6 +1,0 @@
-{
-  "name": "Fraternity Engineering & Co. (FTE)",
-  "description": "Official website for Fraternity Engineering & Co. (SMC-Pvt) Ltd. - Construction, civil, electrical, fire & safety, and general supply engineering services based in Islamabad.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

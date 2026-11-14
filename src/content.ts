@@ -12,24 +12,6 @@ export interface ServiceItem {
   image: string;
 }
 
-export interface WhyPoint {
-  number: string;
-  title: string;
-  description: string;
-}
-
-export interface ProjectPlaceholder {
-  id: string;
-  title: string;
-  category: 'Construction' | 'Civil' | 'Electrical' | 'Fire & safety' | 'Supply';
-  categoryLabel: string;
-  description: string;
-  blueprintType: string;
-  specs: string[];
-  scope: string;
-  isPlaceholder: true;
-}
-
 export interface ProcessStep {
   step: string;
   title: string;

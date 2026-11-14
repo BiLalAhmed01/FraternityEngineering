@@ -1,20 +1,14 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Fraternity Engineering & Co.
 
-# Run and deploy your AI Studio app
+Marketing site for Fraternity Engineering & Co. (SMC-Pvt) Ltd. React 19, Vite and Tailwind, prerendered to static HTML and deployed on Vercel. The quote form posts to `api/contact.ts`.
 
-This contains everything you need to run your app locally.
+## Scripts
 
-View your app in AI Studio: https://ai.studio/apps/a9d90e28-b8fe-4012-bbed-2cd007840359
+- `npm run dev` runs the dev server on port 3000.
+- `npm run build` builds and prerenders into `dist/`.
+- `npm run lint` type-checks.
+- `npx tsx --test src/utils/*.test.ts` runs the unit tests.
+- `node scripts/build-images.mjs` regenerates the responsive images from `FTE-Branding Assets/`.
+- `node scripts/optimize-images.mjs` re-encodes them at the tuned quality settings.
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Copy `.env.example` to `.env.local` to set the contact form relay.

@@ -11,7 +11,8 @@
   var go = function (fn, ms) { return setTimeout(fn, ms); };
 
   function vh() { h.style.setProperty("--vh", innerHeight * 0.01 + "px"); }
-  vh(); addEventListener("resize", vh);
+  // First read happens after the first frame so it does not force a synchronous layout during script start-up.
+  requestAnimationFrame(vh); addEventListener("resize", vh);
 
   // Page behind the splash: not focusable, hidden from assistive tech. It stays rendered for crawlers and LCP.
   root.setAttribute("inert", ""); root.setAttribute("aria-hidden", "true");
