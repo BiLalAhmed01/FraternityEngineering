@@ -254,31 +254,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
       body.append("startedAt", String(startedAt.current));
       if (file) body.append("attachment", file);
 
-      let response = await fetch("/api/contact", { method: "POST", headers: { Accept: "application/json" }, body });
-
-      // API missing (e.g. a local preview): send straight to the mail relay so the request still arrives.
-      // Server errors and validation errors are shown to the visitor instead, so the server's spam checks
-      // (honeypot, rate limit) are never bypassed in production.
-      if (response.status === 404 || response.status === 405) {
-        const direct = new FormData();
-        direct.append("_subject", `New Quote Request - ${formData.service} - ${formData.fullName}`);
-        direct.append("_template", "table");
-        if (formData.email) direct.append("_replyto", formData.email);
-        direct.append("name", formData.fullName);
-        direct.append("company", formData.companyName || "Not provided");
-        direct.append("phone", formData.phone);
-        direct.append("email", formData.email || "Not provided");
-        direct.append("service", formData.service);
-        direct.append("budget", formData.budget || "Not provided");
-        direct.append("timeline", formData.timeline || "Not provided");
-        direct.append("message", formData.message);
-        if (file) direct.append("attachment", file);
-        response = await fetch("https://formsubmit.co/ajax/fraternityengineering@gmail.com", {
-          method: "POST",
-          headers: { Accept: "application/json" },
-          body: direct,
-        });
-      }
+      const response = await fetch("/api/contact", { method: "POST", headers: { Accept: "application/json" }, body });
 
       if (!response.ok) throw new Error("Submission failed");
       setIsSubmitted(true);

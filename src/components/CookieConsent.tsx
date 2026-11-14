@@ -14,9 +14,9 @@ export const CookieConsent: React.FC = () => {
     }
   }, []);
 
-  const accept = () => {
+  const decide = (choice: "accepted" | "declined") => {
     try {
-      localStorage.setItem(CONSENT_KEY, "accepted");
+      localStorage.setItem(CONSENT_KEY, choice);
     } catch {
       /* storage unavailable */
     }
@@ -36,8 +36,8 @@ export const CookieConsent: React.FC = () => {
         <div className="flex items-start gap-3 flex-1">
           <Cookie className="w-5 h-5 text-icon shrink-0 mt-0.5" aria-hidden="true" />
           <p className="text-xs sm:text-sm text-fg-muted leading-relaxed">
-            We use essential cookies for site functionality. No tracking or advertising cookies are
-            used. See our{" "}
+            We use essential cookies for site functionality. We set no tracking or advertising cookies, so declining changes nothing
+            on the site. See our{" "}
             <a href="/privacy" className="text-fg underline underline-offset-2 font-medium">
               Privacy Policy
             </a>
@@ -47,14 +47,21 @@ export const CookieConsent: React.FC = () => {
         <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
           <button
             type="button"
-            onClick={accept}
+            onClick={() => decide("declined")}
+            className="min-h-[44px] px-5 py-2.5 border border-line-strong text-fg text-xs font-bold rounded-[4px] transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >
+            Decline
+          </button>
+          <button
+            type="button"
+            onClick={() => decide("accepted")}
             className="min-h-[44px] px-5 py-2.5 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold rounded-[4px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             Accept
           </button>
           <button
             type="button"
-            onClick={accept}
+            onClick={() => decide("declined")}
             className="p-2 text-icon hover:text-white transition-colors"
             aria-label="Dismiss cookie notice"
           >

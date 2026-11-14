@@ -99,8 +99,9 @@ const sections: LegalSection[] = [
     title: "Data retention and security",
     body: (
       <LegalP>
-        We retain inquiry data only as long as needed to respond and fulfill contractual
-        obligations. We apply reasonable administrative and technical safeguards to protect
+        We keep quote and contact inquiries for up to 24 months after our last
+        correspondence, or longer where a contract or the law requires it, and then delete them.
+        Server logs kept by our host are retained for a short period under its own policy. We apply reasonable administrative and technical safeguards to protect
         your information.
       </LegalP>
     ),
@@ -112,7 +113,9 @@ const sections: LegalSection[] = [
       <LegalP>
         You may request access to, correction of, or deletion of your personal information by
         contacting us at <LegalLink href={`mailto:${email}`}>{email}</LegalLink>. We will respond
-        within a reasonable timeframe.
+        within 30 days. Depending on where you live, laws such as Pakistan's data protection rules, the GDPR
+        or the CCPA may give you further rights, including the right to object to processing and the right to
+        complain to a regulator. We do not sell personal information.
       </LegalP>
     ),
   },

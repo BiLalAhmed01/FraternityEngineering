@@ -7,3 +7,8 @@ coverage/
 .env*
 !.env.example
 .playwright-mcp/
+
+.devin/
+.aistudio/
+bun.lock
+dev-server.log
