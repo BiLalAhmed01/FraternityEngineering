@@ -2,7 +2,7 @@ import React from "react";
 import { LegalPage, LegalP, LegalList, LegalLink, LegalSection } from "../components/LegalPage";
 import { SITE_CONTENT } from "../content";
 
-const lastUpdated = "November 6, 2026";
+const lastUpdated = "November 14, 2026";
 
 const email = SITE_CONTENT.contact.email;
 
@@ -55,11 +55,43 @@ const sections: LegalSection[] = [
     id: "third-party-services",
     title: "Third-party services",
     body: (
-      <LegalP>
-        Our website uses Google Fonts for typography and links to WhatsApp and Google Maps.
-        These services may collect technical data under their own privacy policies. We do not
-        use advertising trackers, analytics cookies, or sell visitor data.
-      </LegalP>
+      <>
+        <LegalP>We use the following services to run this website and handle your requests:</LegalP>
+        <LegalList
+          items={[
+            "Vercel hosts the website and the form handler. Standard server logs, such as IP address and browser type, are kept by the host.",
+            "FormSubmit (formsubmit.co) delivers the quote or contact form, including any file you attach, to our email inbox.",
+            "Google Maps loads only after you choose to load the map, and may set its own cookies under Google's privacy policy.",
+            "WhatsApp opens only when you choose a WhatsApp link, under WhatsApp's own privacy policy.",
+          ]}
+        />
+        <LegalP className="mt-5">
+          Fonts are hosted on our own server. We do not use advertising trackers or analytics cookies, and we do not
+          sell visitor data.
+        </LegalP>
+      </>
+    ),
+  },
+  {
+    id: "cookies-and-storage",
+    title: "Cookies and local storage",
+    body: (
+      <>
+        <LegalP>
+          This website does not set tracking or advertising cookies. It stores a few small items in your browser so the
+          site works as you expect:
+        </LegalP>
+        <LegalList
+          items={[
+            "fte-cookie-consent remembers that you dismissed the cookie notice.",
+            "fte_theme remembers your light or dark display choice.",
+            "fte_splash_seen (session storage) stops the intro animation repeating during one visit.",
+          ]}
+        />
+        <LegalP className="mt-5">
+          You can clear these at any time in your browser settings. The notice will then appear again.
+        </LegalP>
+      </>
     ),
   },
   {

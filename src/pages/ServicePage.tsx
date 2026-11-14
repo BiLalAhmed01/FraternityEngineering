@@ -8,14 +8,7 @@ import { WhatsAppBubble } from "../components/WhatsAppBubble";
 import { SmoothScroll } from "../components/SmoothScroll";
 import { SITE_CONTENT } from "../content";
 import { ServicePageData, SERVICE_PAGES, serviceUrl } from "../servicesData";
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  Construction: "/assets/service-construction.webp",
-  Civil: "/assets/service-civil.webp",
-  Electrical: "/assets/service-electrical.webp",
-  "Fire & safety": "/assets/service-fire.webp",
-  Supply: "/assets/service-supply.webp",
-};
+import { PROJECT_IMAGE_SIZE, SHOW_ILLUSTRATION_LABEL, projectMeta, projectSrcSet } from "../projectsData";
 
 /** 480/768 variants sit beside each 1024px service photo (service-x.webp -> service-x-480.webp). */
 const photoSrcSet = (src: string) =>
@@ -39,7 +32,7 @@ const Brackets: React.FC = () => (
 
 export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service }) => {
   useEffect(() => {
-    document.title = `${service.name} | Fraternity Engineering`;
+    document.title = `${service.seoTitle} | Fraternity Engineering`;
     window.scrollTo(0, 0);
   }, [service]);
 
@@ -180,45 +173,34 @@ export const ServicePage: React.FC<{ service: ServicePageData }> = ({ service })
               <div className={gutter}>
                 <h2 className={h2Class}>Related projects</h2>
                 <div className="w-14 h-[3px] bg-accent mt-5 mb-12" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {service.relatedProjects.map((work) => (
-                    <article key={work.id} className="group flex flex-col bg-midnight border border-line">
+                    <article key={work.slug} className="group flex flex-col bg-midnight border border-line">
                       <div className="relative overflow-hidden">
                         <img
-                          src={CATEGORY_IMAGES[work.category]}
-                          srcSet={photoSrcSet(CATEGORY_IMAGES[work.category])}
-                          sizes="(min-width: 768px) 50vw, 100vw"
-                          width={1024}
-                          height={576}
-                          alt={`${work.category} work`}
+                          src={work.image}
+                          srcSet={projectSrcSet(work.slug)}
+                          sizes="(min-width: 1024px) 384px, (min-width: 768px) 50vw, 100vw"
+                          width={PROJECT_IMAGE_SIZE.width}
+                          height={PROJECT_IMAGE_SIZE.height}
+                          alt={work.alt}
                           loading="lazy"
                           decoding="async"
                           className="svc-photo w-full aspect-[16/9] object-cover"
                         />
-                        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/20 to-transparent" />
-                        <h3 className="absolute left-0 right-0 bottom-0 px-6 pb-5 font-heading font-semibold text-2xl leading-snug text-white">
-                          {work.title}
-                        </h3>
                         <span
                           aria-hidden="true"
                           className="absolute left-0 bottom-0 h-[3px] w-full bg-accent origin-left scale-x-[0.18] transition-transform duration-500 group-hover:scale-x-100"
                         />
                       </div>
                       <div className="flex-1 p-6">
-                        <dl className="flex flex-wrap gap-x-10 gap-y-2 text-sm">
-                          <div>
-                            <dt className="text-fg-subtle">Location</dt>
-                            <dd className="font-semibold text-white">{work.location}</dd>
-                          </div>
-                          {work.year && (
-                            <div>
-                              <dt className="text-fg-subtle">Year</dt>
-                              <dd className="font-semibold text-white">{work.year}</dd>
-                            </div>
-                          )}
-                        </dl>
-                        <p className="mt-4 text-fg-muted leading-relaxed">{work.scope}</p>
-                        <p className="mt-3 font-semibold text-white">{work.delivered}</p>
+                        <h3 className="font-heading font-semibold text-xl leading-snug text-white">{work.title}</h3>
+                        {projectMeta(work) && <p className="mt-1 text-sm text-fg-subtle">{projectMeta(work)}</p>}
+                        <p className="mt-4 text-fg-muted leading-relaxed">{work.description}</p>
+                        {work.outcome && <p className="mt-3 font-semibold text-white">{work.outcome}</p>}
+                        {SHOW_ILLUSTRATION_LABEL && work.isIllustration && (
+                          <p className="mt-4 text-[13px] text-fg-subtle">Project illustration</p>
+                        )}
                       </div>
                     </article>
                   ))}

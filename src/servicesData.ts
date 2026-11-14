@@ -3,12 +3,14 @@
  * Scopes and summaries come from SITE_CONTENT.services (single source of truth).
  * Fields left empty are hidden on the page. Only add facts you can stand behind.
  */
-import { SITE_CONTENT, ServiceItem, WorkShowcaseItem, FaqItem } from "./content";
+import { SITE_CONTENT, ServiceItem, FaqItem } from "./content";
+import { PROJECTS, Project, ProjectCategory } from "./projectsData";
 
 export type ServiceSlug = "construction" | "civil" | "electrical" | "fire-safety" | "supply";
 
 interface ServiceDetail {
-  workCategories: WorkShowcaseItem["category"][]; // related projects, in order of relevance
+  seoTitle: string; // <title> text, without the brand suffix
+  workCategories: ProjectCategory[]; // related projects from projectsData.ts. Empty = section hidden.
   overview: string;
   standards: string[]; // e.g. "PEC-registered contractor", "NFPA 72 for alarm design". Hidden when empty.
   faq: FaqItem[];
@@ -27,7 +29,8 @@ const quoteFaq = (name: string): FaqItem[] => [
 
 const DETAILS: Record<ServiceSlug, ServiceDetail> = {
   construction: {
-    workCategories: ["Construction", "Civil"],
+    seoTitle: "Construction Contractor in Islamabad",
+    workCategories: ["Construction"],
     overview:
       "New buildings, renovation and structural works for commercial, institutional and industrial clients, built to your drawings and specifications.",
     standards: [],
@@ -40,7 +43,8 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
     ],
   },
   civil: {
-    workCategories: ["Civil", "Construction"],
+    seoTitle: "Civil Works Contractor in Islamabad",
+    workCategories: [], // no civil project on record yet,
     overview:
       "Roads, drainage, culverts and site development that prepare the ground for the buildings that follow, and keep it working.",
     standards: [],
@@ -53,7 +57,8 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
     ],
   },
   electrical: {
-    workCategories: ["Electrical", "Fire & safety"],
+    seoTitle: "Electrical Contractor in Islamabad",
+    workCategories: ["Electrical"],
     overview:
       "Low-voltage distribution, panels, wiring and lighting, installed, tested and handed over with the documents your facility team needs.",
     standards: [],
@@ -66,7 +71,8 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
     ],
   },
   "fire-safety": {
-    workCategories: ["Fire & safety", "Electrical"],
+    seoTitle: "Fire Alarm and Safety Systems, Islamabad",
+    workCategories: ["Fire & Safety"],
     overview:
       "Fire detection, alarm, hydrant and standpipe systems, tested and commissioned before handover.",
     standards: [],
@@ -79,7 +85,8 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
     ],
   },
   supply: {
-    workCategories: ["Supply", "Electrical"],
+    seoTitle: "Chemicals and Materials Supply, Islamabad",
+    workCategories: [], // no supply project on record yet,
     overview:
       "Construction chemicals, hardware, electrical and fire safety materials, sourced to specification and delivered to site.",
     standards: [],
@@ -95,16 +102,13 @@ const DETAILS: Record<ServiceSlug, ServiceDetail> = {
 
 export interface ServicePageData extends ServiceItem, ServiceDetail {
   slug: ServiceSlug;
-  relatedProjects: WorkShowcaseItem[];
+  relatedProjects: Project[];
 }
 
 export const SERVICE_PAGES: ServicePageData[] = SITE_CONTENT.services.map((service) => {
   const slug = service.id as ServiceSlug;
   const detail = DETAILS[slug];
-  const relatedProjects = detail.workCategories
-    .map((cat) => SITE_CONTENT.workShowcase.find((w) => w.category === cat))
-    .filter((w): w is WorkShowcaseItem => Boolean(w))
-    .slice(0, 2);
+  const relatedProjects = PROJECTS.filter((p) => detail.workCategories.includes(p.category)).slice(0, 3);
   return { ...service, ...detail, slug, relatedProjects };
 });
 

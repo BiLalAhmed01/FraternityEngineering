@@ -169,7 +169,7 @@ try {
   for (const svc of SERVICE_PAGES) {
     // Render with the page's own path so path-aware links (e.g. nav anchors) come out right.
     const body = await renderApp(`/services/${svc.slug}`);
-    const title = `${svc.name} | Fraternity Engineering`;
+    const title = `${svc.seoTitle} | Fraternity Engineering`;
     const canonical = `${BASE}/services/${svc.slug}`;
     const desc = svc.overview;
     const img = svc.image;

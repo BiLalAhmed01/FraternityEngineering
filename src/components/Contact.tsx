@@ -141,6 +141,7 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const [honeypot, setHoneypot] = useState<string>("");
   const [agreedToPrivacy, setAgreedToPrivacy] = useState<boolean>(false);
   const [consentError, setConsentError] = useState<string | null>(null);
@@ -255,9 +256,10 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
       let response = await fetch("/api/contact", { method: "POST", headers: { Accept: "application/json" }, body });
 
-      // API missing (e.g. a local preview) or failing on the server: send straight to the mail relay so the
-      // request still arrives. Validation errors (4xx) are shown to the visitor instead.
-      if (response.status === 404 || response.status === 405 || response.status >= 500) {
+      // API missing (e.g. a local preview): send straight to the mail relay so the request still arrives.
+      // Server errors and validation errors are shown to the visitor instead, so the server's spam checks
+      // (honeypot, rate limit) are never bypassed in production.
+      if (response.status === 404 || response.status === 405) {
         const direct = new FormData();
         direct.append("_subject", `New Quote Request - ${formData.service} - ${formData.fullName}`);
         direct.append("_template", "table");
@@ -755,13 +757,30 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
         {/* Map */}
         <Reveal className="mt-12">
           <div className="contact-map relative h-[260px] overflow-hidden rounded-[6px] bg-surface lg:h-[360px]">
-            <iframe
-              src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Fraternity Engineering office location, G-8/1 Islamabad"
-              className="absolute inset-0 h-full w-full border-0"
-            />
+            {mapLoaded ? (
+              <iframe
+                src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Fraternity Engineering office location, G-8/1 Islamabad"
+                className="absolute inset-0 h-full w-full border-0"
+              />
+            ) : (
+              <div className="theme-dark absolute inset-0 flex items-start justify-center bg-navy px-4 pt-6 sm:items-center sm:justify-end sm:pr-10 sm:pt-0">
+                <div className="max-w-[300px] text-center sm:text-left">
+                  <button
+                    type="button"
+                    onClick={() => setMapLoaded(true)}
+                    className="inline-flex min-h-[44px] items-center justify-center rounded-[4px] bg-accent px-6 text-[15px] font-medium text-on-accent transition-colors hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                  >
+                    Load map
+                  </button>
+                  <p className="mt-2 text-[13px] leading-snug text-fg-muted">
+                    This loads Google Maps, which may set its own cookies.
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="absolute bottom-4 left-4 right-4 theme-paper max-w-[320px] rounded-[6px] bg-white p-5 text-fg sm:bottom-6 sm:left-6 sm:right-auto">
               <p className={`${capsLabel} text-fg-muted`}>Visit us</p>
               <p className="mt-2 text-[16px] font-medium leading-snug">{OFFICE_ADDRESS}</p>

@@ -84,7 +84,7 @@ const SLIDE_WIDTHS = [480, 768, 1200];
 // Frame: up to 568px wide on desktop (4:5, so the square image renders ~710px), full width minus gutters on smaller screens.
 const SLIDE_SIZES = "(min-width: 1024px) 568px, calc(100vw - 40px)";
 
-const HOLD_MS = 5000;
+const HOLD_MS = 2500;
 const PRELOAD_AT_MS = HOLD_MS - 1000;
 const SELECT_PAUSE_MS = 8000;
 

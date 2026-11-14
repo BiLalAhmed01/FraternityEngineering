@@ -54,18 +54,6 @@ export interface FaqItem {
   answer: string;
 }
 
-export interface WorkShowcaseItem {
-  id: string;
-  category: 'Construction' | 'Civil' | 'Electrical' | 'Fire & safety' | 'Supply';
-  title: string;
-  scope: string;
-  clientType: string;
-  location: string;
-  year?: string;
-  delivered: string;
-  isPlaceholder: true;
-}
-
 export interface ClientLogo {
   name: string;
   fullName: string;
@@ -118,8 +106,6 @@ export const SITE_CONTENT = {
     pecCategory: "", // e.g. "C-3" renders "PEC C-3 registered"
   },
 
-  companyProfileUrl: "/assets/company-profile.pdf",
-
   clientScopes: "", // e.g. "electrical, fire alarm and civil works". Hidden when empty.
 
   testimonials: [] as Testimonial[], // Section is hidden when empty.
@@ -148,59 +134,6 @@ export const SITE_CONTENT = {
     // Credentials row. PEC uses hero.pecCategory. Empty items are hidden; the row is hidden when all are empty.
     credentials: { ntn: "", secp: "", certification: "" },
   },
-
-  workShowcase: [
-    {
-      id: "work-01",
-      category: "Construction",
-      title: "Commercial Administrative Facility Renovation",
-      scope: "Full interior and structural refurbishment of a multi-story administrative facility",
-      clientType: "Corporate",
-      location: "Islamabad",
-      delivered: "2,400 sqm floor area",
-      isPlaceholder: true,
-    },
-    {
-      id: "work-02",
-      category: "Civil",
-      title: "Industrial Access Road & Stormwater Drainage",
-      scope: "1.2km reinforced asphalt approach road with pre-cast culverts and drainage ditches",
-      clientType: "Government",
-      location: "Rawalpindi",
-      delivered: "1.2km road, 4 culverts",
-      isPlaceholder: true,
-    },
-    {
-      id: "work-03",
-      category: "Electrical",
-      title: "Primary Low-Voltage Distribution & Lighting",
-      scope: "Centralized main distribution panels, cable tray, and high-bay industrial illumination",
-      clientType: "Industrial",
-      location: "Taxila",
-      delivered: "1600A MDP, 18 lighting zones",
-      isPlaceholder: true,
-    },
-    {
-      id: "work-04",
-      category: "Fire & safety",
-      title: "Integrated Smoke Detection & Standpipe Network",
-      scope: "Addressable smoke detection loops, motorized booster pump, and internal standpipe risers",
-      clientType: "Government",
-      location: "Islamabad",
-      delivered: "32 detection points, pressure tested",
-      isPlaceholder: true,
-    },
-    {
-      id: "work-05",
-      category: "Supply",
-      title: "Industrial Hardware & Fastener Consignment",
-      scope: "Procurement, batch certification, and on-site delivery of structural bolts and conduit",
-      clientType: "Corporate",
-      location: "Islamabad",
-      delivered: "500 units fasteners, phased deliveries",
-      isPlaceholder: true,
-    },
-  ] as WorkShowcaseItem[],
 
   services: [
     {

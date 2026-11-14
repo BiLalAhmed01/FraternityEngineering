@@ -488,23 +488,7 @@ html.theme-switching *::after {
 }
 
 /* ---------- Clients ---------- */
-.client-logo img {
-  filter: grayscale(1);
-  opacity: 0.65;
-  transition: filter 250ms ease-out, opacity 250ms ease-out;
-}
-
-.client-logo:focus-within img {
-  filter: grayscale(0);
-  opacity: 1;
-}
-
-@media (hover: hover) {
-  .client-logo:hover img {
-    filter: grayscale(0);
-    opacity: 1;
-  }
-}
+/* Logos are shown in their original colours. */
 
 /* Mobile: marquee. Static grid replaces it on tablet/desktop and under reduced motion. */
 .clients-static {
@@ -578,7 +562,7 @@ html.theme-switching *::after {
 
 @media (prefers-reduced-motion: no-preference) {
   .hero-slide-img.is-current {
-    animation: heroSettle 5900ms linear forwards;
+    animation: heroSettle 3400ms linear forwards;
   }
 }
 
