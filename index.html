@@ -15,16 +15,14 @@
 html.splash-active,html.splash-active body{overflow:hidden}
 #fte-splash{display:none}
 html.splash-active #fte-splash{display:block;position:fixed;inset:0;z-index:2147483000;height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;background:var(--midnight);color:var(--white);font-family:"Barlow","Barlow Fallback",Arial,sans-serif;will-change:transform}
-#fte-splash .fs-bg,#fte-splash .fs-shade,#fte-splash video{position:absolute;inset:0;width:100%;height:100%}
+#fte-splash .fs-bg,#fte-splash .fs-shade{position:absolute;inset:0;width:100%;height:100%}
 #fte-splash .fs-bg{background:var(--midnight) url(/assets/splash/splash-poster.webp) center/cover no-repeat}
 @media (max-width:767px),(orientation:portrait){#fte-splash .fs-bg{background-image:url(/assets/splash/splash-poster-mobile.webp)}}
-#fte-splash video{object-fit:cover;opacity:0;transition:opacity 500ms ease-out}
-#fte-splash video.is-on{opacity:1}
 #fte-splash .fs-shade{background:color-mix(in srgb,var(--midnight) 55%,transparent)}
 #fte-splash .fs-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);transition:opacity 250ms ease-out}
 #fte-splash .fs-logo{display:block;width:min(clamp(120px,22vw,200px),77vh);height:auto;animation:fs-logo 400ms cubic-bezier(.22,1,.36,1) both}
 #fte-splash .fs-line{margin-top:24px;width:160px;max-width:60vw;height:2px;background:color-mix(in srgb,var(--white) 15%,transparent);overflow:hidden}
-#fte-splash .fs-fill{display:block;width:100%;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform 300ms ease}
+#fte-splash .fs-fill{display:block;width:100%;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform 2300ms linear}
 #fte-splash .fs-skip{position:absolute;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));min-width:44px;min-height:44px;padding:0 12px;border:0;border-radius:4px;background:none;color:var(--steel);font:inherit;font-size:14px;cursor:pointer;animation:fs-fade 300ms ease-out 600ms both}
 #fte-splash .fs-skip:hover{color:var(--white)}
 #fte-splash .fs-skip:focus-visible{outline:2px solid var(--white);outline-offset:2px}
@@ -34,7 +32,7 @@ html.splash-active #fte-splash{display:block;position:fixed;inset:0;z-index:2147
 #fte-splash.is-leaving .fs-skip{animation:none;opacity:0;transition:opacity 150ms}
 @keyframes fs-logo{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 @keyframes fs-fade{from{opacity:0}to{opacity:1}}
-@media (prefers-reduced-motion:reduce){#fte-splash .fs-logo{animation:fs-fade 300ms ease-out both!important}#fte-splash .fs-skip{animation:fs-fade 300ms ease-out 600ms both!important}#fte-splash .fs-fill{transition:transform 300ms ease!important}#fte-splash.is-leaving{transform:none;opacity:0;transition:opacity 300ms ease!important}}
+@media (prefers-reduced-motion:reduce){#fte-splash .fs-logo{animation:fs-fade 300ms ease-out both!important}#fte-splash .fs-skip{animation:fs-fade 300ms ease-out 600ms both!important}#fte-splash.is-leaving{transform:none;opacity:0;transition:opacity 300ms ease!important}}
 /* Hero entrance waits until the splash starts leaving (the controller adds splash-reveal 300ms in). */
 html.splash-active:not(.splash-reveal) .hero-rise,html.splash-active:not(.splash-reveal) .hero-frame-in{animation-play-state:paused}
     </style>

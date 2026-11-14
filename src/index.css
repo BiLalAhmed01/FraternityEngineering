@@ -562,7 +562,7 @@ html.theme-switching *::after {
 
 @media (prefers-reduced-motion: no-preference) {
   .hero-slide-img.is-current {
-    animation: heroSettle 3400ms linear forwards;
+    animation: heroSettle 3900ms linear forwards;
   }
 }
 

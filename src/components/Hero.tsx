@@ -84,8 +84,11 @@ const SLIDE_WIDTHS = [480, 768, 1200];
 // Frame: up to 568px wide on desktop (4:5, so the square image renders ~710px), full width minus gutters on smaller screens.
 const SLIDE_SIZES = "(min-width: 1024px) 568px, calc(100vw - 40px)";
 
-const HOLD_MS = 2500;
-const PRELOAD_AT_MS = HOLD_MS - 1000;
+const HOLD_MS = 3000;
+/** The next slide starts downloading this far into the hold, after the current one has settled. */
+const PRELOAD_AT_MS = 400;
+/** If the next photo is still not ready this long after the hold, advance anyway so a bad connection never stalls. */
+const MAX_WAIT_MS = 5000;
 const SELECT_PAUSE_MS = 8000;
 
 const filled = (v: string) => v.trim() !== "";
@@ -145,6 +148,36 @@ export const Hero: React.FC = () => {
     setLoaded((prev) => (prev.has(index) ? prev : new Set(prev).add(index)));
   }, []);
 
+  /** Slides whose photo has been downloaded and decoded. Autoplay only advances onto a ready slide. */
+  const readyRef = useRef<Set<number>>(new Set([0]));
+  const preloading = useRef<Set<number>>(new Set());
+
+  /** Fetches and decodes a slide's photo (same srcset and sizes as the <picture>, so it is a cache hit later). */
+  const preloadSlide = useCallback(
+    (index: number) => {
+      const i = (index + SLIDES.length) % SLIDES.length;
+      if (readyRef.current.has(i) || preloading.current.has(i)) return;
+      preloading.current.add(i);
+      const id = SLIDES[i].id;
+      const img = new Image();
+      const done = () => {
+        readyRef.current.add(i);
+        preloading.current.delete(i);
+        ensureLoaded(i);
+      };
+      img.sizes = SLIDE_SIZES;
+      img.srcset = heroSrcSet(id, SLIDE_WIDTHS);
+      img.src = `/assets/hero/${id}-${SLIDE_WIDTHS[SLIDE_WIDTHS.length - 1]}.webp`;
+      if (typeof img.decode === "function") img.decode().then(done, done);
+      else if (img.complete) done();
+      else {
+        img.onload = done;
+        img.onerror = done;
+      }
+    },
+    [ensureLoaded]
+  );
+
   const goTo = useCallback(
     (index: number) => {
       const next = (index + SLIDES.length) % SLIDES.length;
@@ -176,7 +209,8 @@ export const Hero: React.FC = () => {
     goTo(slide + dir);
   };
 
-  // Autoplay clock: drives the row progress line, preloads the next slide 1s early, advances after the hold.
+  // Autoplay clock: drives the row progress line, preloads the next slide, advances after the hold once that
+  // slide is ready (so slow connections wait instead of showing an empty frame).
   useEffect(() => {
     if (!running) return;
     let frame = 0;
@@ -187,11 +221,12 @@ export const Hero: React.FC = () => {
       last = now;
       const elapsed = elapsedRef.current;
       if (progressRef.current) progressRef.current.style.transform = `scaleX(${Math.min(elapsed / HOLD_MS, 1)})`;
+      const next = (slide + 1) % SLIDES.length;
       if (!preloaded && elapsed >= PRELOAD_AT_MS) {
         preloaded = true;
-        ensureLoaded((slide + 1) % SLIDES.length);
+        preloadSlide(next);
       }
-      if (elapsed >= HOLD_MS) {
+      if (elapsed >= HOLD_MS && (readyRef.current.has(next) || elapsed >= HOLD_MS + MAX_WAIT_MS)) {
         goTo(slide + 1);
         return;
       }
@@ -199,7 +234,7 @@ export const Hero: React.FC = () => {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [running, slide, goTo, ensureLoaded]);
+  }, [running, slide, goTo, preloadSlide]);
 
   // Pause while the tab is hidden.
   useEffect(() => {
