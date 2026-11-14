@@ -7,7 +7,7 @@ import { CountUp } from "./CountUp";
 const FALLBACK_IMAGE = "/assets/about-fallback-1200.webp";
 const FALLBACK_SRCSET = [480, 768, 1200].map((w) => `/assets/about-fallback-${w}.webp ${w}w`).join(", ");
 
-const eyebrow = "text-[12px] font-semibold uppercase tracking-[0.12em] text-label";
+const eyebrow = "text-[13px] font-semibold text-label";
 
 export const About: React.FC = () => {
   const { story, image, established, founder, mission, vision, coreValues, credentials } = SITE_CONTENT.about;

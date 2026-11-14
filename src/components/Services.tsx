@@ -43,10 +43,10 @@ const pad = (n: number) => String(n).padStart(2, "0");
 // When scrolling settles in an outer copy, it jumps by one copy width to the identical middle position.
 // Only scrollLeft and scroll events are used, so it behaves the same in every browser.
 const COPIES = 3;
-const AUTOPLAY_MS = 4000;
+const AUTOPLAY_MS = 1800;
 const RESUME_AFTER_TOUCH_MS = 6000;
 const SETTLE_MS = 140;
-const SLIDE_MS = 550;
+const SLIDE_MS = 400;
 
 export const Services: React.FC = () => {
   const services = SITE_CONTENT.services;
@@ -72,9 +72,12 @@ export const Services: React.FC = () => {
   /** Distance between card starts (card width + gap). */
   const step = useCallback(() => {
     const el = trackRef.current;
-    const card = el?.querySelector<HTMLElement>(".svc-card");
-    if (!el || !card) return 0;
-    return card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0");
+    const cards = el?.querySelectorAll<HTMLElement>(".svc-card");
+    if (!el || !cards || cards.length === 0) return 0;
+    // Measured between neighbouring cards, so it does not depend on how a browser reports `gap`.
+    // Fractional on purpose: a rounded step would end each slide a few pixels off the snap point and tug back.
+    if (cards.length > 1) return cards[1].getBoundingClientRect().left - cards[0].getBoundingClientRect().left;
+    return cards[0].getBoundingClientRect().width;
   }, []);
 
   /** Instant jump, ignoring smooth-scroll settings. */
@@ -116,6 +119,10 @@ export const Services: React.FC = () => {
       sync();
     };
     place();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", place);
+      return () => window.removeEventListener("resize", place);
+    }
     const ro = new ResizeObserver(place);
     ro.observe(el);
     return () => ro.disconnect();
@@ -154,7 +161,7 @@ export const Services: React.FC = () => {
       const start = performance.now();
       el.dataset.dragging = "true";
       const tick = (now: number) => {
-        const t = Math.min(1, (now - start) / SLIDE_MS);
+        const t = Math.min(1, Math.max(0, (now - start) / SLIDE_MS));
         el.scrollLeft = from + (target - from) * (1 - Math.pow(1 - t, 3));
         if (t < 1) {
           animFrame.current = requestAnimationFrame(tick);
@@ -171,13 +178,17 @@ export const Services: React.FC = () => {
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), { threshold: 0.25 });
-    io.observe(section);
+    const io =
+      typeof IntersectionObserver === "undefined"
+        ? null
+        : new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), { threshold: 0.25 });
+    if (io) io.observe(section);
+    else setOnScreen(true);
     const onVisibility = () => setTabHidden(document.hidden);
     onVisibility();
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
-      io.disconnect();
+      io?.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
@@ -292,7 +303,7 @@ export const Services: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-6 shrink-0">
-            <p className="text-sm tabular-nums tracking-[0.12em] text-fg-muted" aria-hidden="true">
+            <p className="text-sm tabular-nums text-fg-muted" aria-hidden="true">
               <span className="text-fg">{pad(index + 1)}</span> / {pad(total)}
             </p>
             <div className="flex items-center gap-3">

@@ -58,7 +58,7 @@ const formatBytes = (bytes: number) =>
 
 /* ---------- Shared field styles ---------- */
 
-const capsLabel = "text-[12px] font-semibold uppercase tracking-[0.12em]";
+const capsLabel = "text-[12px] font-semibold";
 const ERROR_COLOR = "var(--form-error)";
 const controlBase =
   "w-full rounded-[4px] border bg-white px-4 text-[16px] text-fg placeholder:text-fg-subtle transition-colors focus:outline-2 focus:outline-offset-2 focus:outline-focus focus:border-focus";
@@ -696,9 +696,10 @@ export const Contact = forwardRef<ContactRef>((_props, ref) => {
 
                     {/* Submission error: keeps the user's input and offers WhatsApp */}
                     {submitError && (
-                      <div className="mt-6 rounded-[4px] border border-form-error/30 bg-form-error/[0.04] px-4 py-3.5 text-[14px] text-fg" role="alert">
-                        <p>
-                          Something went wrong. Please call{" "}
+                      <div className="mt-6 rounded-[4px] border border-form-error/30 border-l-4 border-l-form-error bg-form-error/[0.04] px-4 py-4 text-[15px] leading-relaxed text-fg" role="alert">
+                        <p className="font-semibold">Your request was not sent.</p>
+                        <p className="mt-1">
+                          Your details are still in the form. Submit again, or call{" "}
                           <a
                             href={`tel:${contact.phonePrimaryTel}`}
                             className="rounded-sm font-medium underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"

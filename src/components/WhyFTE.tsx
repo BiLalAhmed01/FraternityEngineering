@@ -24,7 +24,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 const showIllustrationLabel = (p: Project) => SHOW_ILLUSTRATION_LABEL && p.isIllustration;
 
 const IllustrationLabel: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <p className={`text-[11px] uppercase tracking-[0.12em] text-fg-subtle ${className}`}>Project illustration</p>
+  <p className={`text-[13px] text-fg-subtle ${className}`}>Project illustration</p>
 );
 
 interface WhyFTEProps {
@@ -253,7 +253,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ categories, active, onChange, c
           />
         </div>
       </div>
-      <p className="shrink-0 pb-3 text-[12px] uppercase tracking-[0.12em] text-fg-subtle" aria-live="polite">
+      <p className="sr-only sm:not-sr-only shrink-0 pb-3 text-[13px] text-fg-subtle" aria-live="polite">
         {count} {count === 1 ? "project" : "projects"}
       </p>
     </div>
@@ -279,9 +279,9 @@ const ProjectTile = React.forwardRef<HTMLAnchorElement, ProjectTileProps>(({ pro
         e.preventDefault();
         onOpen(e.currentTarget);
       }}
-      className="group flex w-full flex-col rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+      className="group flex w-full flex-col border border-line-strong bg-surface focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
     >
-      <div className="relative aspect-[16/9] overflow-hidden rounded-[6px] bg-surface">
+      <div className="relative aspect-[16/9] overflow-hidden bg-surface-2">
         <img
           src={project.image}
           srcSet={projectSrcSet(project.slug)}
@@ -291,27 +291,36 @@ const ProjectTile = React.forwardRef<HTMLAnchorElement, ProjectTileProps>(({ pro
           height={PROJECT_IMAGE_SIZE.height}
           loading="lazy"
           decoding="async"
-          className="h-full w-full object-cover transition-transform duration-[600ms] ease-out motion-safe:group-hover:scale-[1.03]"
+          className="h-full w-full object-cover"
         />
       </div>
 
-      {showIllustrationLabel(project) && <IllustrationLabel className="mt-2" />}
+      {showIllustrationLabel(project) && <IllustrationLabel className="px-4 py-2" />}
 
-      <div className="flex flex-1 flex-col pt-4">
-        {/* Empty meta keeps its line height so titles stay aligned across a row */}
-        <p className="mb-2 min-h-[18px] text-[12px] leading-[18px] uppercase tracking-[0.12em] text-fg-subtle" aria-hidden={!meta || undefined}>
-          {meta}
-        </p>
-        <h3 className="font-heading font-medium text-[20px] leading-snug text-fg">{project.title}</h3>
-        <p className="mt-2 text-[15px] leading-relaxed text-fg-muted">{project.description}</p>
-        <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-fg">
-          <span className="relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-fg after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
-            View project
-          </span>
-          <ArrowRight
-            className="w-4 h-4 text-label transition-transform duration-300 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1"
-            aria-hidden="true"
-          />
+      {/* Title block, as on a drawing sheet: only fields we actually have are printed. */}
+      <dl className="grid grid-cols-[1fr_auto] border-t border-line-strong text-[13px]">
+        <div className="col-span-2 border-b border-line-strong px-4 py-3">
+          <dt className="sr-only">Project</dt>
+          <dd>
+            <h3 className="font-heading font-semibold text-[20px] leading-snug text-fg">{project.title}</h3>
+          </dd>
+        </div>
+        <div className={`px-4 py-2 ${meta ? "border-r border-line-strong" : "col-span-2"}`}>
+          <dt className="text-fg-subtle">Discipline</dt>
+          <dd className="font-semibold text-fg">{project.category}</dd>
+        </div>
+        {meta && (
+          <div className="px-4 py-2">
+            <dt className="text-fg-subtle">Location</dt>
+            <dd className="font-semibold text-fg">{meta}</dd>
+          </div>
+        )}
+      </dl>
+
+      <div className="flex flex-1 flex-col border-t border-line-strong px-4 pb-4 pt-3">
+        <p className="text-[15px] leading-relaxed text-fg-muted">{project.description}</p>
+        <span className="mt-auto pt-4 text-sm font-semibold text-fg underline underline-offset-4 decoration-line-strong group-hover:decoration-accent group-focus-visible:decoration-accent">
+          View project
         </span>
       </div>
     </a>
@@ -439,7 +448,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
           >
             {/* Toolbar */}
             <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-navy px-3 py-2 sm:pl-6 sm:pr-4">
-              <p className="pl-1 sm:pl-0 text-[12px] uppercase tracking-[0.12em] text-fg-subtle" aria-live="polite">
+              <p className="pl-1 sm:pl-0 text-[12px] text-fg-subtle" aria-live="polite">
                 {pad(position)} / {pad(total)}
               </p>
               <div className="flex items-center gap-1">
@@ -492,25 +501,25 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
                 <div className="grid gap-8 px-4 py-6 sm:px-6 sm:py-8 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] md:gap-12">
                   <div>
-                    {meta && <p className="mb-2 text-[12px] uppercase tracking-[0.12em] text-fg-subtle">{meta}</p>}
+                    {meta && <p className="mb-2 text-[12px] text-fg-subtle">{meta}</p>}
                     <h3
                       id="work-modal-title"
                       className="font-heading font-semibold text-2xl sm:text-[28px] leading-tight text-fg [text-wrap:balance]"
                     >
                       {view.title}
                     </h3>
-                    <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-fg-subtle">Brief</p>
+                    <p className="mt-5 text-[12px] text-fg-subtle">Brief</p>
                     <p className="mt-2 text-base leading-relaxed text-fg-muted">{view.description}</p>
                     {view.outcome.trim() !== "" && (
                       <>
-                        <p className="mt-5 text-[12px] uppercase tracking-[0.12em] text-fg-subtle">Outcome</p>
+                        <p className="mt-5 text-[12px] text-fg-subtle">Outcome</p>
                         <p className="mt-2 text-base leading-relaxed text-fg-muted">{view.outcome}</p>
                       </>
                     )}
                   </div>
 
                   <div>
-                    <p className="mb-3 text-[12px] uppercase tracking-[0.12em] text-fg-subtle">Our scope</p>
+                    <p className="mb-3 text-[12px] text-fg-subtle">Our scope</p>
                     <ul className="space-y-2.5">
                       {view.facts.map((fact) => (
                         <li key={fact} className="flex items-start gap-2.5 text-[15px] text-fg">

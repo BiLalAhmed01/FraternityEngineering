@@ -49,7 +49,7 @@ export const FaqAccordion: React.FC<{ items: FaqItem[]; idPrefix?: string }> = (
 /* ---------- Homepage FAQ ---------- */
 
 const HASH_PREFIX = "#faq-";
-const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-label";
+const label = "text-[13px] font-semibold text-label";
 const underline =
   "relative after:absolute after:inset-x-0 after:-bottom-[3px] after:h-px after:bg-fg after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100";
 
@@ -191,13 +191,6 @@ export const Faq: React.FC = () => {
                         onKeyDown={(e) => onKeyDown(e, i)}
                         className="group flex w-full items-baseline py-7 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                       >
-                        <span
-                          className={`w-12 shrink-0 text-[13px] font-medium tabular-nums transition-colors duration-200 ${
-                            isOpen ? "text-fg" : "text-fg-subtle group-hover:text-fg"
-                          }`}
-                        >
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
                         <span className="flex-1 pr-6 font-heading font-medium text-[20px] leading-snug text-fg">
                           {item.question}
                         </span>
@@ -216,7 +209,7 @@ export const Faq: React.FC = () => {
                       }`}
                     >
                       <div className="overflow-hidden">
-                        <p className="max-w-[62ch] pb-8 pl-12 pr-8 text-[17px] leading-[1.7] text-fg-muted">
+                        <p className="max-w-[62ch] pb-8 pr-8 text-[17px] leading-[1.7] text-fg-muted">
                           {item.answer}
                         </p>
                       </div>

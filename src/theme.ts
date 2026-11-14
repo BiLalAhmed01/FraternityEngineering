@@ -26,9 +26,9 @@ export const applyTheme = (theme: Theme) => {
   window.dispatchEvent(new CustomEvent<Theme>(THEME_EVENT, { detail: theme }));
 };
 
-/** Dark on the server and first client render (matches the prerender); synced to the document after mount. */
+/** Daylight on the server and first client render (matches the prerender); synced to the document after mount. */
 export const useTheme = (): [Theme, () => void] => {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("daylight");
 
   useEffect(() => {
     setTheme(getTheme());

@@ -1,109 +1,107 @@
 import React from "react";
-import { BrandLogo } from "../components/BrandLogo";
+import { LegalPage, LegalP, LegalList, LegalLink, LegalSection } from "../components/LegalPage";
 import { SITE_CONTENT } from "../content";
-import { ArrowLeft } from "lucide-react";
 
 const lastUpdated = "November 6, 2026";
 
-export const PrivacyPage: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-bg text-fg font-body">
-      {/* Simple header */}
-      <header className="theme-dark bg-navy text-fg py-4 px-[clamp(20px,5vw,64px)]">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <a href="/" aria-label="Back to homepage">
-            <BrandLogo isBlueBg={true} />
-          </a>
-          <a
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-fg-muted hover:underline hover:underline-offset-4 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Site
-          </a>
-        </div>
-      </header>
+const email = SITE_CONTENT.contact.email;
 
-      <main className="max-w-4xl mx-auto px-[clamp(20px,5vw,64px)] py-12 md:py-16">
-        <h1 className="text-3xl md:text-4xl font-heading font-bold text-fg mb-2">
-          Privacy Policy
-        </h1>
-        <p className="text-sm text-fg-subtle font-mono mb-10">Last updated: {lastUpdated}</p>
+const sections: LegalSection[] = [
+  {
+    id: "who-we-are",
+    title: "Who we are",
+    body: (
+      <LegalP>
+        Fraternity Engineering &amp; Co. (SMC-Pvt) Ltd. ("FTE", "we", "us") is an engineering,
+        construction, and supply company based in Islamabad, Pakistan. This policy explains how
+        we collect, use, and protect information when you visit our website or contact us.
+      </LegalP>
+    ),
+  },
+  {
+    id: "information-we-collect",
+    title: "Information we collect",
+    body: (
+      <>
+        <LegalP>We collect information you voluntarily provide, including:</LegalP>
+        <LegalList
+          items={[
+            "Name, company name, phone number, and email address submitted through our contact or quote request form",
+            "Project details, service requirements, and messages you send us",
+            "Basic technical data such as browser type and pages visited (via standard server logs)",
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "how-we-use-it",
+    title: "How we use your information",
+    body: (
+      <>
+        <LegalList
+          items={[
+            "To respond to inquiries and prepare quotations",
+            "To deliver contracted engineering, construction, and supply services",
+            "To communicate about ongoing projects and after-sales support",
+            "To improve our website and services",
+          ]}
+        />
+        <LegalP className="mt-5">We do not sell, rent, or trade your personal information to third parties.</LegalP>
+      </>
+    ),
+  },
+  {
+    id: "third-party-services",
+    title: "Third-party services",
+    body: (
+      <LegalP>
+        Our website uses Google Fonts for typography and links to WhatsApp and Google Maps.
+        These services may collect technical data under their own privacy policies. We do not
+        use advertising trackers, analytics cookies, or sell visitor data.
+      </LegalP>
+    ),
+  },
+  {
+    id: "retention-and-security",
+    title: "Data retention and security",
+    body: (
+      <LegalP>
+        We retain inquiry data only as long as needed to respond and fulfill contractual
+        obligations. We apply reasonable administrative and technical safeguards to protect
+        your information.
+      </LegalP>
+    ),
+  },
+  {
+    id: "your-rights",
+    title: "Your rights",
+    body: (
+      <LegalP>
+        You may request access to, correction of, or deletion of your personal information by
+        contacting us at <LegalLink href={`mailto:${email}`}>{email}</LegalLink>. We will respond
+        within a reasonable timeframe.
+      </LegalP>
+    ),
+  },
+  {
+    id: "contact",
+    title: "Contact",
+    body: (
+      <LegalP>
+        Questions about this policy? Reach us at {SITE_CONTENT.contact.address}, {SITE_CONTENT.contact.city}, or
+        email <LegalLink href={`mailto:${email}`}>{email}</LegalLink>.
+      </LegalP>
+    ),
+  },
+];
 
-        <div className="prose prose-stone max-w-none space-y-8 text-sm sm:text-base leading-relaxed">
-          <section>
-            <h2 className="text-xl font-heading font-bold text-fg mb-3">1. Who We Are</h2>
-            <p>
-              Fraternity Engineering &amp; Co. (SMC-Pvt) Ltd. ("FTE", "we", "us") is an engineering,
-              construction, and supply company based in Islamabad, Pakistan. This policy explains how
-              we collect, use, and protect information when you visit our website or contact us.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-bold text-fg mb-3">2. Information We Collect</h2>
-            <p>We collect information you voluntarily provide, including:</p>
-            <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li>Name, company name, phone number, and email address submitted through our contact or quote request form</li>
-              <li>Project details, service requirements, and messages you send us</li>
-              <li>Basic technical data such as browser type and pages visited (via standard server logs)</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-bold text-fg mb-3">3. How We Use Your Information</h2>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>To respond to inquiries and prepare quotations</li>
-              <li>To deliver contracted engineering, construction, and supply services</li>
-              <li>To communicate about ongoing projects and after-sales support</li>
-              <li>To improve our website and services</li>
-            </ul>
-            <p className="mt-2">We do not sell, rent, or trade your personal information to third parties.</p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-bold text-fg mb-3">4. Third-Party Services</h2>
-            <p>
-              Our website uses Google Fonts for typography and links to WhatsApp and Google Maps.
-              These services may collect technical data under their own privacy policies. We do not
-              use advertising trackers, analytics cookies, or sell visitor data.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-bold text-fg mb-3">5. Data Retention &amp; Security</h2>
-            <p>
-              We retain inquiry data only as long as needed to respond and fulfill contractual
-              obligations. We apply reasonable administrative and technical safeguards to protect
-              your information.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-bold text-fg mb-3">6. Your Rights</h2>
-            <p>
-              You may request access to, correction of, or deletion of your personal information by
-              contacting us at{" "}
-              <a href={`mailto:${SITE_CONTENT.contact.email}`} className="text-fg underline underline-offset-2">
-                {SITE_CONTENT.contact.email}
-              </a>
-              . We will respond within a reasonable timeframe.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-bold text-fg mb-3">7. Contact</h2>
-            <p>
-              Questions about this policy? Reach us at {SITE_CONTENT.contact.address},{" "}
-              {SITE_CONTENT.contact.city}, or email{" "}
-              <a href={`mailto:${SITE_CONTENT.contact.email}`} className="text-fg underline underline-offset-2">
-                {SITE_CONTENT.contact.email}
-              </a>
-              .
-            </p>
-          </section>
-        </div>
-      </main>
-    </div>
-  );
-};
+export const PrivacyPage: React.FC = () => (
+  <LegalPage
+    title="Privacy policy"
+    updated={lastUpdated}
+    intro="How Fraternity Engineering & Co. collects, uses and protects information when you visit this website or contact us."
+    sections={sections}
+    other={{ href: "/terms", label: "Terms and conditions" }}
+  />
+);

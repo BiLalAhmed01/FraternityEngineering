@@ -63,20 +63,22 @@
   --grid-opacity: 0.035;
 }
 
+/* Daylight = drafting paper: brand Warm Cream canvas, Stone Beige rules, Graphite Brown labels. */
 :root[data-theme="daylight"] {
   color-scheme: light;
-  --bg: var(--offwhite);
-  --surface: #FFFFFF;
+  --bg: #F4EDE0;
+  --surface: #FBF7EF;
+  --surface-2: #D9C6B2;
   --text: #091324;
-  --text-muted: rgba(9, 19, 36, 0.76);
-  --text-subtle: rgba(9, 19, 36, 0.62);
-  --line: rgba(9, 19, 36, 0.12);
-  --line-strong: rgba(9, 19, 36, 0.5);
-  --label: #3F5578;
-  --icon: #3F5578;
+  --text-muted: rgba(9, 19, 36, 0.78);
+  --text-subtle: rgba(9, 19, 36, 0.64);
+  --line: rgba(75, 63, 54, 0.22);
+  --line-strong: rgba(75, 63, 54, 0.55);
+  --label: #4B3F36;
+  --icon: #4B3F36;
   --focus: #152847;
-  --grid-line: #152847;
-  --grid-opacity: 0.045;
+  --grid-line: #4B3F36;
+  --grid-opacity: 0.05;
 }
 
 /* Areas that stay midnight/navy in both themes re-assert the dark tokens. */
@@ -104,13 +106,13 @@
   --text: #091324;
   --text-muted: rgba(9, 19, 36, 0.76);
   --text-subtle: rgba(9, 19, 36, 0.62);
-  --line: rgba(9, 19, 36, 0.12);
-  --line-strong: rgba(9, 19, 36, 0.5);
-  --label: #3F5578;
-  --icon: #3F5578;
+  --line: rgba(75, 63, 54, 0.22);
+  --line-strong: rgba(75, 63, 54, 0.55);
+  --label: #4B3F36;
+  --icon: #4B3F36;
   --focus: #152847;
-  --bg: var(--white);
-  --surface: var(--offwhite);
+  --bg: #FBF7EF;
+  --surface: #F4EDE0;
   color: var(--text);
 }
 
@@ -275,11 +277,9 @@ html.theme-switching *::after {
   opacity: calc(var(--grid-opacity) * 2);
 }
 
-/* Kicker label uppercase with 8% letter spacing */
+/* Kicker label: sentence case, semibold */
 .kicker-label {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   font-weight: 600;
 }
 
@@ -390,10 +390,9 @@ html.theme-switching *::after {
 
 /* ---------- Services carousel ---------- */
 .svc-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
   color: var(--text-muted);
 }
 

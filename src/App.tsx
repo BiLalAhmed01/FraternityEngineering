@@ -10,7 +10,6 @@ import type { ContactRef } from "./components/Contact";
 import { MobileFloatingCta } from "./components/MobileFloatingCta";
 import { WhatsAppBubble } from "./components/WhatsAppBubble";
 import { CookieConsent } from "./components/CookieConsent";
-import { FilmGrain } from "./components/FilmGrain";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { getServicePage } from "./servicesData";
@@ -55,9 +54,6 @@ function Routes() {
 
   return (
     <SmoothScroll>
-
-      {/* 2. Fine Film-Grain Overlay (3% opacity) */}
-      <FilmGrain />
 
       <div className="min-h-screen bg-bg text-fg font-body flex flex-col selection:bg-surface-2 selection:text-fg overflow-x-clip">
         {/* Fixed navbar: transparent over the hero, solid navy once scrolled */}

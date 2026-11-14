@@ -114,7 +114,7 @@ try {
   const cssHref = indexHtml.match(/href="(\/assets\/index-[^"]+\.css)"/)?.[1];
 
   const shell = ({ title, desc, canonical, bodyHtml }) => `<!doctype html>
-<html lang="en-PK" dir="ltr">
+<html lang="en-PK" dir="ltr" data-theme="daylight">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -125,7 +125,7 @@ try {
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
     <link rel="preload" href="/assets/fonts/barlow-400-latin.woff2" as="font" type="font/woff2" crossorigin />
     <meta name="theme-color" content="#091324" />
-    <script>(function(){try{if(localStorage.getItem("fte_theme")==="daylight")document.documentElement.setAttribute("data-theme","daylight")}catch(e){}})()</script>
+    <script>(function(){var r=document.documentElement;r.setAttribute("data-theme","daylight");try{if(localStorage.getItem("fte_theme")==="dark")r.removeAttribute("data-theme")}catch(e){}})()</script>
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${desc}" />
     <meta property="og:url" content="${canonical}" />

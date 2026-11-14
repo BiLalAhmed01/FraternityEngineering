@@ -4,7 +4,7 @@ import { Phone } from "lucide-react";
 import { SITE_CONTENT } from "../content";
 import { Reveal } from "./Reveal";
 
-const label = "text-[12px] font-semibold uppercase tracking-[0.12em] text-label";
+const label = "text-[13px] font-semibold text-label";
 
 /** True from 768px up; false on the server. */
 const useMinWidthMd = () => {

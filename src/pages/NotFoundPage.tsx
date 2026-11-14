@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SERVICE_PAGES, serviceUrl } from "../servicesData";
+import { StatusPage, statusBtn } from "../components/StatusPage";
 
 export const NotFoundPage: React.FC = () => {
   useEffect(() => {
@@ -13,40 +14,39 @@ export const NotFoundPage: React.FC = () => {
   }, []);
 
   return (
-    <main className="theme-dark cad-grid min-h-screen bg-midnight text-fg flex items-center justify-center px-4 py-16 relative overflow-hidden">
-      <div className="relative max-w-lg text-center">
-        <img src="/assets/logo.webp" alt="Fraternity Engineering & Co." width={177} height={64} className="h-16 w-auto mx-auto mb-8" />
-        <p className="font-heading font-bold text-7xl text-fg-subtle leading-none">404</p>
-        <h1 className="font-heading font-bold text-2xl mt-4">Page not found</h1>
-        <p className="text-fg-muted mt-3 mb-8">The page you are looking for does not exist or has moved.</p>
-        <a
-          href="/"
-          className="inline-flex items-center justify-center gap-2 min-h-[44px] px-8 py-4 bg-accent hover:bg-accent-hover text-on-accent font-bold text-sm uppercase tracking-wider rounded-[4px] transition-colors"
-        >
-          <span>Back to homepage</span>
-          <ArrowRight className="w-4 h-4" aria-hidden="true" />
-        </a>
-        <ul className="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-1">
-          <li>
-            <a
-              href="/#contact"
-              className="inline-flex items-center min-h-[44px] text-sm text-fg hover:underline hover:underline-offset-4 underline-offset-4 hover:underline"
-            >
-              Contact us
-            </a>
-          </li>
+    <StatusPage
+      code="404"
+      title="This page does not exist"
+      message="The address may be mistyped, or the page has moved. Start from the homepage or go straight to a service."
+      actions={
+        <>
+          <a href="/" className={statusBtn}>
+            <span>Back to homepage</span>
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </a>
+          <a
+            href="/#contact"
+            className="inline-flex items-center min-h-[48px] text-sm font-semibold text-white underline underline-offset-8 decoration-line-strong hover:decoration-accent transition-colors"
+          >
+            Contact us
+          </a>
+        </>
+      }
+      links={
+        <ul className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
           {SERVICE_PAGES.map((s) => (
             <li key={s.slug}>
               <a
                 href={serviceUrl(s.slug)}
-                className="inline-flex items-center min-h-[44px] text-sm text-fg hover:underline hover:underline-offset-4 underline-offset-4 hover:underline"
+                className="group flex items-center justify-between gap-3 min-h-[56px] px-5 bg-navy border border-line hover:border-accent transition-colors text-white"
               >
-                {s.name}
+                <span className="font-medium">{s.name}</span>
+                <ArrowUpRight className="w-4 h-4 shrink-0 text-fg-subtle group-hover:text-accent transition-colors" aria-hidden="true" />
               </a>
             </li>
           ))}
         </ul>
-      </div>
-    </main>
+      }
+    />
   );
 };

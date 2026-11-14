@@ -40,7 +40,7 @@ export const ClientsMarquee: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-[clamp(20px,5vw,64px)]">
         <Reveal className="text-center">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-fg-muted">Trusted by</p>
+          <p className="text-[13px] font-semibold text-fg-muted">Trusted by</p>
           <h2
             id="clients-title"
             className="mt-3 font-heading font-medium text-[28px] md:text-[36px] leading-tight tracking-tight text-fg [text-wrap:balance]"

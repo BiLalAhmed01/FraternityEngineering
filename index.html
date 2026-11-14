@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en-PK" dir="ltr">
+<html lang="en-PK" dir="ltr" data-theme="daylight">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#091324" />
     <meta name="color-scheme" content="dark light" />
-    <!-- Theme: dark by default; applies a saved Daylight choice before first paint. Its sha256 is in the CSP in vercel.json. -->
-    <script>(function(){try{if(localStorage.getItem("fte_theme")==="daylight")document.documentElement.setAttribute("data-theme","daylight")}catch(e){}})()</script>
+    <!-- Theme: Daylight by default; a saved Dark choice is applied before first paint. Its sha256 is in the CSP in vercel.json. -->
+    <script>(function(){var r=document.documentElement;r.setAttribute("data-theme","daylight");try{if(localStorage.getItem("fte_theme")==="dark")r.removeAttribute("data-theme")}catch(e){}})()</script>
     <!-- Splash: this inline script adds html.splash-active on the first homepage visit of a session. Its sha256 is in the
          Content-Security-Policy in vercel.json; if you edit the script, update the hash there. -->
     <script>(function(){var d=document.documentElement;try{if(location.pathname!=="/"||sessionStorage.getItem("fte_splash_seen"))return;d.classList.add("splash-active");var m=matchMedia("(max-width:767px),(orientation:portrait)").matches,a=["/assets/logo.webp","/assets/splash/splash-poster"+(m?"-mobile":"")+".webp"],i,l;for(i=0;i<2;i++){l=document.createElement("link");l.rel="preload";l.as="image";l.href=a[i];document.head.appendChild(l)}setTimeout(function(){d.hasAttribute("data-fs")||d.classList.remove("splash-active")},5e3)}catch(e){}})()</script>
